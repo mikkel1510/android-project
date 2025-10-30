@@ -1,0 +1,16 @@
+.gradle/
+.idea/
+**/build/
+local.properties
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+*.log
+*.tmp
+*.apk
+*.keystore
+*.jks
+compose-snapshots/
+
