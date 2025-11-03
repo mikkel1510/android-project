@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.graphics.Color;
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -27,11 +27,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
@@ -62,6 +64,14 @@ fun PersonList(members: List<MemberViewModel.Member>) {
 @Composable
 fun Person(member: MemberViewModel.Member){
     val vm: MemberViewModel = viewModel()
+    val dialogOpen = remember { mutableStateOf(false) }
+
+    RemoveMemberDialog(      //TODO: Should be on the screen instead of every individual person
+        active = dialogOpen.value,
+        onDismissRequest = { dialogOpen.value = false },
+        onConfirmation = { vm.removePerson(member.id) },
+        memberName = member.name
+    )
     Row(modifier = Modifier
         .padding(10.dp)
         .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
@@ -79,7 +89,7 @@ fun Person(member: MemberViewModel.Member){
             member.name
         )
         Button(
-            onClick = { vm.removePerson(member.id) }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            onClick = { dialogOpen.value = true }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
             modifier = Modifier
                 .width(100.dp)){
             Text("Remove")
@@ -117,6 +127,42 @@ fun AddMemberBar(onAddMember: (String) -> Unit, modifier: Modifier = Modifier){
     }
 }
 
+@Composable
+fun RemoveMemberDialog(
+    active: Boolean,
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    memberName: String
+){
+    if (!active) return
+    AlertDialog(
+        title = {
+            Text("Confirm removal")
+        },
+        text = {
+            Row {
+                Text("Remove ")
+                Text(memberName, fontWeight = FontWeight.Bold)
+                Text("?")
+            }
+
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            Button(onClick = { onConfirmation() }) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            Button({ onDismissRequest() }) {
+                Text("No")
+            }
+        }
+        )
+}
+
 
 @Composable
 fun MembersScreen(vm: MemberViewModel = viewModel()){
@@ -139,6 +185,11 @@ fun MembersScreen(vm: MemberViewModel = viewModel()){
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
+    val vm: MemberViewModel = viewModel()
+    vm.addPerson("Bob")
+    vm.addPerson("Pete")
+    vm.addPerson("Steve")
+
     GimmeDaMoneyTheme {
         MembersScreen()
     }
