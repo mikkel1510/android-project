@@ -11,8 +11,6 @@ class MemberViewModel : ViewModel() {
     private val _members = mutableStateListOf<Member>()
     val members: List<Member> get() = _members;
 
-
-
     fun addPerson(name: String){
         if (name.isBlank()) return
         _members.add(Member(name = name.trim()))
