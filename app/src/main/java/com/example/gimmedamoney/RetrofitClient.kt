@@ -9,7 +9,7 @@ import kotlin.jvm.java
 class RetrofitClient {
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://swapi.dev/api/")
+            .baseUrl("https://raw.githubusercontent.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

@@ -11,14 +11,10 @@ class MemberViewModel() : ViewModel() {
         val id: String = UUID.randomUUID().toString(),
         val name: String
     )
-
     private val retrofitClient = RetrofitClient()
 
     private val _members = mutableStateListOf<Member>()
-    private val _swapiMembers = mutableStateListOf<SwapiPerson>()
     val members: List<Member> get() = _members
-
-    val swapiMembers: List<SwapiPerson> get() = _swapiMembers
 
     init {
         fetchMembers()
@@ -36,8 +32,9 @@ class MemberViewModel() : ViewModel() {
     fun fetchMembers(){
         viewModelScope.launch {
             val response = retrofitClient.api.getPeople()
-            _swapiMembers.clear()
-            _swapiMembers.addAll(response.results)
+            val mapped = response.map { Member(it.id, it.name) }
+            _members.clear()
+            _members.addAll(mapped)
         }
     }
 }

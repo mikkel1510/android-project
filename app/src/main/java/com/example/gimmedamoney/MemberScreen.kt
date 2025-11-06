@@ -43,13 +43,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 @Composable
-fun PersonList(members: List<MemberViewModel.Member>, swapiMembers: List<SwapiPerson>) {
+fun PersonList(members: List<MemberViewModel.Member>) {
     Column {
         members.forEach { member ->
            PersonBar(member)
-        }
-        swapiMembers.forEach { member ->
-            Text(member.name)
         }
     }
 }
@@ -194,7 +191,7 @@ fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            PersonList(vm.members, vm.swapiMembers)
+            PersonList(vm.members)
             AddMemberBar(onAddMember = {name -> vm.addPerson(name)})
         }
     }
