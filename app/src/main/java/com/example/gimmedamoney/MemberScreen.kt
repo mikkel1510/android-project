@@ -48,8 +48,8 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 @Composable
 fun PersonList(members: List<MemberViewModel.Member>) {
     Column {
-        for(member in members){
-            PersonBar(member)
+        members.forEach { member ->
+           // PersonBar(member)
         }
     }
 }
