@@ -6,11 +6,19 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class MemberViewModel(private val retrofitClient: RetrofitClient) : ViewModel() {
-    data class Member(val id: String = UUID.randomUUID().toString(), val name: String)
+class MemberViewModel() : ViewModel() {
+    data class Member(
+        val id: String = UUID.randomUUID().toString(),
+        val name: String
+    )
+
+    private val retrofitClient = RetrofitClient()
 
     private val _members = mutableStateListOf<Member>()
-    val members: List<Member> get() = _members;
+    private val _swapiMembers = mutableStateListOf<SwapiPerson>()
+    val members: List<Member> get() = _members
+
+    val swapiMembers: List<SwapiPerson> get() = _swapiMembers
 
     init {
         fetchMembers()
@@ -28,8 +36,8 @@ class MemberViewModel(private val retrofitClient: RetrofitClient) : ViewModel() 
     fun fetchMembers(){
         viewModelScope.launch {
             val response = retrofitClient.api.getPeople()
-            _members.clear()
-            _members.addAll(response)
+            _swapiMembers.clear()
+            _swapiMembers.addAll(response.results)
         }
     }
 }
