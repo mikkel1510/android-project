@@ -17,10 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMemberScreen(onBackPressed: () -> Unit) {
+fun AddMemberScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -30,7 +31,7 @@ fun AddMemberScreen(onBackPressed: () -> Unit) {
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onBackPressed() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
@@ -50,8 +51,10 @@ fun AddMemberScreen(onBackPressed: () -> Unit) {
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun AddMemberPreview() {
     AddMemberScreen(onBackPressed = {})
 }
+*/

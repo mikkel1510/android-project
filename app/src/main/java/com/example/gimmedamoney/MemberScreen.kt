@@ -39,8 +39,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 @Composable
@@ -157,7 +159,7 @@ fun RemoveMemberDialog(
 
 @OptIn(ExperimentalMaterial3Api::class) //TODO: Maybe choose another version
 @Composable
-fun MembersScreen(vm: MemberViewModel = viewModel(), onAddMembers: () -> Unit, onBackPressed: () -> Unit){
+fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel()){
     Scaffold (
         topBar = {
             TopAppBar(
@@ -167,7 +169,7 @@ fun MembersScreen(vm: MemberViewModel = viewModel(), onAddMembers: () -> Unit, o
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onBackPressed() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
@@ -175,7 +177,7 @@ fun MembersScreen(vm: MemberViewModel = viewModel(), onAddMembers: () -> Unit, o
                     }
                 },
                 actions = {
-                    IconButton(onClick = { onAddMembers() }) {
+                    IconButton(onClick = { navController.navigate("addMember") }) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add new member",
@@ -198,6 +200,7 @@ fun MembersScreen(vm: MemberViewModel = viewModel(), onAddMembers: () -> Unit, o
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun MemberScreenPreview() {
@@ -207,7 +210,7 @@ fun MemberScreenPreview() {
     vm.addPerson("Steve")
 
     GimmeDaMoneyTheme {
-        MembersScreen(onAddMembers = {}, onBackPressed = {})
+        MembersScreen()
     }
-
 }
+*/

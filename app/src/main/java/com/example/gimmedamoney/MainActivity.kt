@@ -20,18 +20,17 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable("home") {
                     HomeScreen(
-                        onMembersClicked = { nav.navigate("members") }
+                        navController = nav,
                     )
                 }
                 composable("members") {
                     MembersScreen(
-                        onAddMembers = { nav.navigate("addMember") },
-                        onBackPressed = { nav.popBackStack() }
+                        navController = nav,
                     )
                 }
                 composable("addMember") {
                     AddMemberScreen(
-                        onBackPressed = { nav.popBackStack() }
+                        navController = nav,
                     )
                 }
             }
