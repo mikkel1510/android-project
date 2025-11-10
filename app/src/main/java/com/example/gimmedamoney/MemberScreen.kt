@@ -43,7 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 @Composable
-fun PersonList(members: List<MemberViewModel.Member>) {
+fun PersonList(members: List<UserViewModel.User>) {
     Column {
         members.forEach { member ->
            PersonBar(member)
@@ -52,14 +52,14 @@ fun PersonList(members: List<MemberViewModel.Member>) {
 }
 
 @Composable
-fun PersonBar(member: MemberViewModel.Member){
+fun PersonBar(member: UserViewModel.User){
     val vm: MemberViewModel = viewModel()
     val dialogOpen = remember { mutableStateOf(false) }
 
     RemoveMemberDialog(      //TODO: Should be on the screen instead of every individual person
         active = dialogOpen.value,
         onDismissRequest = { dialogOpen.value = false },
-        onConfirmation = { vm.removePerson(member.id) },
+        onConfirmation = { vm.removePerson(member) },
         memberName = member.name
     )
     Row(modifier = Modifier
@@ -192,7 +192,7 @@ fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PersonList(vm.members)
-            AddMemberBar(onAddMember = {name -> vm.addPerson(name)})
+            //AddMemberBar(onAddMember = {name -> vm.addPerson(name)})
         }
     }
 }

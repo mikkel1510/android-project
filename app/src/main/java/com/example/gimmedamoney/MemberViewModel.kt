@@ -13,26 +13,29 @@ class MemberViewModel() : ViewModel() {
     )
     private val retrofitClient = RetrofitClient()
 
-    private val _members = mutableStateListOf<Member>()
-    val members: List<Member> get() = _members
+    private val _members = mutableStateListOf<UserViewModel.User>()
+    val members: List<UserViewModel.User> get() = _members
 
     init {
         fetchMembers()
     }
 
-    fun addPerson(name: String){
-        if (name.isBlank()) return
-        _members.add(Member(name = name.trim()))
+    fun addPerson(user: UserViewModel.User){
+        _members.add(user)
     }
 
-    fun removePerson(id: String) {
-        _members.removeAll { it.id == id }
+    fun addMembers(members: List<UserViewModel.User>){
+        _members.addAll(members)
+    }
+
+    fun removePerson(user: UserViewModel.User) {
+        _members.remove(user)
     }
 
     fun fetchMembers(){
         viewModelScope.launch {
-            val response = retrofitClient.api.getPeople()
-            val mapped = response.map { Member(it.id, it.name) }
+            val response = retrofitClient.api.getUsers()
+            val mapped = response.map { UserViewModel.User(it.id, it.name) }
             _members.clear()
             _members.addAll(mapped)
         }

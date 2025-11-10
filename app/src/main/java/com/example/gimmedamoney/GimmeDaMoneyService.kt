@@ -13,5 +13,5 @@ interface GimmeDaMoneyService {
     */
 
     @GET("mikkel1510/android-project/refs/heads/http/data.json")
-    suspend fun getPeople(): List<ApiResponse>
+    suspend fun getUsers(): List<ApiResponse>
 }

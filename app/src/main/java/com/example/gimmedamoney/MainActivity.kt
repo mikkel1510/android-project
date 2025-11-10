@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myapp.members.AddMemberScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("addMember") {
                     AddMemberScreen(
-                        navController = nav,
+                        { nav.popBackStack() }
                     )
                 }
             }
