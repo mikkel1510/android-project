@@ -17,11 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMemberScreen(navController: NavController) {
+fun AddMemberScreen(onBackPress: () -> Unit, vm: MemberViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -31,7 +32,7 @@ fun AddMemberScreen(navController: NavController) {
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { onBackPress() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
