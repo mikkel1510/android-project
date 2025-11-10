@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -76,12 +77,17 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AddMemberBar(search = {})
+            var searchQuery by remember { mutableStateOf("") }
+            SearchBar({ query -> searchQuery = query })
 
             val selectedUsers = remember { mutableStateListOf<User>() }
             val addedUsers = remember { mutableStateListOf<User>() }
 
-            UserList(userVM.users, memberVM.members, selectedUsers)
+            val filtered = userVM.users.filter{ user ->
+                user.name.startsWith(searchQuery, ignoreCase = true)
+            }
+
+            UserList(filtered, memberVM.members, selectedUsers, )
             Button(onClick = {
                 memberVM.addMembers(selectedUsers);
                 addedUsers.clear()
@@ -105,10 +111,10 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
 }
 
 @Composable
-fun AddMemberBar(search: (String) -> Unit, modifier: Modifier = Modifier){
-    var query by rememberSaveable() { mutableStateOf("") }
+fun SearchBar(updateQuery: (String) -> Unit){
+    var query by rememberSaveable { mutableStateOf("") }
 
-    Row (modifier
+    Row (Modifier
         .fillMaxWidth()
         .padding(12.dp)
         .height(75.dp),
@@ -117,7 +123,7 @@ fun AddMemberBar(search: (String) -> Unit, modifier: Modifier = Modifier){
     ){
         OutlinedTextField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = { query = it; updateQuery(query) },
             label = { Text("Phone or email") },
             singleLine = true,
             modifier = Modifier
@@ -125,7 +131,7 @@ fun AddMemberBar(search: (String) -> Unit, modifier: Modifier = Modifier){
                 .heightIn(min = 56.dp)
         )
         Button(
-            onClick = { search(query); query = "" },
+            onClick = { },
             modifier = Modifier
                 .width(75.dp)
         ) {
@@ -135,9 +141,14 @@ fun AddMemberBar(search: (String) -> Unit, modifier: Modifier = Modifier){
 }
 
 @Composable
-fun UserList(users: List<User>, members: List<User>, selectedUsers: MutableList<User>){
+fun UserList(
+    users: List<User>,
+    members: List<User>,
+    selectedUsers: MutableList<User>,
+){
     Column {
         users.forEach { user ->
+
             if (!members.contains(user)){
                 UserCard(user, {
                     if (selectedUsers.contains(user)) selectedUsers.remove(user)
@@ -165,7 +176,7 @@ fun UserCard(user: User, onSelect: () -> Unit){
         .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
         .padding(10.dp)
         .width(250.dp)
-        .clickable{ onSelect(); selected = !selected },
+        .clickable { onSelect(); selected = !selected },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ){
