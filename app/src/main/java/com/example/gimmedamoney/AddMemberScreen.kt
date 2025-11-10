@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.UserViewModel.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,8 +78,8 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
         ) {
             AddMemberBar(search = {})
 
-            val selectedUsers = remember { mutableStateListOf<UserViewModel.User>() }
-            val addedUsers = remember { mutableStateListOf<UserViewModel.User>() }
+            val selectedUsers = remember { mutableStateListOf<User>() }
+            val addedUsers = remember { mutableStateListOf<User>() }
 
             UserList(userVM.users, memberVM.members, selectedUsers)
             Button(onClick = {
@@ -134,7 +135,7 @@ fun AddMemberBar(search: (String) -> Unit, modifier: Modifier = Modifier){
 }
 
 @Composable
-fun UserList(users: List<UserViewModel.User>, members: List<UserViewModel.User>, selectedUsers: MutableList<UserViewModel.User>){
+fun UserList(users: List<User>, members: List<User>, selectedUsers: MutableList<User>){
     Column {
         users.forEach { user ->
             if (!members.contains(user)){
@@ -148,7 +149,7 @@ fun UserList(users: List<UserViewModel.User>, members: List<UserViewModel.User>,
 }
 
 @Composable
-fun UserCard(user: UserViewModel.User, onSelect: () -> Unit){
+fun UserCard(user: User, onSelect: () -> Unit){
 
     var selected by remember { mutableStateOf(false) }
     val borderColor: Color
@@ -178,6 +179,7 @@ fun UserCard(user: UserViewModel.User, onSelect: () -> Unit){
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

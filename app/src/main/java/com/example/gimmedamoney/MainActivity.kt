@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.myapp.members.AddMemberScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
 
                 composable("home") {
                     HomeScreen(
-                        { nav.navigate("members_flow") },
+                        { nav.navigate("chat_flow") },
                         { nav.navigate("createGroupScreen") }
                     )
                 }
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-                navigation(startDestination = "groupChat", route = "chat_flow"){
+                navigation(startDestination = "members", route = "chat_flow"){ //Change startDestination to groupChat
 
                     composable("groupChat") { backStackEntry ->
                         val parentEntry = remember(backStackEntry) {
@@ -83,7 +84,7 @@ class MainActivity : ComponentActivity() {
                         val vm: MemberViewModel = viewModel(parentEntry)
                         AddMemberScreen(
                             { nav.popBackStack() },
-                            vm = vm
+                            memberVM = vm,
                         )
                     }
                 }

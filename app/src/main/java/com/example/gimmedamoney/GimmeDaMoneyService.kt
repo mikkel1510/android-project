@@ -12,6 +12,6 @@ interface GimmeDaMoneyService {
     suspend fun getPerson(@Path("id") personId: Int): MemberViewModel.Member
     */
 
-    @GET("mikkel1510/android-project/refs/heads/http/data.json")
+    @GET("mikkel1510/android-project/refs/heads/main/data.json")
     suspend fun getUsers(): List<ApiResponse>
 }

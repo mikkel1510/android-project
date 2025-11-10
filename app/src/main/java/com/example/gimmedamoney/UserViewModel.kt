@@ -31,6 +31,7 @@ class UserViewModel : ViewModel() {
             val mapped = response.map { User(it.id, it.name) }
             _users.clear()
             _users.addAll(mapped)
+            print(_users)
         }
     }
 }
