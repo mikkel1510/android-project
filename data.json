@@ -1,22 +1,27 @@
 [
   {
-    "id": "a2e3b1b9-84a3-42c0-bdf1-0a8d9f347f0f",
-    "name": "Luke Skywalker"
+    "id": "1",
+    "name": "Luke Skywalker",
+    "email": "luke@gmail.com"
   },
   {
-    "id": "bd3b2f28-1f9c-45e6-9e47-7f31cbf5c72a",
-    "name": "Leia Organa"
+    "id": "2",
+    "name": "Leia Organa",
+    "email": "leia@email.com"
   },
   {
-    "id": "c89b40e3-4a0d-4c44-b8d9-2ef7de11b0c1",
-    "name": "Han Solo"
+    "id": "3",
+    "name": "Han Solo",
+    "email": "solo@hotmail.com"
   },
   {
-    "id": "e6ab2b16-3ffb-4a6f-a612-2e0f4e2a7db3",
-    "name": "Chewbacca"
+    "id": "4",
+    "name": "Chewbacca",
+    "email": "wookiecookies@yahoo.com"
   },
   {
-    "id": "f2d58c61-9935-4e23-a0d5-61a7a2330b9a",
-    "name": "Obi-Wan Kenobi"
+    "id": "5",
+    "name": "Obi-Wan Kenobi",
+    "email": "hellothere@email.com"
   }
 ]
