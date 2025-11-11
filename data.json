@@ -2,26 +2,31 @@
   {
     "id": "1",
     "name": "Luke Skywalker",
-    "email": "luke@gmail.com"
+    "email": "luke@gmail.com",
+    "phone": "12345678"
   },
   {
     "id": "2",
     "name": "Leia Organa",
-    "email": "leia@email.com"
+    "email": "leia@email.com",
+    "phone": "87654321"
   },
   {
     "id": "3",
     "name": "Han Solo",
-    "email": "solo@hotmail.com"
+    "email": "solo@hotmail.com",
+    "phone": "12873465"
   },
   {
     "id": "4",
     "name": "Chewbacca",
-    "email": "wookiecookies@yahoo.com"
+    "email": "wookiecookies@yahoo.com",
+    "phone": "45362718"
   },
   {
     "id": "5",
     "name": "Obi-Wan Kenobi",
-    "email": "hellothere@email.com"
+    "email": "hellothere@email.com",
+    "phone": "41527386"
   }
 ]
