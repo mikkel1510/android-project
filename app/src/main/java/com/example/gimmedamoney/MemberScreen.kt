@@ -38,9 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 @Composable
 fun PersonList(members: List<MemberViewModel.Member>) {
@@ -156,7 +158,7 @@ fun RemoveMemberDialog(
 
 @OptIn(ExperimentalMaterial3Api::class) //TODO: Maybe choose another version
 @Composable
-fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel()){
+fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberViewModel = viewModel()){
     Scaffold (
         topBar = {
             TopAppBar(
@@ -166,7 +168,7 @@ fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel(
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { onBackPress() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
@@ -174,7 +176,7 @@ fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate("addMember") }) {
+                    IconButton(onClick = { onAddMember() }) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add new member",
@@ -197,7 +199,7 @@ fun MembersScreen(navController: NavController, vm: MemberViewModel = viewModel(
     }
 }
 
-/*
+
 @Preview(showBackground = true)
 @Composable
 fun MemberScreenPreview() {
@@ -207,7 +209,6 @@ fun MemberScreenPreview() {
     vm.addPerson("Steve")
 
     GimmeDaMoneyTheme {
-        MembersScreen()
+        MembersScreen({}, {})
     }
 }
-*/
