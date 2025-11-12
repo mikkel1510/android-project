@@ -15,20 +15,26 @@ class UserViewModel : ViewModel() {
 
     data class User(
         val id: String,
-        val name: String
+        val name: String,
+        val email: String,
+        val phone: String
     )
 
     private val _users = mutableStateListOf<User>()
     val users: List<User> get() = _users
 
-    fun addUser(id: String, name: String){
-        _users.add(User(id, name))
+    fun addUser(id: String, name: String, email: String, phone: String){
+        _users.add(User(id, name, email, phone))
+    }
+
+    fun addUser(user: User){
+        _users.add(user)
     }
 
     fun fetchUsers(){
         viewModelScope.launch {
             val response = retrofitClient.api.getUsers()
-            val mapped = response.map { User(it.id, it.name) }
+            val mapped = response.map { User(it.id, it.name, it.email, it.phone) }
             _users.clear()
             _users.addAll(mapped)
             print(_users)

@@ -169,9 +169,9 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
 @Composable
 fun MemberScreenPreview() {
     val vm: MemberViewModel = viewModel()
-    vm.addMember(User("1", "Bob"))
-    vm.addMember(User("2", "Steve"))
-    vm.addMember(User("3", "Joe"))
+    vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
+    vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
+    vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
 
     MembersScreen({}, {})
 

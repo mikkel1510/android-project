@@ -5,13 +5,15 @@ interface GimmeDaMoneyService {
 
     data class ApiResponse(
         val id: String,
-        val name: String
+        val name: String,
+        val email: String,
+        val phone: String
     )
 
     /*@GET("people/{id}") //
     suspend fun getPerson(@Path("id") personId: Int): MemberViewModel.Member
     */
 
-    @GET("mikkel1510/android-project/refs/heads/main/data.json")
+    @GET("mikkel1510/android-project/refs/heads/add-members/data.json")
     suspend fun getUsers(): List<ApiResponse>
 }
