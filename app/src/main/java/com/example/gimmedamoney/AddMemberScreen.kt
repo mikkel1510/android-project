@@ -1,6 +1,5 @@
 package com.example.myapp.members
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
-import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.UserViewModel.User
 
@@ -80,8 +81,10 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
         Column(
             Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             var searchQuery by remember { mutableStateOf("") }
             SearchBar({ query -> searchQuery = query })
@@ -94,8 +97,9 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
                         user.phone.startsWith(searchQuery, ignoreCase = true)
             }
 
-            if (searchQuery.isNotEmpty()){
-                UserList(filtered, memberVM.members, selectedUsers, )
+
+            if (searchQuery.length >= 3){
+                UserList(filtered, memberVM.members, selectedUsers)
             }
 
             if (selectedUsers.isNotEmpty()){
@@ -103,8 +107,8 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
                     memberVM.addMembers(selectedUsers);
                     addedUsers.clear()
                     addedUsers.addAll(selectedUsers)
-                }) {
-                    Text("Add selected users")
+                }, Modifier.width(250.dp).height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
+                    Text("Add selected users", fontSize = 20.sp)
                 }
             }
 
@@ -126,6 +130,12 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
 fun SearchBar(updateQuery: (String) -> Unit){
     var query by rememberSaveable { mutableStateOf("") }
 
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Row (Modifier
         .fillMaxWidth()
         .padding(12.dp)
@@ -138,9 +148,16 @@ fun SearchBar(updateQuery: (String) -> Unit){
             onValueChange = { query = it; updateQuery(query) },
             label = { Text("Phone or email") },
             singleLine = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search icon"
+                )
+            },
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 56.dp)
+                .focusRequester(focusRequester)
         )
     }
 }
@@ -155,9 +172,9 @@ fun UserList(
         Modifier
             .clip(
                 RoundedCornerShape(12.dp)
-            )
-            .background(Color.LightGray),
-        horizontalAlignment = Alignment.CenterHorizontally
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
         items(
             items = users,
@@ -167,50 +184,80 @@ fun UserList(
                 UserCard(user, {
                     if (selectedUsers.contains(user)) selectedUsers.remove(user)
                     else selectedUsers.add(user)
-                })
+                }, selectedUsers.contains(user))
             }
         }
     }
 }
 
 @Composable
-fun UserCard(user: User, onSelect: () -> Unit){
+fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
 
-    var selected by remember { mutableStateOf(false) }
+    //var isSelected by remember { mutableStateOf(false) }
     val borderColor: Color
 
-    if (selected){
+    if (isSelected){
         borderColor = Color.Blue
     } else {
-        borderColor = Color.White
+        borderColor = Color.LightGray
     }
 
     Row(modifier = Modifier
-        .padding(10.dp)
-        .width(250.dp)
-        .clickable { onSelect(); selected = !selected }
-        .clip(RoundedCornerShape(8.dp))
-        .background(Color.White)
-        .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
-        .padding(10.dp),
+        .fillMaxWidth()
+        .clickable { onSelect(); /*isSelected = !isSelected*/ }
+        .clip(RoundedCornerShape(16.dp))
+        .background(Color.LightGray)
+        .border(width = 3.dp, color = borderColor, shape = RoundedCornerShape(16.dp))
+        .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ){
-        Image(
-            modifier = Modifier.size(50.dp),
-            painter = painterResource(id = R.drawable.user_icon),
-            contentDescription = "User icon"
+
+
+        Icon(
+            imageVector = Icons.Filled.AccountCircle,
+            contentDescription = "Go back",
+            tint = Color.White,
+            modifier = Modifier.size(70.dp)
         )
+
         Column(
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ){
-            Text(
-                user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp
-            )
-            Text(user.email)
-            Text(user.phone)
+            Row{
+                Text(
+                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = Color.Black
+                )
+            }
+            val maskedEmail = maskEmail(email = user.email)
+            Column{
+                Text(maskedEmail, color = Color.Black)
+
+                Row{
+                    Text(user.phone.substring(0, 2), color = Color.Black)
+                    Text("****", color = Color.Black)
+                    Text(user.phone.substring(6), color = Color.Black)
+
+                }
+
+            }
         }
     }
+}
+
+fun maskEmail(email: String): String{
+    val parts = email.split("@")
+
+    val username = parts[0]
+    val domain = parts[1]
+
+    val maskedUsername = when {
+        username.length <= 2 -> username.first() + "*"
+        else -> username.take(2) + "*".repeat(username.length - 2)
+    }
+
+    return "$maskedUsername@$domain"
 }
 
 
@@ -227,19 +274,17 @@ fun AddMemberPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun UserCardPreview(){
-    val userVM: UserViewModel = viewModel()
-    val memberVM: MemberViewModel = viewModel()
-    val selectedUsers = remember { mutableStateListOf<User>() }
-
+fun UserListPreview() {
     val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
     val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
     val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+    val users =  listOf(user, user2, user3)
 
-    userVM.addUser(user)
-    userVM.addUser(user2)
-    userVM.addUser(user3)
+    val members = listOf<User>()
 
-    UserList(userVM.users, memberVM.members, selectedUsers)
+    val selectedUsers: MutableList<User> = listOf(user).toMutableList()
+
+    UserList(users, members, selectedUsers)
 
 }
+
