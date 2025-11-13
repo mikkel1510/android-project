@@ -21,28 +21,25 @@ class MainActivity : ComponentActivity() {
             val nav = rememberNavController()
             NavHost(
                 navController = nav,
-                startDestination = "home",
+                startDestination = "chat_flow",
             ) {
 
-                composable("home") {
-                    HomeScreen(
-                        { nav.navigate("chat_flow") },
-                        { nav.navigate("createGroupScreen") },
-                    )
-                }
+                navigation(startDestination = "home", route = "chat_flow"){ //Change startDestination to groupChat
 
-                composable("createGroupScreen") {
-                    CreateGroupScreen(
-                    { nav.popBackStack() },
-                    { nav.navigate("groupChat") }
-                    )
+                    composable("home") {
+                        HomeScreen(
+                            { nav.navigate("members") },
+                            { nav.navigate("createGroupScreen") },
+                        )
+                    }
 
-                }
+                    composable("createGroupScreen") {
+                        CreateGroupScreen(
+                        { nav.popBackStack() },
+                        { nav.navigate("groupChat") }
+                        )
 
-
-
-                navigation(startDestination = "members", route = "chat_flow"){ //Change startDestination to groupChat
-
+                    }
                     composable("groupChat") { backStackEntry ->
                         val parentEntry = remember(backStackEntry) {
                             nav.getBackStackEntry("chat_flow")

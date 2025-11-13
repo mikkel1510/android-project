@@ -1,5 +1,6 @@
 package com.example.gimmedamoney
 
+import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Group
@@ -29,11 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.BuildConfig
+import com.example.gimmedamoney.GroupViewModel.Group
+import com.example.gimmedamoney.GroupViewModel
+import com.example.gimmedamoney.UserViewModel.User
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +46,17 @@ fun HomeScreen(
     onCreateGroup: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
+
+    //Dummy group
+    val dummyGroup = Group("1","dummy", members = listOf())
+    if (vm.groups.isEmpty()){
+        vm.addGroup(dummyGroup)
+    }
+    val summary = GroupSummary(id = "1", name = "dummysummary")
+    if (vm.groupSummaries.isEmpty()){
+        vm.addGroupSummary(summary)
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -83,7 +97,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(vm.groups, key = { it.id }) { g ->
+                    items(vm.groupSummaries, key = { it.id }) { g ->
                         GroupCard(
                             group = g,
                             onClick = onMembersPress
@@ -119,7 +133,7 @@ private fun GroupCard(
                 .background(Color(0xFFEDEEF2))
         ) {
             Image(
-                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                painter = painterResource(id = R.drawable.ic_menu_gallery),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -140,7 +154,7 @@ private fun GroupCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    Icons.Outlined.ReceiptLong,
+                    Icons.AutoMirrored.Outlined.ReceiptLong,
                     null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -3,17 +3,21 @@ package com.example.gimmedamoney
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import java.util.UUID
+import com.example.gimmedamoney.UserViewModel.User
 
 class GroupViewModel : ViewModel() {
     data class Group(
         val id: String = UUID.randomUUID().toString(),
         val name: String,
-        val imageUri: String? = null
+        val imageUri: String? = null,
+        val members: List<User>? = null
     )
     private val _groups = mutableStateListOf<Group>()
     val groups: List<Group> get() = _groups;
+
     private val _groupSummaries = mutableStateListOf<GroupSummary>()
-    val groupSummaries: List<GroupSummary> get() = _groups
+    val groupSummaries: List<GroupSummary> get() = _groupSummaries
+
 
     fun addGroupSummary(g: GroupSummary) = _groupSummaries.add(g)
     fun clear() = _groups.clear()
@@ -24,6 +28,11 @@ class GroupViewModel : ViewModel() {
         _groups.add(newGroup)
         return newGroup
     }
+
+    fun addGroup(group: Group){
+        _groups.add(group)
+    }
+
     fun removeGroup(id: String) {
         _groups.removeAll {it.id == id}
     }
