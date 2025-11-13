@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 @Composable
 fun HomeScreen(
     onMembersPress: () -> Unit,
-    onCreateGroup: () -> Unit
+    onCreateGroup: () -> Unit,
 ){
     Scaffold { innerPadding ->
         CenterAlignedTopAppBar(
@@ -52,5 +52,5 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview(){
-    HomeScreen({}, {} )
+    HomeScreen({}, {})
 }

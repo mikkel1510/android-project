@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.UserViewModel.User;
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +109,7 @@ fun RequestScreen(
 }
 
 @Composable
-fun GroupList(members: List<MemberViewModel.Member>) {
+fun GroupList(members: List<User>) {
     LazyColumn (
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -120,7 +121,7 @@ fun GroupList(members: List<MemberViewModel.Member>) {
 }
 
 @Composable
-fun GroupBar(member: MemberViewModel.Member){
+fun GroupBar(member: User){
 
     Row(
         modifier = Modifier
@@ -147,13 +148,13 @@ fun GroupBar(member: MemberViewModel.Member){
 fun RequestScreenPreview()  {
     val vm: MemberViewModel = viewModel()
 
-    vm.addPerson("Bob")
-    vm.addPerson("Pete")
-    vm.addPerson("Steve")
-    vm.addPerson("hj")
-    vm.addPerson("blob")
-    vm.addPerson("bleh")
-
+    vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
+    vm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
+    vm.addMember(User("3", "Jan", "bob@email.com", "12345678"))
+    vm.addMember(User("4", "Man", "bob@email.com", "12345678"))
+    vm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
+    vm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
+    vm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
 
     RequestScreen({}, vm)
 }

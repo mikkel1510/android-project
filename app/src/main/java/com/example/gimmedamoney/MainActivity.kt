@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                 composable("home") {
                     HomeScreen(
                         { nav.navigate("chat_flow") },
-                        { nav.navigate("createGroupScreen") }
+                        { nav.navigate("createGroupScreen") },
                     )
                 }
 
@@ -76,7 +76,8 @@ class MainActivity : ComponentActivity() {
                         MembersScreen(
                             { nav.popBackStack() },
                             { nav.navigate("addMember") },
-                            vm = vm
+                            vm = vm,
+                            { nav.navigate("createRequest")}
                         )
                     }
                     composable("addMember") { backStackEntry ->
