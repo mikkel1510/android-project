@@ -41,6 +41,7 @@ import coil.compose.rememberAsyncImagePainter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroupScreen(
+    onBackPress: () -> Unit,
     onGroupCreatePress: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
@@ -60,7 +61,7 @@ fun CreateGroupScreen(
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onGroupCreatePress.popBackStack() }) {
+                    IconButton(onClick = { onBackPress() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
@@ -107,7 +108,8 @@ fun CreateGroupScreen(
                 onClick = {
                     vm.addGroup(groupName)
                     groupName = ""
-                    onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
+                    onGroupCreatePress()
+                    //onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Create Group") }

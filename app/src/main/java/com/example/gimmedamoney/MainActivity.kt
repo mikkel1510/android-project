@@ -32,10 +32,11 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable("createGroupScreen") {
-                    /*
-                    { nav.popBackStack() }
-                    { nav.navigate("addMembers")) }
-                     */
+                    CreateGroupScreen(
+                    { nav.popBackStack() },
+                    { nav.navigate("groupChat") }
+                    )
+
                 }
 
 
