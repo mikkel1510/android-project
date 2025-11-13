@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
                     composable("home") {
                         HomeScreen(
-                            { nav.navigate("members") },
+                            { nav.navigate("groupChat") },
                             { nav.navigate("createGroupScreen") },
                         )
                     }
@@ -50,7 +50,8 @@ class MainActivity : ComponentActivity() {
                             "Copenhagen Trip",
                             vm.members.size,
                             {nav.popBackStack()},
-                            {nav.navigate("infoScreen")},
+                            {nav.navigate("members")},
+                            { nav.navigate("createRequest") }
                         )
                     }
 

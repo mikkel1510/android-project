@@ -34,10 +34,11 @@ import androidx.compose.ui.unit.sp
         memberCount: Int,
         onBack: () -> Unit = {},
         onInfo: () -> Unit = {},
+        onRequest: () -> Unit
     ){
         Scaffold (
             topBar = { TopBar(onBack, onInfo, groupName, memberCount) },
-            bottomBar = { BottomBar() }
+            bottomBar = { BottomBar(onRequest) }
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -52,13 +53,13 @@ import androidx.compose.ui.unit.sp
     }
 
     @Composable
-    fun BottomBar(){
+    fun BottomBar(onRequest: () -> Unit){
         Column (
             modifier = Modifier.fillMaxWidth().padding(10.dp).imePadding(),
 
         ) {
             Row ( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                Button(onClick = {      }, modifier = Modifier.weight(1f)) { Text("Request") }
+                Button(onClick = { onRequest() }, modifier = Modifier.weight(1f)) { Text("Request") }
                 Button(onClick = {      }, modifier = Modifier.weight(1f)) { Text("Pay all")}
             }
 
@@ -82,7 +83,8 @@ import androidx.compose.ui.unit.sp
 
     @Composable
     fun TopBar( onBack: ()-> Unit, onInfo: ()-> Unit, name: String, memberCount: Int ){
-        Column {
+        Column { //TODO: APPLY TOP PADDING
+            Spacer(Modifier.padding(20.dp)) //TODO: REMOVE IN FUTURE
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
@@ -113,6 +115,6 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun GroupChatPreview() {
     MaterialTheme {
-        GroupChatScreen(groupName = "Copenhagen Trip", memberCount = 4)
+        GroupChatScreen(groupName = "Copenhagen Trip", memberCount = 4, {}, {}, {})
     }
 }

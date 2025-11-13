@@ -46,7 +46,6 @@ fun HomeScreen(
     onCreateGroup: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
-
     //Dummy group
     val dummyGroup = Group("1","dummy", members = listOf())
     if (vm.groups.isEmpty()){

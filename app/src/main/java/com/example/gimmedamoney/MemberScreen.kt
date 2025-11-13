@@ -160,11 +160,6 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
             }
 
             MemberList(vm.members, { member -> selectedMember = member })
-            Button(
-                onClick = { onCreateRequest() }
-            ){
-                Text("Create Request")
-            }
         }
     }
 }
