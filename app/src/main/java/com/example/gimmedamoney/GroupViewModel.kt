@@ -12,6 +12,11 @@ class GroupViewModel : ViewModel() {
     )
     private val _groups = mutableStateListOf<Group>()
     val groups: List<Group> get() = _groups;
+    private val _groupSummaries = mutableStateListOf<GroupSummary>()
+    val groupSummaries: List<GroupSummary> get() = _groups
+
+    fun addGroupSummary(g: GroupSummary) = _groupSummaries.add(g)
+    fun clear() = _groups.clear()
 
     fun addGroup(name: String, imageUri: String? = null): Group? {
         if (name.isBlank()) return null
