@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,7 +58,11 @@ import com.example.gimmedamoney.UserViewModel.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewModel(), userVM: UserViewModel = viewModel()) {
+fun AddMemberScreen(
+    onBackPress: () -> Unit,
+    memberVM: MemberViewModel = viewModel(),
+    userVM: UserViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,6 +102,10 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
                         user.phone.startsWith(searchQuery, ignoreCase = true)
             }
 
+            if (selectedUsers.isNotEmpty()){
+                SelectedUsers(selectedUsers, memberVM.members)
+            }
+
 
             if (searchQuery.length >= 3){
                 UserList(filtered, memberVM.members, selectedUsers)
@@ -107,7 +116,9 @@ fun AddMemberScreen(onBackPress: () -> Unit, memberVM: MemberViewModel = viewMod
                     memberVM.addMembers(selectedUsers);
                     addedUsers.clear()
                     addedUsers.addAll(selectedUsers)
-                }, Modifier.width(250.dp).height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
+                }, Modifier
+                    .width(250.dp)
+                    .height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
                     Text("Add selected users", fontSize = 20.sp)
                 }
             }
@@ -163,28 +174,69 @@ fun SearchBar(updateQuery: (String) -> Unit){
 }
 
 @Composable
+fun SelectedUsers(users: MutableList<User>, members: List<User>){
+    LazyRow {
+        items(
+            items = users,
+            key = { it.id }
+        ){
+            if (!members.contains(it)){
+                UserIcon(it, { users.remove(it) })
+            }
+        }
+    }
+}
+
+@Composable
+fun UserIcon(user: User, onUnselect: () -> Unit){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        IconButton(
+            onClick = { onUnselect() },
+            Modifier.size(70.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = "Go back",
+                tint = Color.Black,
+                modifier = Modifier.size(70.dp)
+            )
+        }
+        val firstName = user.name.substringBefore(" ")
+        Text(firstName)
+    }
+}
+
+@Composable
 fun UserList(
     users: List<User>,
     members: List<User>,
     selectedUsers: MutableList<User>,
 ){
-    LazyColumn(
-        Modifier
-            .clip(
-                RoundedCornerShape(12.dp)
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(15.dp)
-    ) {
-        items(
-            items = users,
-            key = { it.id }
-        ) { user ->
-            if (!members.contains(user)){
-                UserCard(user, {
-                    if (selectedUsers.contains(user)) selectedUsers.remove(user)
-                    else selectedUsers.add(user)
-                }, selectedUsers.contains(user))
+    if (users.isEmpty()){
+        Row {
+            Text("No results", fontSize = 20.sp, color = Color.LightGray)
+        }
+    } else {
+        LazyColumn(
+            Modifier
+                .clip(
+                    RoundedCornerShape(12.dp)
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            items(
+                items = users,
+                key = { it.id }
+            ) { user ->
+                if (!members.contains(user)) {
+                    UserCard(user, {
+                        if (selectedUsers.contains(user)) selectedUsers.remove(user)
+                        else selectedUsers.add(user)
+                    }, selectedUsers.contains(user))
+                }
             }
         }
     }
@@ -193,7 +245,6 @@ fun UserList(
 @Composable
 fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
 
-    //var isSelected by remember { mutableStateOf(false) }
     val borderColor: Color
 
     if (isSelected){
@@ -204,7 +255,7 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
 
     Row(modifier = Modifier
         .fillMaxWidth()
-        .clickable { onSelect(); /*isSelected = !isSelected*/ }
+        .clickable { onSelect(); }
         .clip(RoundedCornerShape(16.dp))
         .background(Color.LightGray)
         .border(width = 3.dp, color = borderColor, shape = RoundedCornerShape(16.dp))

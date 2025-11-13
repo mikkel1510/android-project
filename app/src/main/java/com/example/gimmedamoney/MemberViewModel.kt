@@ -9,11 +9,15 @@ class MemberViewModel() : ViewModel() {
     val members: List<UserViewModel.User> get() = _members
 
     fun addMember(user: UserViewModel.User){
-        _members.add(user)
+        if (!_members.contains(user)){
+            _members.add(user)
+        }
     }
 
     fun addMembers(members: List<UserViewModel.User>){
-        _members.addAll(members)
+        members.forEach { user ->
+            addMember(user)
+        }
     }
 
     fun removeMember(user: UserViewModel.User) {
