@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.gimmedamoney.payment.RequestScreen
 import com.example.myapp.members.AddMemberScreen
 
 class MainActivity : ComponentActivity() {
@@ -59,9 +60,10 @@ class MainActivity : ComponentActivity() {
                         }
                         val vm: MemberViewModel = viewModel(parentEntry)
 
-                        /*
-                        { nav.popBackStack() }
-                         */
+                        RequestScreen(
+                            { nav.popBackStack() },
+                            vm = vm
+                        )
 
                     }
 
