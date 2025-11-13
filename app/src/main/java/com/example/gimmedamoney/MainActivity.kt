@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
                 composable("home") {
                     HomeScreen(
-                        { nav.navigate("members_flow") },
+                        { nav.navigate("members") },
                         { nav.navigate("createGroupScreen") }
                     )
                 }
