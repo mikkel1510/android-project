@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.gimmedamoney.chat.GroupChatScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +46,13 @@ class MainActivity : ComponentActivity() {
                             nav.getBackStackEntry("chat_flow")
                         }
                         val vm: MemberViewModel = viewModel(parentEntry)
+                        GroupChatScreen(
+                            "Copenhagen Trip",
+                            vm.members.size,
+                            {nav.popBackStack()},
+                            {nav.navigate("infoScreen")},
+                        )
+
                         /*
                         { nav.navigate("members") }
                         { nav.navigate("createRequest")}
