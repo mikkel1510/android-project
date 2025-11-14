@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -98,8 +99,9 @@ fun AddMemberScreen(
             val addedUsers = remember { mutableStateListOf<User>() }
 
             val filtered = userVM.users.filter{ user ->
-                user.email.startsWith(searchQuery, ignoreCase = true) or
-                        user.phone.startsWith(searchQuery, ignoreCase = true)
+                !memberVM.members.contains(user) && (
+                user.email.startsWith(searchQuery, ignoreCase = true) ||
+                        user.phone.startsWith(searchQuery, ignoreCase = true))
             }
 
             if (selectedUsers.isNotEmpty()){
@@ -116,6 +118,7 @@ fun AddMemberScreen(
                     memberVM.addMembers(selectedUsers);
                     addedUsers.clear()
                     addedUsers.addAll(selectedUsers)
+                    selectedUsers.clear()
                 }, Modifier
                     .width(260.dp)
                     .height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
@@ -175,13 +178,21 @@ fun SearchBar(updateQuery: (String) -> Unit){
 
 @Composable
 fun SelectedUsers(users: MutableList<User>, members: List<User>){
-    LazyRow {
-        items(
-            items = users,
-            key = { it.id }
-        ){
-            if (!members.contains(it)){
-                UserIcon(it, { users.remove(it) })
+    Column {
+        Text("Selected Users")
+        LazyRow(
+            Modifier
+                .fillMaxWidth()
+                .border(2.dp, Color.Gray, RoundedCornerShape(16.dp))
+                .padding(10.dp)
+        ) {
+            items(
+                items = users,
+                key = { it.id }
+            ){
+                if (!members.contains(it)){
+                    UserIcon(it, { users.remove(it) })
+                }
             }
         }
     }
@@ -194,13 +205,13 @@ fun UserIcon(user: User, onUnselect: () -> Unit){
     ) {
         IconButton(
             onClick = { onUnselect() },
-            Modifier.size(70.dp)
+            Modifier.size(50.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.AccountCircle,
                 contentDescription = "Go back",
                 tint = Color.Black,
-                modifier = Modifier.size(70.dp)
+                modifier = Modifier.fillMaxSize()
             )
         }
         val firstName = user.name.substringBefore(" ")
