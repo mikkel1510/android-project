@@ -117,9 +117,9 @@ fun AddMemberScreen(
                     addedUsers.clear()
                     addedUsers.addAll(selectedUsers)
                 }, Modifier
-                    .width(250.dp)
+                    .width(260.dp)
                     .height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
-                    Text("Add selected users", fontSize = 20.sp)
+                    Text("Add selected users (${selectedUsers.size})", fontSize = 20.sp)
                 }
             }
 
