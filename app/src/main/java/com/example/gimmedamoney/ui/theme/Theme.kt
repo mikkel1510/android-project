@@ -1,6 +1,6 @@
 package com.example.gimmedamoney.ui.theme
 
-import android.app.Activity
+import android.hardware.lights.Light
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,34 +16,34 @@ private val DarkColorScheme = darkColorScheme(
     primary = BrandBlue,
     onPrimary = Color.White,
 
-    background = DarkGreyBackground,
-    onBackground = Color.White,
+    background = NavyBlack,
+    onBackground = White,
 
-    surface = DarkGreySurface,
+    surface = MidGrey,
     onSurface = Color.White,
 
-    secondary = BrandBlue,
-    tertiary = BrandBlue
+    secondary = LightBlue,
+    tertiary = MidGrey
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = BrandBlue,
-    onPrimary = Color.White,
+    onPrimary = White,
 
-    background = Color.White,
-    onBackground = Color(0xFF111827),
+    background = White,
+    onBackground = NavyBlack,
 
-    surface = LightGreyBackground,
-    onSurface = Color(0xFF111827),
+    surface = LightBlue,
+    onSurface = White,
 
-    secondary = BrandBlue,
-    tertiary = BrandBlue
+    secondary = LightGrey,
+    tertiary = MidGrey
 )
 
 @Composable
 fun GimmeDaMoneyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

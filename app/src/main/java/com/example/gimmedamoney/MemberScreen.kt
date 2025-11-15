@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
@@ -119,8 +122,10 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
             TopAppBar(
                 title = { Text("Members") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
@@ -168,11 +173,13 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
 @Preview(showBackground = true)
 @Composable
 fun MemberScreenPreview() {
-    val vm: MemberViewModel = viewModel()
-    vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
-    vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
+    GimmeDaMoneyTheme {
+        val vm: MemberViewModel = viewModel()
+        vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
+        vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
+        vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
 
-    MembersScreen({}, {}, onCreateRequest = {})
+        MembersScreen({}, {}, onCreateRequest = {})
+    }
 
 }

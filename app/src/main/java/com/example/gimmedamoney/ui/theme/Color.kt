@@ -2,8 +2,14 @@ package com.example.gimmedamoney.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val BrandBlue = Color(0xFF174EE6)      // rgb(23, 78, 230)
-val LightGreyBackground = Color(0xFFF5F5F5)
-val LightGreySurface = Color(0xFFE5E7EB)
-val DarkGreyBackground = Color(0xFF111827)
-val DarkGreySurface = Color(0xFF1F2933)
+val NavyBlack = Color(0xFF021826)
+val MidGrey = Color(0xFF565555)
+
+val LightGrey = Color(0xFFB3B9D5)
+val White = Color(0xFFDCDCDC)
+val BrandBlue = Color(0xFF0347CB)
+val LightBlue = Color(0xFF3E6FEA)
+
+val Green = Color(0xFF2EAF5D)
+
+val Red = Color(0xFFD14D4D)

@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,15 +71,16 @@ fun AddMemberScreen(
             TopAppBar(
                 title = { Text("Add Members") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Go back",
-                            tint = Color.White
+                            contentDescription = "Go back"
                         )
                     }
                 },
@@ -121,7 +124,9 @@ fun AddMemberScreen(
                     selectedUsers.clear()
                 }, Modifier
                     .width(260.dp)
-                    .height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
+                    .height(70.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary)) {
                     Text("Add selected users (${selectedUsers.size})", fontSize = 20.sp)
                 }
             }
@@ -183,7 +188,7 @@ fun SelectedUsers(users: MutableList<User>, members: List<User>){
         LazyRow(
             Modifier
                 .fillMaxWidth()
-                .border(2.dp, Color.Gray, RoundedCornerShape(16.dp))
+                .border(2.dp, MaterialTheme.colorScheme.tertiary, RoundedCornerShape(16.dp))
                 .padding(10.dp)
         ) {
             items(
@@ -227,7 +232,7 @@ fun UserList(
 ){
     if (users.isEmpty()){
         Row {
-            Text("No results", fontSize = 20.sp, color = Color.LightGray)
+            Text("No results", fontSize = 20.sp, color = MaterialTheme.colorScheme.tertiary)
         }
     } else {
         LazyColumn(
@@ -259,16 +264,16 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
     val borderColor: Color
 
     if (isSelected){
-        borderColor = Color.Blue
+        borderColor = MaterialTheme.colorScheme.primary
     } else {
-        borderColor = Color.LightGray
+        borderColor = MaterialTheme.colorScheme.background
     }
 
     Row(modifier = Modifier
         .fillMaxWidth()
         .clickable { onSelect(); }
         .clip(RoundedCornerShape(16.dp))
-        .background(Color.LightGray)
+        .background(MaterialTheme.colorScheme.secondary)
         .border(width = 3.dp, color = borderColor, shape = RoundedCornerShape(16.dp))
         .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -289,17 +294,17 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
         ){
             Row{
                 Text(
-                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = Color.Black
+                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = MaterialTheme.colorScheme.onSurface
                 )
             }
             val maskedEmail = maskEmail(email = user.email)
             Column{
-                Text(maskedEmail, color = Color.Black)
+                Text(maskedEmail, color = MaterialTheme.colorScheme.onSurface)
 
                 Row{
-                    Text(user.phone.substring(0, 2), color = Color.Black)
-                    Text("****", color = Color.Black)
-                    Text(user.phone.substring(6), color = Color.Black)
+                    Text(user.phone.substring(0, 2), color = MaterialTheme.colorScheme.onSurface)
+                    Text("****", color = MaterialTheme.colorScheme.onSurface)
+                    Text(user.phone.substring(6), color = MaterialTheme.colorScheme.onSurface)
 
                 }
 
@@ -326,27 +331,31 @@ fun maskEmail(email: String): String{
 @Preview(showBackground = true)
 @Composable
 fun AddMemberPreview() {
-    val vm: UserViewModel = viewModel()
-    vm.addUser("1", "bob", "bob@email.com", "12345678")
-    vm.addUser("2", "steve", "steve@email.com", "87654321")
-    vm.addUser("3", "joe", "joe@email.com", "45362718")
+    GimmeDaMoneyTheme {
+        val vm: UserViewModel = viewModel()
+        vm.addUser("1", "bob", "bob@email.com", "12345678")
+        vm.addUser("2", "steve", "steve@email.com", "87654321")
+        vm.addUser("3", "joe", "joe@email.com", "45362718")
 
-    AddMemberScreen({})
+        AddMemberScreen({})
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun UserListPreview() {
-    val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
-    val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
-    val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
-    val users =  listOf(user, user2, user3)
-
-    val members = listOf<User>()
-
-    val selectedUsers: MutableList<User> = listOf(user).toMutableList()
-
-    UserList(users, members, selectedUsers)
+    GimmeDaMoneyTheme {
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+        val users =  listOf(user, user2, user3)
+    
+        val members = listOf<User>()
+    
+        val selectedUsers: MutableList<User> = listOf(user).toMutableList()
+    
+        UserList(users, members, selectedUsers)
+    }
 
 }
 

@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.GroupViewModel.Group
 import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +63,7 @@ fun HomeScreen(
                 title = { Text("GimmeDaMoney") },
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Outlined.Notifications, contentDescription = "Notifications")
+                        Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -129,7 +130,7 @@ private fun GroupCard(
             Modifier
                 .height(120.dp)
                 .fillMaxWidth()
-                .background(Color(0xFFEDEEF2))
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_menu_gallery),
@@ -143,7 +144,8 @@ private fun GroupCard(
             Text(
                 text = group.name,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.height(8.dp))
@@ -171,13 +173,13 @@ private fun GroupCard(
             BalancePill(
                 label = "You owe",
                 value = group.youOweDkk,
-                color = Color(0xFFD14D4D)
+                color = com.example.gimmedamoney.ui.theme.Red
             )
             Spacer(Modifier.height(4.dp))
             BalancePill(
                 label = "You are owed",
                 value = group.youAreOwedDkk,
-                color = Color(0xFF2EAF5D)
+                color = com.example.gimmedamoney.ui.theme.Green
             )
         }
     }
@@ -265,23 +267,23 @@ private fun BottomNavBar() {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.Person, null) },
-            label = { Text("Profile") }
+            icon = { Icon(Icons.Outlined.Person, null, tint = MaterialTheme.colorScheme.onSurface) },
+            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) }
         )
         NavigationBarItem(
             selected = true, onClick = { /* already here */ },
-            icon = { Icon(Icons.Outlined.Group, null) },
-            label = { Text("Groups") }
+            icon = { Icon(Icons.Outlined.Group, null, tint = MaterialTheme.colorScheme.onSurface) },
+            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) }
         )
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
-            label = { Text("Favourites") }
+            icon = { Icon(Icons.Outlined.FavoriteBorder, null, tint = MaterialTheme.colorScheme.onSurface) },
+            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) }
         )
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.Settings, null) },
-            label = { Text("Settings") }
+            icon = { Icon(Icons.Outlined.Settings, null, tint = MaterialTheme.colorScheme.onSurface) },
+            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) }
         )
     }
 }
