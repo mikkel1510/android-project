@@ -17,15 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
+import com.example.gimmedamoney.PrimaryButton
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User;
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +42,12 @@ fun RequestScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Create Request") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBackPress) {
                         Icon(
@@ -97,13 +104,11 @@ fun RequestScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
 
-            Button(
+            PrimaryButton(
+                text = "Send Request",
                 onClick = {/*TODO*/},
                 modifier = Modifier.fillMaxWidth()
-            ){
-                Text("Send Request")
-            }
-
+            )
         }
     }
 }
@@ -126,7 +131,7 @@ fun GroupBar(member: User){
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
+            .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ){
@@ -155,8 +160,9 @@ fun RequestScreenPreview()  {
     vm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
     vm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
     vm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
-
-    RequestScreen({}, vm)
+    GimmeDaMoneyTheme {
+        RequestScreen({}, vm)
+    }
 }
 
 

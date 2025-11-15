@@ -27,8 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gimmedamoney.PrimaryButton
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
-    @Composable
+@Composable
     fun GroupChatScreen(
         groupName: String,
         memberCount: Int,
@@ -59,8 +61,8 @@ import androidx.compose.ui.unit.sp
 
         ) {
             Row ( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                Button(onClick = { onRequest() }, modifier = Modifier.weight(1f)) { Text("Request") }
-                Button(onClick = {      }, modifier = Modifier.weight(1f)) { Text("Pay all")}
+                PrimaryButton(text = "Request", onClick = { onRequest() }, modifier = Modifier.weight(1f))
+                PrimaryButton(text = "Pay all", onClick = {      }, modifier = Modifier.weight(1f))
             }
 
             Row (
@@ -114,7 +116,7 @@ import androidx.compose.ui.unit.sp
 @Preview(showBackground = true)
 @Composable
 fun GroupChatPreview() {
-    MaterialTheme {
+    GimmeDaMoneyTheme {
         GroupChatScreen(groupName = "Copenhagen Trip", memberCount = 4, {}, {}, {})
     }
 }

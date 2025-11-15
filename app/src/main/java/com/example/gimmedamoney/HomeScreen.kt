@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,6 +39,8 @@ import com.example.gimmedamoney.GroupViewModel.Group
 import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.Green
+import com.example.gimmedamoney.ui.theme.Red
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,18 +66,21 @@ fun HomeScreen(
                 title = { Text("GimmeDaMoney") },
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
         bottomBar = { BottomNavBar() },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(Modifier.fillMaxSize().padding(innerPadding)) {
+        Box(Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
 
             if (vm.groups.isEmpty()) {
                 Column(
@@ -173,13 +179,13 @@ private fun GroupCard(
             BalancePill(
                 label = "You owe",
                 value = group.youOweDkk,
-                color = com.example.gimmedamoney.ui.theme.Red
+                color = Red
             )
             Spacer(Modifier.height(4.dp))
             BalancePill(
                 label = "You are owed",
                 value = group.youAreOwedDkk,
-                color = com.example.gimmedamoney.ui.theme.Green
+                color = Green
             )
         }
     }
@@ -240,7 +246,7 @@ private fun EmptyState(
             imageVector = Icons.Outlined.Group,
             contentDescription = null,
             modifier = Modifier.size(96.dp),
-            tint = MaterialTheme.colorScheme.outline
+            tint = MaterialTheme.colorScheme.secondary
         )
         Spacer(Modifier.height(12.dp))
         Text(
@@ -251,7 +257,7 @@ private fun EmptyState(
         Spacer(Modifier.height(6.dp))
         Text(
             "Tap the button below to create your first group.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(16.dp))
         Button(onClick = onCreate) {
@@ -267,25 +273,56 @@ private fun BottomNavBar() {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.Person, null, tint = MaterialTheme.colorScheme.onSurface) },
-            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) }
+            icon = { Icon(Icons.Outlined.Person, null) },
+            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
         )
         NavigationBarItem(
             selected = true, onClick = { /* already here */ },
-            icon = { Icon(Icons.Outlined.Group, null, tint = MaterialTheme.colorScheme.onSurface) },
-            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) }
+            icon = { Icon(Icons.Outlined.Group, null) },
+            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
         )
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.FavoriteBorder, null, tint = MaterialTheme.colorScheme.onSurface) },
-            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) }
+            icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
+            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
         )
         NavigationBarItem(
             selected = false, onClick = { /* TODO */ },
-            icon = { Icon(Icons.Outlined.Settings, null, tint = MaterialTheme.colorScheme.onSurface) },
-            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) }
+            icon = { Icon(Icons.Outlined.Settings, null) },
+            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
         )
     }
 }
 
 private fun dkk(v: Double) = String.format("%.2f DKK", v)
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview(){
+    GimmeDaMoneyTheme {
+        HomeScreen(
+            onMembersPress = {},
+            onCreateGroup = {}
+        )
+    }
+}

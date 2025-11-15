@@ -33,9 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
-
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,8 +59,9 @@ fun CreateGroupScreen(
             TopAppBar(
                 title = { Text("Create Group") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
@@ -97,14 +100,14 @@ fun CreateGroupScreen(
                     contentScale = ContentScale.Crop
                 )
             }
-            Button(
+            PrimaryButton(
+                text = if (selectedImageUri == null) "Select Picture" else "Change Picture",
                 onClick = { pickImageLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (selectedImageUri == null) "Select Picture" else "Change Picture")
-            }
+            )
 
-            Button(
+            PrimaryButton(
+                text = "Create Group",
                 onClick = {
                     vm.addGroup(groupName)
                     groupName = ""
@@ -112,10 +115,21 @@ fun CreateGroupScreen(
                     //onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Create Group") }
+            )
         }
 
 
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateGroupScreenPreview(){
+    GimmeDaMoneyTheme {
+        CreateGroupScreen(
+            onBackPress = {},
+            onGroupCreatePress = {}
+        )
+    }
 }

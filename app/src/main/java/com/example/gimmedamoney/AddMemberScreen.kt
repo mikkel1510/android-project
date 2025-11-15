@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
+import com.example.gimmedamoney.PrimaryButton
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
@@ -71,10 +73,10 @@ fun AddMemberScreen(
             TopAppBar(
                 title = { Text("Add Members") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
@@ -117,18 +119,18 @@ fun AddMemberScreen(
             }
 
             if (selectedUsers.isNotEmpty()){
-                Button(onClick = {
-                    memberVM.addMembers(selectedUsers);
-                    addedUsers.clear()
-                    addedUsers.addAll(selectedUsers)
-                    selectedUsers.clear()
-                }, Modifier
+                PrimaryButton(
+                    text = "Add selected users (${selectedUsers.size})",
+                    onClick = {
+                        memberVM.addMembers(selectedUsers);
+                        addedUsers.clear()
+                        addedUsers.addAll(selectedUsers)
+                        selectedUsers.clear()
+                    },
+                    Modifier
                     .width(260.dp)
-                    .height(70.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary)) {
-                    Text("Add selected users (${selectedUsers.size})", fontSize = 20.sp)
-                }
+                    .height(70.dp)
+                )
             }
 
             if (addedUsers.isNotEmpty()){
@@ -173,6 +175,11 @@ fun SearchBar(updateQuery: (String) -> Unit){
                     contentDescription = "Search icon"
                 )
             },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground
+            ),
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 56.dp)
@@ -294,17 +301,17 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
         ){
             Row{
                 Text(
-                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = MaterialTheme.colorScheme.onSurface
+                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground
                 )
             }
             val maskedEmail = maskEmail(email = user.email)
             Column{
-                Text(maskedEmail, color = MaterialTheme.colorScheme.onSurface)
+                Text(maskedEmail, color = MaterialTheme.colorScheme.onBackground)
 
                 Row{
-                    Text(user.phone.substring(0, 2), color = MaterialTheme.colorScheme.onSurface)
-                    Text("****", color = MaterialTheme.colorScheme.onSurface)
-                    Text(user.phone.substring(6), color = MaterialTheme.colorScheme.onSurface)
+                    Text(user.phone.substring(0, 2), color = MaterialTheme.colorScheme.onBackground)
+                    Text("****", color = MaterialTheme.colorScheme.onBackground)
+                    Text(user.phone.substring(6), color = MaterialTheme.colorScheme.onBackground)
 
                 }
 
@@ -349,13 +356,27 @@ fun UserListPreview() {
         val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
         val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
         val users =  listOf(user, user2, user3)
-    
+
         val members = listOf<User>()
-    
+
         val selectedUsers: MutableList<User> = listOf(user).toMutableList()
     
         UserList(users, members, selectedUsers)
     }
+}
 
+@Preview(showBackground = true)
+@Composable
+fun SelectedUsersPreview(){
+    GimmeDaMoneyTheme {
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+        val users =  listOf(user, user2, user3).toMutableList()
+
+        val members = listOf<User>()
+
+        SelectedUsers(users, members)
+    }
 }
 

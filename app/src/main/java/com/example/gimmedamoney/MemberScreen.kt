@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.Red
 
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
@@ -54,7 +55,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
 
     Row(modifier = Modifier
         .padding(10.dp)
-        .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
+        .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
         .padding(10.dp)
         .width(250.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -69,7 +70,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
             member.name
         )
         Button(
-            onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
             modifier = Modifier
                 .width(100.dp)){
             Text("Remove")
@@ -97,6 +98,8 @@ fun RemoveMemberDialog(
             }
 
         },
+        textContentColor = MaterialTheme.colorScheme.onBackground,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
         onDismissRequest = {
             onDismissRequest()
         },
@@ -122,10 +125,10 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
             TopAppBar(
                 title = { Text("Members") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
