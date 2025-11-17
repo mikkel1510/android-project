@@ -1,6 +1,5 @@
 package com.example.gimmedamoney.ui.theme
 
-import android.hardware.lights.Light
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,29 +15,41 @@ private val DarkColorScheme = darkColorScheme(
     primary = BrandBlue,
     onPrimary = Color.White,
 
-    background = NavyBlack,
-    onBackground = White,
+    background = BackgroundDark,
+    onBackground = Color.White,
 
-    surface = MidGrey,
+    surface = SurfaceDark,
     onSurface = Color.White,
 
-    secondary = LightBlue,
+    surfaceVariant = DarkGrey,
+    onSurfaceVariant = Color.White,
+
+    secondary = FaintBlue,
+    onSecondary = Color.White,
+
     tertiary = MidGrey
 )
+
 
 private val LightColorScheme = lightColorScheme(
     primary = BrandBlue,
-    onPrimary = White,
+    onPrimary = Color.White,
 
-    background = White,
-    onBackground = NavyBlack,
+    background = BackgroundLight,
+    onBackground = BackgroundDark,
 
-    surface = LightBlue,
-    onSurface = White,
+    surface = SurfaceLight,
+    onSurface = BackgroundDark,
 
-    secondary = LightGrey,
+    surfaceVariant = LightGrey,
+    onSurfaceVariant = BackgroundDark,
+
+    secondary = FaintBlue,
+    onSecondary = Color.White,
+
     tertiary = MidGrey
 )
+
 
 @Composable
 fun GimmeDaMoneyTheme(

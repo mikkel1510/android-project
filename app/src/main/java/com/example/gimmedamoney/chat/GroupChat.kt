@@ -14,21 +14,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.gimmedamoney.PrimaryButton
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 @Composable
     fun GroupChatScreen(
@@ -39,7 +42,23 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
         onRequest: () -> Unit
     ){
         Scaffold (
-            topBar = { TopBar(onBack, onInfo, groupName, memberCount) },
+            topBar = {
+                TopNavBar(
+                    title = groupName,
+                    subtitle = "Members: $memberCount",
+                    actions = {
+                        IconButton(onClick = onInfo) {
+                            Icon(Icons.Filled.Info, contentDescription = "Group info")
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
+            },
+                //{ TopBar(onBack, onInfo, groupName, memberCount) },
             bottomBar = { BottomBar(onRequest) }
         ) { padding ->
             Column(
@@ -57,7 +76,10 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
     @Composable
     fun BottomBar(onRequest: () -> Unit){
         Column (
-            modifier = Modifier.fillMaxWidth().padding(10.dp).imePadding(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .imePadding(),
 
         ) {
             Row ( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -66,14 +88,23 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
             }
 
             Row (
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
-                TextField(
+                OutlinedTextField(
                     value = "",
                     onValueChange = {},
                     modifier = Modifier.weight(1f),
                     placeholder = {Text("Send a message...")},
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                        focusedContainerColor = MaterialTheme.colorScheme.background,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground
+                    ),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = {           }) {
@@ -83,6 +114,7 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
         }
     }
 
+    /*
     @Composable
     fun TopBar( onBack: ()-> Unit, onInfo: ()-> Unit, name: String, memberCount: Int ){
         Column { //TODO: APPLY TOP PADDING
@@ -110,8 +142,7 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
         }
 
     }
-
-
+    */
 
 @Preview(showBackground = true)
 @Composable

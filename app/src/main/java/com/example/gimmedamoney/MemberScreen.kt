@@ -40,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Red
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
@@ -55,7 +56,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
 
     Row(modifier = Modifier
         .padding(10.dp)
-        .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+        .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.large)
         .padding(10.dp)
         .width(250.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -116,20 +117,22 @@ fun RemoveMemberDialog(
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberViewModel = viewModel(), onCreateRequest: () -> Unit){
     Scaffold (
         topBar = {
-            TopAppBar(
-                title = { Text("Members") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            TopNavBar(
+                title = "Members",
+                subtitle = "IN GROUP NAME AIWDNAWIPUMDWAPIUMDIP",
+                centerAligned = false,
+                actions = {
+                    IconButton(onClick = { onAddMember() }) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add new member",
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
                         Icon(
@@ -138,14 +141,6 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { onAddMember() }) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add new member",
-                        )
-                    }
-                }
             )
         }
     ) { innerPadding ->

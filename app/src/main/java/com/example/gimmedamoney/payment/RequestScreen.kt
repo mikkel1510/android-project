@@ -1,11 +1,11 @@
 package com.example.gimmedamoney.payment
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,16 +17,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
-import com.example.gimmedamoney.PrimaryButton
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User;
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,14 +42,9 @@ fun RequestScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Create Request") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            TopNavBar(
+                title = "Create Reqest",
+                subtitle = "INSERT GROUP NAME HERE AIPWDNBWAIPNDAWIPDNAWPIUNDPIWAND", //TODO: Use Group ID
                 navigationIcon = {
                     IconButton(onClick = onBackPress) {
                         Icon(
@@ -117,7 +114,9 @@ fun RequestScreen(
 fun GroupList(members: List<User>) {
     LazyColumn (
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ){
         items(members) { member ->
             GroupBar(member)
@@ -131,7 +130,9 @@ fun GroupBar(member: User){
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+            .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
+            .clip(MaterialTheme.shapes.small)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ){
