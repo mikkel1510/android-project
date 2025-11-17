@@ -5,12 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.gimmedamoney.chat.GroupChatScreen
+import com.example.gimmedamoney.login.LoginScreen
 import com.example.gimmedamoney.payment.RequestScreen
 import com.example.myapp.members.AddMemberScreen
 
@@ -20,12 +23,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val nav = rememberNavController()
-            val groupViewModel: GroupViewModel = viewModel()
+            val userViewModel: UserViewModel = viewModel()
+            val groupViewModel: GroupViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return GroupViewModel(userViewModel) as T
+                    }
+                }
+            )
 
             NavHost(
                 navController = nav,
-                startDestination = "home",
+                startDestination = "login",
             ) {
+                composable("login") {
+                    LoginScreen(onLoginSuccess = {
+                        nav.navigate("home") {
+                            popUpTo("login") {
+                                inclusive = true
+                            }
+                        }
+                    })
+                }
 
                 composable("home") {
                     HomeScreen(

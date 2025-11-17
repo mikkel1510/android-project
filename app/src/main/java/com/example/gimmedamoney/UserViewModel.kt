@@ -20,6 +20,8 @@ class UserViewModel : ViewModel() {
         val phone: String
     )
 
+    val currentUser = User("0", "You", "user@example.com", "12345678")
+
     private val _users = mutableStateListOf<User>()
     val users: List<User> get() = _users
 

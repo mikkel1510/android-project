@@ -6,7 +6,7 @@ import com.example.gimmedamoney.UserViewModel.User
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class GroupViewModel : ViewModel() {
+class GroupViewModel(private val userViewModel: UserViewModel) : ViewModel() {
     data class Group(
         val id: String = UUID.randomUUID().toString(),
         val name: String,
@@ -34,6 +34,9 @@ class GroupViewModel : ViewModel() {
         if (name.isBlank()) return null
         val newGroup = Group(name = name.trim(), imageUri = imageUri)
         _groups.add(newGroup)
+
+        val memberViewModel = getMemberViewModel(newGroup.id)
+        memberViewModel.addMember(userViewModel.currentUser)
 
         _groupSummaries.add(GroupSummary(id = newGroup.id, name = newGroup.name))
         return newGroup
