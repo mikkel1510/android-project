@@ -20,46 +20,58 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val nav = rememberNavController()
+            val groupViewModel: GroupViewModel = viewModel()
+
             NavHost(
                 navController = nav,
-                startDestination = "chat_flow",
+                startDestination = "home",
             ) {
 
-                navigation(startDestination = "home", route = "chat_flow"){ //Change startDestination to groupChat
+                composable("home") {
+                    HomeScreen(
+                        onMembersPress = { groupId -> nav.navigate("group/$groupId") },
+                        onCreateGroup = { nav.navigate("createGroupScreen") },
+                        vm = groupViewModel
+                    )
+                }
 
-                    composable("home") {
-                        HomeScreen(
-                            { nav.navigate("groupChat") },
-                            { nav.navigate("createGroupScreen") },
-                        )
-                    }
+                composable("createGroupScreen") {
+                    CreateGroupScreen(
+                        onBackPress = { nav.popBackStack() },
+                        onGroupCreatePress = { groupName, imageUri ->
+                            val newGroup = groupViewModel.addGroup(groupName, imageUri?.toString())
 
-                    composable("createGroupScreen") {
-                        CreateGroupScreen(
-                        { nav.popBackStack() },
-                        { nav.navigate("groupChat") }
-                        )
+                            if (newGroup != null) {
+                                nav.popBackStack()
+                            }
+                        }
+                    )
 
-                    }
+                }
+                navigation(startDestination = "groupChat", route = "group/{groupId}") {
+
                     composable("groupChat") { backStackEntry ->
                         val parentEntry = remember(backStackEntry) {
-                            nav.getBackStackEntry("chat_flow")
+                            nav.getBackStackEntry("group/{groupId}")
                         }
-                        val vm: MemberViewModel = viewModel(parentEntry)
+                        val groupId = parentEntry.arguments?.getString("groupId")!!
+                        val group = groupViewModel.getGroupById(groupId)
+                        val vm = groupViewModel.getMemberViewModel(groupId)
                         GroupChatScreen(
-                            "Copenhagen Trip",
+                            group?.name ?: "Group",
                             vm.members.size,
-                            {nav.popBackStack()},
-                            {nav.navigate("members")},
+                            { nav.popBackStack() },
+                            { nav.navigate("members") },
                             { nav.navigate("createRequest") }
                         )
                     }
 
                     composable("createRequest") { backStackEntry ->
                         val parentEntry = remember(backStackEntry) {
-                            nav.getBackStackEntry("chat_flow")
+                            nav.getBackStackEntry("group/{groupId}")
                         }
-                        val vm: MemberViewModel = viewModel(parentEntry)
+                        val groupId = parentEntry.arguments?.getString("groupId")!!
+                        val vm = groupViewModel.getMemberViewModel(groupId)
 
                         RequestScreen(
                             { nav.popBackStack() },
@@ -71,21 +83,23 @@ class MainActivity : ComponentActivity() {
 
                     composable("members") { backStackEntry ->
                         val parentEntry = remember(backStackEntry) {
-                            nav.getBackStackEntry("chat_flow")
+                            nav.getBackStackEntry("group/{groupId}")
                         }
-                        val vm: MemberViewModel = viewModel(parentEntry)
+                        val groupId = parentEntry.arguments?.getString("groupId")!!
+                        val vm = groupViewModel.getMemberViewModel(groupId)
                         MembersScreen(
                             { nav.popBackStack() },
                             { nav.navigate("addMember") },
                             vm = vm,
-                            { nav.navigate("createRequest")}
+                            { nav.navigate("createRequest") }
                         )
                     }
                     composable("addMember") { backStackEntry ->
-                        val parentEntry = remember(backStackEntry){
-                            nav.getBackStackEntry("chat_flow")
+                        val parentEntry = remember(backStackEntry) {
+                            nav.getBackStackEntry("group/{groupId}")
                         }
-                        val vm: MemberViewModel = viewModel(parentEntry)
+                        val groupId = parentEntry.arguments?.getString("groupId")!!
+                        val vm = groupViewModel.getMemberViewModel(groupId)
                         AddMemberScreen(
                             { nav.popBackStack() },
                             memberVM = vm,

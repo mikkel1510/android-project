@@ -42,9 +42,9 @@ import com.example.gimmedamoney.UserViewModel.User
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onMembersPress: () -> Unit,
+    onMembersPress: (String) -> Unit,
     onCreateGroup: () -> Unit,
-    vm: GroupViewModel = viewModel()
+    vm: GroupViewModel
 ) {
     //Dummy group
     val dummyGroup = Group("1","dummy", members = listOf())
@@ -99,7 +99,7 @@ fun HomeScreen(
                     items(vm.groupSummaries, key = { it.id }) { g ->
                         GroupCard(
                             group = g,
-                            onClick = onMembersPress
+                            onClick = { onMembersPress(g.id) }
                         )
                     }
                 }

@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -36,14 +35,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroupScreen(
     onBackPress: () -> Unit,
-    onGroupCreatePress: () -> Unit,
-    vm: GroupViewModel = viewModel()
+    onGroupCreatePress: (String, Uri?) -> Unit,
 ) {
     var groupName by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -106,10 +102,7 @@ fun CreateGroupScreen(
 
             Button(
                 onClick = {
-                    vm.addGroup(groupName)
-                    groupName = ""
-                    onGroupCreatePress()
-                    //onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
+                    onGroupCreatePress(groupName, selectedImageUri)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Create Group") }
