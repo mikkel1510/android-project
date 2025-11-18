@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.payment.RequestScreen
 import com.example.myapp.members.AddMemberScreen
+import com.example.gimmedamoney.settings.SettingsScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +33,12 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(
                             { nav.navigate("groupChat") },
                             { nav.navigate("createGroupScreen") },
+                            { nav.navigate("settings") }
                         )
+                    }
+
+                    composable("settings") {
+                        SettingsScreen(onBack = { nav.popBackStack() })
                     }
 
                     composable("createGroupScreen") {
