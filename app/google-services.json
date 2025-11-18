@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "42221817750",
+    "project_id": "gimmedamoney-56c36",
+    "storage_bucket": "gimmedamoney-56c36.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42221817750:android:f84c4a6adacb40341b17b7",
+        "android_client_info": {
+          "package_name": "com.example.gimmedamoney"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHsrmTJyXhVkAXwtpNZshBJBaA0z--TOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
