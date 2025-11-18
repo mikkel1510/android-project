@@ -4,7 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +20,8 @@ import com.example.gimmedamoney.payment.RequestScreen
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.myapp.members.AddMemberScreen
 import com.example.gimmedamoney.settings.SettingsScreen
+import com.example.gimmedamoney.settings.SettingsViewModel
+import com.example.gimmedamoney.settings.ThemeMode
 
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +29,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GimmeDaMoneyTheme {
+
+            val settingsVM: SettingsViewModel = viewModel()
+
+            val darkTheme = when (settingsVM.theme) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT  -> false
+                ThemeMode.DARK   -> true
+            }
+
+            GimmeDaMoneyTheme(darkTheme) {
+
                 val nav = rememberNavController()
                 NavHost(
                     navController = nav,
@@ -39,7 +56,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("settings") {
-                            SettingsScreen(onBack = { nav.popBackStack() })
+                            SettingsScreen(onBack = { nav.popBackStack() }, vm = settingsVM)
                         }
 
                         composable("createGroupScreen") {

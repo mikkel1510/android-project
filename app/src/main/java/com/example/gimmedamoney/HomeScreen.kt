@@ -1,6 +1,5 @@
 package com.example.gimmedamoney
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -46,7 +46,7 @@ fun HomeScreen(
     vm: GroupViewModel = viewModel()
 ) {
     //Dummy group
-    val dummyGroup = Group("1","dummy", members = listOf())
+    val dummyGroup = Group("1","dummy", members = (mutableListOf()))
     if (vm.groups.isEmpty()){
         vm.addGroup(dummyGroup)
     }
@@ -131,7 +131,7 @@ private fun GroupCard(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_menu_gallery),
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -153,7 +153,7 @@ private fun GroupCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    Icons.Outlined.ReceiptLong,
+                    Icons.AutoMirrored.Outlined.ReceiptLong,
                     null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -323,7 +323,8 @@ fun HomeScreenPreview(){
     GimmeDaMoneyTheme {
         HomeScreen(
             onMembersPress = {},
-            onCreateGroup = {}
+            onCreateGroup = {},
+            onOpenSettings = {}
         )
     }
 }

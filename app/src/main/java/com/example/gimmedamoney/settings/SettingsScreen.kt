@@ -1,5 +1,6 @@
 package com.example.gimmedamoney.settings
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -14,6 +15,9 @@ import com.example.gimmedamoney.BuildConfig
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.navigation.compose.rememberNavController
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 enum class AppLanguage { SYSTEM, ENGLISH, DANISH }
@@ -27,7 +31,9 @@ class SettingsViewModel : ViewModel() {
     var crashReports by mutableStateOf(true); private set
     var analytics by mutableStateOf(true); private set
 
-    fun updateTheme(v: ThemeMode) { theme = v }
+    fun updateTheme(v: ThemeMode) {
+        theme = v
+    }
     fun updateLanguage(v: AppLanguage) { language = v }
     fun updateNotifications(v: Boolean) { notificationsEnabled = v }
     fun updateMarketing(v: Boolean) { marketingEmails = v }
@@ -50,14 +56,14 @@ fun SettingsScreen(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Settings") },
+            TopNavBar(
+                title = "Settings",
+                centerAligned = true,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
             )
         }
     ) { inner ->

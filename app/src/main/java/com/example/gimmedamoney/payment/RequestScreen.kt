@@ -19,17 +19,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User
-import com.example.gimmedamoney.UserViewModel.User;
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
@@ -37,7 +36,7 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 @Composable
 fun RequestScreen(
     onBackPress: () -> Unit,
-    vm: MemberViewModel
+    membervm: MemberViewModel,
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -150,17 +149,26 @@ fun GroupBar(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
+    //val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+    //val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
+
+    val borderColor: Color
+
+    if (isSelected){
+        borderColor = MaterialTheme.colorScheme.primary
+    } else {
+        borderColor = MaterialTheme.colorScheme.surfaceVariant
+    }
+
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
+            .border(width = 2.dp, color = borderColor, shape = MaterialTheme.shapes.small)
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(10.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ){
         Image(
