@@ -45,15 +45,6 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
-    //Dummy group
-    val dummyGroup = Group("1","dummy", members = (mutableListOf()))
-    if (vm.groups.isEmpty()){
-        vm.addGroup(dummyGroup)
-    }
-    val summary = GroupSummary(id = "1", name = "dummysummary")
-    if (vm.groupSummaries.isEmpty()){
-        vm.addGroupSummary(summary)
-    }
 
     Scaffold(
         topBar = {

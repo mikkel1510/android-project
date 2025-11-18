@@ -1,9 +1,12 @@
 package com.example.gimmedamoney
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import java.util.UUID
-import com.example.gimmedamoney.UserViewModel.User
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.firestore
 
 class GroupViewModel : ViewModel() {
 
@@ -15,11 +18,10 @@ class GroupViewModel : ViewModel() {
      *
      */
     data class Group(
-        val id: String = UUID.randomUUID().toString(),
-        val name: String,
-        var imageUri: String? = null,
-        val members: MutableList<User> = mutableListOf(),
-        val expenses: MutableList<Expense> = mutableListOf()
+        @DocumentId val id: String = "",
+        val name: String = "",
+        val imageUri: String? = null,
+        val memberIDs: List<String> = emptyList(),
     )
 
     data class Expense(
@@ -41,6 +43,7 @@ class GroupViewModel : ViewModel() {
     private val _groupSummaries = mutableStateListOf<GroupSummary>()
     val groupSummaries: List<GroupSummary> get() = _groupSummaries
 
+    val db = Firebase.firestore
 
     /**
      *
@@ -58,6 +61,22 @@ class GroupViewModel : ViewModel() {
         return newGroup
     }
 
+    fun createGroup(name: String, imageUri: String? = null){
+        val group = Group(
+            name = name,
+            imageUri = imageUri,
+        )
+        db.collection("groups")
+            .add(group)
+            .addOnSuccessListener { docRef ->
+                Log.d("GroupVM", "Group added with id ${docRef.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("GroupVM", "Error adding group", e)
+            }
+
+    }
+
     fun addGroup(group: Group){
         _groups.add(group)
     }
@@ -67,9 +86,12 @@ class GroupViewModel : ViewModel() {
     fun getGroupById(id: String): Group? {
         return _groups.find { it.id == id}
     }
+    /*
     fun updateGroupImage(groupId: String, newUri: String?) {
         getGroupById(groupId)?.imageUri = newUri
     }
+
+     */
 
     /**
      *
@@ -77,6 +99,7 @@ class GroupViewModel : ViewModel() {
      *
      */
 
+    /*
     fun addMemberToGroup(groupId: String, user: User) {
         val group = getGroupById(groupId) ?: return
         if (!group.members.contains(user)) {
@@ -84,13 +107,21 @@ class GroupViewModel : ViewModel() {
         }
     }
 
+     */
+
+    /*
     fun addMembersToGroup(groupId: String, users: List<User>) {
         users.forEach { addMemberToGroup(groupId, it) }
     }
 
+     */
+
+    /*
     fun removeMemberFromGroup(groupId: String, userId: String) {
         getGroupById(groupId)?.members?.removeAll { it.id == userId }
     }
+
+     */
 
     /**
      *
@@ -98,6 +129,7 @@ class GroupViewModel : ViewModel() {
      *
      */
 
+    /*
     fun addExpense(
         groupId: String,
         description: String,
@@ -117,12 +149,15 @@ class GroupViewModel : ViewModel() {
         group?.expenses?.add(expense)
     }
 
+     */
+
 
     /**
      *
      * Balance calculation
      *
      */
+    /*
     fun calculateBalances(group: Group): Map<String, Double> {
         // Starts all members at 0
         val balances = group.members.associate { it.id to 0.0 }.toMutableMap()
@@ -150,6 +185,8 @@ class GroupViewModel : ViewModel() {
         }
         return balances
     }
+
+     */
 
 
 }

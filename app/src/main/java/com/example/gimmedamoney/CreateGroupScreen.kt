@@ -104,10 +104,9 @@ fun CreateGroupScreen(
             PrimaryButton(
                 text = "Create Group",
                 onClick = {
-                    vm.addGroup(groupName)
+                    vm.createGroup(name = groupName)
                     groupName = ""
                     onGroupCreatePress()
-                    //onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
