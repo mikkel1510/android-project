@@ -31,12 +31,15 @@ import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.chat.ChatViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestScreen(
     onBackPress: () -> Unit,
-    membervm: MemberViewModel,
+    memberVM: MemberViewModel,
+    chatViewModel: ChatViewModel
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -73,7 +76,7 @@ fun RequestScreen(
                     .heightIn(max = 250.dp)
             ) {
                 GroupList(
-                    members = membervm.members,
+                    members = memberVM.members,
                     selected = selectedMembers,
                     onToggleMember = { memberId ->
                         selectedMembers = if (memberId in selectedMembers) {
@@ -113,7 +116,16 @@ fun RequestScreen(
 
             PrimaryButton(
                 text = "Send Request",
-                onClick = {/*TODO: handle request with selectedMembers list*/},
+                onClick = {
+                    if (amount.isNotBlank()) {
+                        chatViewModel.sendRequestMessage(
+                            senderId = "me",                // later: use real user id
+                            amount = amount.toDouble(),
+                            message = message.ifBlank { "New request" }
+                        )
+                    }
+                    onBackPress()
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -187,6 +199,7 @@ fun GroupBar(
 @Composable
 fun RequestScreenPreview()  {
     val membervm: MemberViewModel = viewModel()
+    val chatVM: ChatViewModel = viewModel()
 
     membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
     membervm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
@@ -197,7 +210,7 @@ fun RequestScreenPreview()  {
     membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
 
     GimmeDaMoneyTheme {
-        RequestScreen({}, membervm)
+        RequestScreen({}, membervm, chatVM)
     }
 }
 

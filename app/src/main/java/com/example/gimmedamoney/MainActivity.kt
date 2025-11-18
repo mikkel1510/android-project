@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.gimmedamoney.chat.ChatViewModel
 import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.payment.RequestScreen
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
@@ -66,30 +67,37 @@ class MainActivity : ComponentActivity() {
                             )
 
                         }
+
                         composable("groupChat") { backStackEntry ->
                             val parentEntry = remember(backStackEntry) {
                                 nav.getBackStackEntry("chat_flow")
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
+                            val memberVM: MemberViewModel = viewModel(parentEntry)
+                            val chatVM: ChatViewModel = viewModel(parentEntry)
+
                             GroupChatScreen(
-                                "Copenhagen Trip",
-                                vm.members.size,
-                                {nav.popBackStack()},
-                                {nav.navigate("members")},
-                                { nav.navigate("createRequest") }
+                                groupName = "Copenhagen Trip",
+                                memberCount = memberVM.members.size,
+                                onBack = { nav.popBackStack() },
+                                onInfo = { nav.navigate("members") },
+                                onRequest = { nav.navigate("createRequest") },
+                                chatVM = chatVM
                             )
                         }
+
 
                         composable("createRequest") { backStackEntry ->
                             val parentEntry = remember(backStackEntry) {
                                 nav.getBackStackEntry("chat_flow")
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
-
+                            val memberVM: MemberViewModel = viewModel(parentEntry)
+                            val chatVM: ChatViewModel = viewModel(parentEntry)
                             RequestScreen(
                                 { nav.popBackStack() },
-                                membervm = vm
+                                memberVM = memberVM,
+                                chatViewModel = chatVM
                             )
+
 
                         }
 
