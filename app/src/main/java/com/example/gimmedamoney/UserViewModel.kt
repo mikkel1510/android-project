@@ -3,41 +3,42 @@ package com.example.gimmedamoney
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObjects
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class UserViewModel : ViewModel() {
-    private val retrofitClient = RetrofitClient()
-
     init {
-        fetchUsers()
+        getUsers()
     }
 
     data class User(
-        val id: String,
-        val name: String,
-        val email: String,
-        val phone: String
+        @DocumentId val id: String = "",
+        val name: String = "",
+        val email: String = "",
+        val phone: String = ""
     )
 
-    private val _users = mutableStateListOf<User>()
-    val users: List<User> get() = _users
+    private val _users = MutableStateFlow<List<User>>(emptyList())
+    val users = _users.asStateFlow()
 
-    fun addUser(id: String, name: String, email: String, phone: String){
-        _users.add(User(id, name, email, phone))
-    }
+    fun getUsers(){
+        var db = Firebase.firestore
 
-    fun addUser(user: User){
-        _users.add(user)
-    }
+        db.collection("users")
+            .addSnapshotListener { value, error ->
+                if (error != null){
+                    return@addSnapshotListener
+                }
 
-    fun fetchUsers(){
-        viewModelScope.launch {
-            val response = retrofitClient.api.getUsers()
-            val mapped = response.map { User(it.id, it.name, it.email, it.phone) }
-            _users.clear()
-            _users.addAll(mapped)
-            print(_users)
-        }
+                if (value != null){
+                    _users.value = value.toObjects<User>()
+                }
+            }
     }
 }

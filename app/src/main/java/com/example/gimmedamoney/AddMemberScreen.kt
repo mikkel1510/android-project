@@ -36,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -102,7 +103,9 @@ fun AddMemberScreen(
 
             val selectedUsers = rememberSaveable { mutableStateListOf<User>() }
 
-            val filtered = userVM.users.filter{ user ->
+            val users by userVM.users.collectAsState()
+
+            val filtered = users.filter{ user ->
                 !memberVM.members.contains(user) && (
                 user.email.startsWith(searchQuery, ignoreCase = true) ||
                         user.phone.startsWith(searchQuery, ignoreCase = true))
@@ -338,20 +341,6 @@ fun maskEmail(email: String): String{
     }
 
     return "$maskedUsername@$domain"
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun AddMemberPreview() {
-    GimmeDaMoneyTheme {
-        val vm: UserViewModel = viewModel()
-        vm.addUser("1", "bob", "bob@email.com", "12345678")
-        vm.addUser("2", "steve", "steve@email.com", "87654321")
-        vm.addUser("3", "joe", "joe@email.com", "45362718")
-
-        AddMemberScreen({})
-    }
 }
 
 @Preview(showBackground = true)
