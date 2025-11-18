@@ -21,11 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
@@ -33,9 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
-
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.PrimaryButton
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,12 +56,8 @@ fun CreateGroupScreen(
     }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Create Group") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
-                ),
+            TopNavBar(
+                title = "Create Group",
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
                         Icon(
@@ -97,14 +95,14 @@ fun CreateGroupScreen(
                     contentScale = ContentScale.Crop
                 )
             }
-            Button(
+            PrimaryButton(
+                text = if (selectedImageUri == null) "Select Picture" else "Change Picture",
                 onClick = { pickImageLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (selectedImageUri == null) "Select Picture" else "Change Picture")
-            }
+            )
 
-            Button(
+            PrimaryButton(
+                text = "Create Group",
                 onClick = {
                     vm.addGroup(groupName)
                     groupName = ""
@@ -112,10 +110,21 @@ fun CreateGroupScreen(
                     //onGroupCreatePress.navigate("groupDetails/${newGroup.id}")
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Create Group") }
+            )
         }
 
 
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateGroupScreenPreview(){
+    GimmeDaMoneyTheme {
+        CreateGroupScreen(
+            onBackPress = {},
+            onGroupCreatePress = {}
+        )
+    }
 }

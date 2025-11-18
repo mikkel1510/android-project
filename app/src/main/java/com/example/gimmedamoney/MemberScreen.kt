@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +38,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.Red
+import com.example.gimmedamoney.ui.theme.TopNavBar
+
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
@@ -51,7 +56,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
 
     Row(modifier = Modifier
         .padding(10.dp)
-        .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
+        .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.large)
         .padding(10.dp)
         .width(250.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -66,7 +71,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
             member.name
         )
         Button(
-            onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
             modifier = Modifier
                 .width(100.dp)){
             Text("Remove")
@@ -94,6 +99,8 @@ fun RemoveMemberDialog(
             }
 
         },
+        textContentColor = MaterialTheme.colorScheme.onBackground,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
         onDismissRequest = {
             onDismissRequest()
         },
@@ -110,18 +117,22 @@ fun RemoveMemberDialog(
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberViewModel = viewModel(), onCreateRequest: () -> Unit){
     Scaffold (
         topBar = {
-            TopAppBar(
-                title = { Text("Members") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
-                ),
+            TopNavBar(
+                title = "Members",
+                subtitle = "IN GROUP NAME AIWDNAWIPUMDWAPIUMDIP",
+                centerAligned = false,
+                actions = {
+                    IconButton(onClick = { onAddMember() }) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add new member",
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
                         Icon(
@@ -130,14 +141,6 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { onAddMember() }) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add new member",
-                        )
-                    }
-                }
             )
         }
     ) { innerPadding ->
@@ -168,11 +171,13 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
 @Preview(showBackground = true)
 @Composable
 fun MemberScreenPreview() {
-    val vm: MemberViewModel = viewModel()
-    vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
-    vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
+    GimmeDaMoneyTheme {
+        val vm: MemberViewModel = viewModel()
+        vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
+        vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
+        vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
 
-    MembersScreen({}, {}, onCreateRequest = {})
+        MembersScreen({}, {}, onCreateRequest = {})
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.example.myapp.members
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,21 +14,23 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -45,17 +48,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.TopNavBar
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,18 +75,15 @@ fun AddMemberScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Add Members") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Blue,
-                    titleContentColor = Color.White
-                ),
+            TopNavBar(
+                title = "Add Members",
+                subtitle = "to GROUPNAME HERE AWIODNWAIDONAWIUDN",
+                centerAligned = false,
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Go back",
-                            tint = Color.White
+                            contentDescription = "Go back"
                         )
                     }
                 },
@@ -92,11 +98,9 @@ fun AddMemberScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            var searchQuery by remember { mutableStateOf("") }
-            SearchBar({ query -> searchQuery = query })
+            var searchQuery by rememberSaveable { mutableStateOf("") }
 
-            val selectedUsers = remember { mutableStateListOf<User>() }
-            val addedUsers = remember { mutableStateListOf<User>() }
+            val selectedUsers = rememberSaveable { mutableStateListOf<User>() }
 
             val filtered = userVM.users.filter{ user ->
                 !memberVM.members.contains(user) && (
@@ -105,37 +109,21 @@ fun AddMemberScreen(
             }
 
             if (selectedUsers.isNotEmpty()){
-                SelectedUsers(selectedUsers, memberVM.members)
+                SelectedUsers(
+                    selectedUsers,
+                    memberVM.members,
+                    {
+                        memberVM.addMembers(selectedUsers);
+                        onBackPress()
+                    }
+                )
             }
-
+            SearchBar({ query -> searchQuery = query })
 
             if (searchQuery.length >= 3){
                 UserList(filtered, memberVM.members, selectedUsers)
             }
 
-            if (selectedUsers.isNotEmpty()){
-                Button(onClick = {
-                    memberVM.addMembers(selectedUsers);
-                    addedUsers.clear()
-                    addedUsers.addAll(selectedUsers)
-                    selectedUsers.clear()
-                }, Modifier
-                    .width(260.dp)
-                    .height(70.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)) {
-                    Text("Add selected users (${selectedUsers.size})", fontSize = 20.sp)
-                }
-            }
-
-            if (addedUsers.isNotEmpty()){
-                val sharedTextSize = TextStyle(fontSize = 20.sp)
-                addedUsers.forEach { user ->
-                    Row {
-                        Text("Added ", style = sharedTextSize)
-                        Text(user.name, fontWeight = FontWeight.Bold, style = sharedTextSize)
-                        Text(" to group", style = sharedTextSize)
-                    }
-                }
-            }
         }
     }
 }
@@ -168,6 +156,13 @@ fun SearchBar(updateQuery: (String) -> Unit){
                     contentDescription = "Search icon"
                 )
             },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground
+            ),
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 56.dp)
@@ -177,14 +172,22 @@ fun SearchBar(updateQuery: (String) -> Unit){
 }
 
 @Composable
-fun SelectedUsers(users: MutableList<User>, members: List<User>){
+fun SelectedUsers(users: MutableList<User>, members: List<User>, onAdd: () -> Unit){
     Column {
-        Text("Selected Users")
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween){
+            Text("Selected Users")
+            PrimaryButton(
+                text = "Add to group",
+                onClick = {onAdd()},
+                icon = Icons.Filled.Add
+            )
+        }
         LazyRow(
             Modifier
-                .fillMaxWidth()
-                .border(2.dp, Color.Gray, RoundedCornerShape(16.dp))
-                .padding(10.dp)
+                .fillMaxWidth(),
         ) {
             items(
                 items = users,
@@ -201,6 +204,7 @@ fun SelectedUsers(users: MutableList<User>, members: List<User>){
 @Composable
 fun UserIcon(user: User, onUnselect: () -> Unit){
     Column(
+        Modifier.widthIn(60.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         IconButton(
@@ -210,12 +214,12 @@ fun UserIcon(user: User, onUnselect: () -> Unit){
             Icon(
                 imageVector = Icons.Filled.AccountCircle,
                 contentDescription = "Go back",
-                tint = Color.Black,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.fillMaxSize()
             )
         }
         val firstName = user.name.substringBefore(" ")
-        Text(firstName)
+        Text(firstName, fontSize = 12.sp)
     }
 }
 
@@ -227,14 +231,10 @@ fun UserList(
 ){
     if (users.isEmpty()){
         Row {
-            Text("No results", fontSize = 20.sp, color = Color.LightGray)
+            Text("No results", fontSize = 20.sp, color = MaterialTheme.colorScheme.tertiary)
         }
     } else {
         LazyColumn(
-            Modifier
-                .clip(
-                    RoundedCornerShape(12.dp)
-                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
@@ -259,50 +259,68 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
     val borderColor: Color
 
     if (isSelected){
-        borderColor = Color.Blue
+        borderColor = MaterialTheme.colorScheme.primary
     } else {
-        borderColor = Color.LightGray
+        borderColor = MaterialTheme.colorScheme.surfaceVariant
     }
+    Surface(
+        modifier = Modifier
+            .padding(5.dp)
+            .fillMaxWidth()
+            .clickable { onSelect(); }
+            .padding(5.dp),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shadowElevation = 4.dp,
+        tonalElevation = 0.dp,
+        border = BorderStroke(3.dp, borderColor)
+    ) {
+        Row(
+            Modifier
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onSelect(); }
-        .clip(RoundedCornerShape(16.dp))
-        .background(Color.LightGray)
-        .border(width = 3.dp, color = borderColor, shape = RoundedCornerShape(16.dp))
-        .padding(15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ){
 
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = "Go back",
+                tint = Color.White,
+                modifier = Modifier.size(70.dp)
+            )
 
-        Icon(
-            imageVector = Icons.Filled.AccountCircle,
-            contentDescription = "Go back",
-            tint = Color.White,
-            modifier = Modifier.size(70.dp)
-        )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Row {
+                    Text(
+                        user.name,
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline,
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                val maskedEmail = maskEmail(email = user.email)
+                Column {
+                    Text(maskedEmail, color = MaterialTheme.colorScheme.onBackground)
 
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ){
-            Row{
-                Text(
-                    user.name, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline, fontSize = 20.sp, color = Color.Black
-                )
-            }
-            val maskedEmail = maskEmail(email = user.email)
-            Column{
-                Text(maskedEmail, color = Color.Black)
+                    Row {
+                        Text(
+                            user.phone.substring(0, 2),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text("****", color = MaterialTheme.colorScheme.onBackground)
+                        Text(
+                            user.phone.substring(6),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
 
-                Row{
-                    Text(user.phone.substring(0, 2), color = Color.Black)
-                    Text("****", color = Color.Black)
-                    Text(user.phone.substring(6), color = Color.Black)
+                    }
 
                 }
-
             }
         }
     }
@@ -326,27 +344,45 @@ fun maskEmail(email: String): String{
 @Preview(showBackground = true)
 @Composable
 fun AddMemberPreview() {
-    val vm: UserViewModel = viewModel()
-    vm.addUser("1", "bob", "bob@email.com", "12345678")
-    vm.addUser("2", "steve", "steve@email.com", "87654321")
-    vm.addUser("3", "joe", "joe@email.com", "45362718")
+    GimmeDaMoneyTheme {
+        val vm: UserViewModel = viewModel()
+        vm.addUser("1", "bob", "bob@email.com", "12345678")
+        vm.addUser("2", "steve", "steve@email.com", "87654321")
+        vm.addUser("3", "joe", "joe@email.com", "45362718")
 
-    AddMemberScreen({})
+        AddMemberScreen({})
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun UserListPreview() {
-    val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
-    val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
-    val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
-    val users =  listOf(user, user2, user3)
+    GimmeDaMoneyTheme {
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+        val users =  listOf(user, user2, user3)
 
-    val members = listOf<User>()
+        val members = listOf<User>()
 
-    val selectedUsers: MutableList<User> = listOf(user).toMutableList()
+        val selectedUsers: MutableList<User> = listOf(user).toMutableList()
+    
+        UserList(users, members, selectedUsers)
+    }
+}
 
-    UserList(users, members, selectedUsers)
+@Preview(showBackground = true)
+@Composable
+fun SelectedUsersPreview(){
+    GimmeDaMoneyTheme {
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+        val users =  listOf(user, user2, user3).toMutableList()
 
+        val members = listOf<User>()
+
+        SelectedUsers(users, members, {})
+    }
 }
 

@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,16 +26,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.MemberViewModel
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.UserViewModel.User;
+import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestScreen(
     onBackPress: () -> Unit,
-    membervm: MemberViewModel,
-    groupvm: GroupViewModel
-
+    vm: MemberViewModel
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -44,8 +45,9 @@ fun RequestScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Create Request") },
+            TopNavBar(
+                title = "Create Reqest",
+                subtitle = "INSERT GROUP NAME HERE AIPWDNBWAIPNDAWIPDNAWPIUNDPIWAND", //TODO: Use Group ID
                 navigationIcon = {
                     IconButton(onClick = onBackPress) {
                         Icon(
@@ -109,14 +111,12 @@ fun RequestScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = {
-                    // TODO: handle request with selectedMembers list
-                },
+
+            PrimaryButton(
+                text = "Send Request",
+                onClick = {/*TODO: handle request with selectedMembers list*/},
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Send Request")
-            }
+            )
         }
     }
 }
@@ -130,8 +130,10 @@ fun GroupList(
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ){
         items(members) { member ->
             GroupBar(
                 member = member,
@@ -154,16 +156,13 @@ fun GroupBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                width = 2.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .background(bgColor, RoundedCornerShape(8.dp))
+            .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
+            .clip(MaterialTheme.shapes.small)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(10.dp)
             .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically,
+    ){
         Image(
             modifier = Modifier.size(40.dp),
             painter = painterResource(id = R.drawable.user_icon),
@@ -180,7 +179,6 @@ fun GroupBar(
 @Composable
 fun RequestScreenPreview()  {
     val membervm: MemberViewModel = viewModel()
-    val groupvm: GroupViewModel = viewModel()
 
     membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
     membervm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
@@ -190,7 +188,9 @@ fun RequestScreenPreview()  {
     membervm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
     membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
 
-    RequestScreen({}, membervm, groupvm)
+    GimmeDaMoneyTheme {
+        RequestScreen({}, membervm)
+    }
 }
 
 
