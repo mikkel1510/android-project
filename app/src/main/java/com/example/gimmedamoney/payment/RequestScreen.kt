@@ -1,7 +1,9 @@
 package com.example.gimmedamoney.payment
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,19 +25,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.R
-import com.example.gimmedamoney.UserViewModel.User;
+import com.example.gimmedamoney.UserViewModel.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestScreen(
     onBackPress: () -> Unit,
-    vm: MemberViewModel
+    membervm: MemberViewModel,
+    groupvm: GroupViewModel
+
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
-
+    var selectedMembers by remember { mutableStateOf(setOf<String>()) }
 
     Scaffold(
         topBar = {
@@ -66,13 +71,23 @@ fun RequestScreen(
                     .fillMaxWidth()
                     .heightIn(max = 250.dp)
             ) {
-                GroupList(vm.members)
+                GroupList(
+                    members = membervm.members,
+                    selected = selectedMembers,
+                    onToggleMember = { memberId ->
+                        selectedMembers = if (memberId in selectedMembers) {
+                            selectedMembers - memberId
+                        } else {
+                            selectedMembers + memberId
+                        }
+                    }
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
 
             OutlinedTextField(
                 value = amount,
-                onValueChange = { amount = it },
+                onValueChange = { input -> amount = input.filter { it.isDigit() } },
                 label = { Text("Amount") },
                 prefix = { Text("$") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -83,12 +98,10 @@ fun RequestScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
                 label = { Text("Enter Text") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(75.dp)
@@ -96,67 +109,88 @@ fun RequestScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-
             Button(
-                onClick = {/*TODO*/},
+                onClick = {
+                    // TODO: handle request with selectedMembers list
+                },
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Text("Send Request")
             }
-
         }
     }
 }
 
+
 @Composable
-fun GroupList(members: List<User>) {
-    LazyColumn (
+fun GroupList(
+    members: List<User>,
+    selected: Set<String>,
+    onToggleMember: (String) -> Unit
+) {
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
-    ){
+    ) {
         items(members) { member ->
-            GroupBar(member)
+            GroupBar(
+                member = member,
+                isSelected = member.id in selected,
+                onClick = { onToggleMember(member.id) }
+            )
         }
     }
 }
 
 @Composable
-fun GroupBar(member: User){
+fun GroupBar(
+    member: User,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ){
+            .border(
+                width = 2.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .background(bgColor, RoundedCornerShape(8.dp))
+            .padding(10.dp)
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Image(
             modifier = Modifier.size(40.dp),
             painter = painterResource(id = R.drawable.user_icon),
             contentDescription = "User icon"
         )
         Spacer(modifier = Modifier.width(10.dp))
-        Text(
-            member.name
-        )
+        Text(member.name)
     }
 }
+
 
 
 @Preview(showBackground = true)
 @Composable
 fun RequestScreenPreview()  {
-    val vm: MemberViewModel = viewModel()
+    val membervm: MemberViewModel = viewModel()
+    val groupvm: GroupViewModel = viewModel()
 
-    vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    vm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
-    vm.addMember(User("3", "Jan", "bob@email.com", "12345678"))
-    vm.addMember(User("4", "Man", "bob@email.com", "12345678"))
-    vm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
-    vm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
-    vm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
+    membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
+    membervm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
+    membervm.addMember(User("3", "Jan", "bob@email.com", "12345678"))
+    membervm.addMember(User("4", "Man", "bob@email.com", "12345678"))
+    membervm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
+    membervm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
+    membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
 
-    RequestScreen({}, vm)
+    RequestScreen({}, membervm, groupvm)
 }
 
 

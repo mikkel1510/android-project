@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
                         RequestScreen(
                             { nav.popBackStack() },
-                            vm = vm
+                            membervm = vm
                         )
 
                     }
