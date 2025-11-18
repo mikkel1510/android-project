@@ -1,6 +1,6 @@
 package com.example.gimmedamoney
 
-import android.R
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Group
@@ -38,17 +37,22 @@ import com.example.gimmedamoney.GroupViewModel.Group
 import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.UserViewModel.User
 
-
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onMembersPress: () -> Unit,
     onCreateGroup: () -> Unit,
+    onOpenSettings: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
     //Dummy group
-    val dummyGroup = Group("1","dummy", members = listOf())
-    if (vm.groups.isEmpty()){
+    val dummyGroup = Group(
+        id = "1",
+        name = "dummy",
+        members = mutableListOf<User>()
+    )
+        if (vm.groups.isEmpty()){
         vm.addGroup(dummyGroup)
     }
     val summary = GroupSummary(id = "1", name = "dummysummary")
@@ -70,7 +74,7 @@ fun HomeScreen(
                 )
             )
         },
-        bottomBar = { BottomNavBar() },
+        bottomBar = { BottomNavBar(onSettings = onOpenSettings) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(Modifier.fillMaxSize().padding(innerPadding)) {
@@ -132,7 +136,7 @@ private fun GroupCard(
                 .background(Color(0xFFEDEEF2))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_menu_gallery),
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -153,7 +157,7 @@ private fun GroupCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    Icons.AutoMirrored.Outlined.ReceiptLong,
+                    Icons.Outlined.ReceiptLong,
                     null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -261,25 +265,34 @@ private fun EmptyState(
 }
 
 @Composable
-private fun BottomNavBar() {
+private fun BottomNavBar(
+    onSettings: () -> Unit,
+    onProfile: () -> Unit = {},
+    onGroups: () -> Unit = {},
+    onFavourites: () -> Unit = {}
+) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         NavigationBarItem(
-            selected = false, onClick = { /* TODO */ },
+            selected = false,
+            onClick = onProfile,
             icon = { Icon(Icons.Outlined.Person, null) },
             label = { Text("Profile") }
         )
         NavigationBarItem(
-            selected = true, onClick = { /* already here */ },
+            selected = true,
+            onClick = onGroups,
             icon = { Icon(Icons.Outlined.Group, null) },
             label = { Text("Groups") }
         )
         NavigationBarItem(
-            selected = false, onClick = { /* TODO */ },
+            selected = false,
+            onClick = onFavourites,
             icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
             label = { Text("Favourites") }
         )
         NavigationBarItem(
-            selected = false, onClick = { /* TODO */ },
+            selected = false,
+            onClick = onSettings,        // <-- navigate
             icon = { Icon(Icons.Outlined.Settings, null) },
             label = { Text("Settings") }
         )
