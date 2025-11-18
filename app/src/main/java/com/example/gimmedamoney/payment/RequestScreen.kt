@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,8 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
-import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
@@ -149,17 +151,7 @@ fun GroupBar(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    //val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-    //val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
-
-    val borderColor: Color
-
-    if (isSelected){
-        borderColor = MaterialTheme.colorScheme.primary
-    } else {
-        borderColor = MaterialTheme.colorScheme.surfaceVariant
-    }
-
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
 
     Row(
         modifier = Modifier
@@ -172,8 +164,8 @@ fun GroupBar(
         verticalAlignment = Alignment.CenterVertically,
     ){
         Image(
-            modifier = Modifier.size(40.dp),
-            painter = painterResource(id = R.drawable.user_icon),
+            modifier = Modifier.size(40.dp).clip(CircleShape),
+            painter = painterResource(id = member.profilePictureResId),
             contentDescription = "User icon"
         )
         Spacer(modifier = Modifier.width(10.dp))
@@ -188,17 +180,15 @@ fun GroupBar(
 fun RequestScreenPreview()  {
     val membervm: MemberViewModel = viewModel()
 
-    membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    membervm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
-    membervm.addMember(User("3", "Jan", "bob@email.com", "12345678"))
-    membervm.addMember(User("4", "Man", "bob@email.com", "12345678"))
-    membervm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
-    membervm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
-    membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
+    membervm.addMember(User("1", "Bob", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("2", "Steve", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("3", "Jan", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("4", "Man", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("5", "Dan", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("6", "Stan", "bob@email.com", "12345678", R.drawable.user_icon))
+    membervm.addMember(User("7", "Klan", "bob@email.com", "12345678", R.drawable.user_icon))
 
     GimmeDaMoneyTheme {
         RequestScreen({}, membervm)
     }
 }
-
-

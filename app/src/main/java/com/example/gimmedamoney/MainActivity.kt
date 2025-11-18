@@ -14,7 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.payment.RequestScreen
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
-import com.example.myapp.members.AddMemberScreen
+import com.example.gimmedamoney.AddMemberScreen
 import com.example.gimmedamoney.settings.SettingsScreen
 import com.example.gimmedamoney.settings.SettingsViewModel
 import com.example.gimmedamoney.settings.ThemeMode

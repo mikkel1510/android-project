@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -63,8 +64,8 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
         horizontalArrangement = Arrangement.SpaceBetween
     ){
         Image(
-            modifier = Modifier.size(40.dp),
-            painter = painterResource(id = R.drawable.user_icon),
+            modifier = Modifier.size(40.dp).clip(CircleShape),
+            painter = painterResource(id = member.profilePictureResId),
             contentDescription = "User icon"
         )
         Text(
@@ -173,9 +174,9 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
 fun MemberScreenPreview() {
     GimmeDaMoneyTheme {
         val vm: MemberViewModel = viewModel()
-        vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-        vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
-        vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
+        vm.addMember(User("1", "Bob", "bob@email.com", "12345678", R.drawable.user_icon))
+        vm.addMember(User("2", "Steve", "steve@email.com", "87654321", R.drawable.user_icon))
+        vm.addMember(User("3", "Joe", "joe@email.com", "45362718", R.drawable.user_icon))
 
         MembersScreen({}, {}, onCreateRequest = {})
     }
