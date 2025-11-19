@@ -91,7 +91,7 @@ fun HomeScreen(
                     items(groups, key = { it.id }) { g ->
                         Text(g.name)
                         GroupCard(
-                            group = g,
+                            group = GroupSummary(g.id, g.name),
                             onClick = onMembersPress
                         )
                     }
@@ -111,7 +111,7 @@ fun HomeScreen(
 
 @Composable
 private fun GroupCard(
-    group: Group,
+    group: GroupSummary,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -153,17 +153,17 @@ private fun GroupCard(
                 )
                 Text("Total", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
-                /*
+
                 Text(
                     dkk(group.totalDkk),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
-                 */
+
             }
 
             Spacer(Modifier.height(6.dp))
-/*
+
             BalancePill(
                 label = "You owe",
                 value = group.youOweDkk,
@@ -175,8 +175,6 @@ private fun GroupCard(
                 value = group.youAreOwedDkk,
                 color = Green
             )
-
- */
         }
     }
 }
