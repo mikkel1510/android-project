@@ -40,14 +40,14 @@ import com.example.gimmedamoney.UserViewModel.User
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
-        members.forEach { member ->
-           MemberBar(member, onRemove)
+        members.forEachIndexed { index, member ->
+           MemberBar(member, onRemove, index == 0)
         }
     }
 }
 
 @Composable
-fun MemberBar(member: User, onRemove: (User) -> Unit){
+fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false){
 
     Row(modifier = Modifier
         .padding(10.dp)
@@ -63,7 +63,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
             contentDescription = "User icon"
         )
         Text(
-            member.name
+            if (isCreator) "👑 ${member.name}" else member.name
         )
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
