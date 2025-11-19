@@ -3,8 +3,11 @@ package com.example.gimmedamoney
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import java.util.Date
 
 class MemberViewModel(val groupId: String) : ViewModel() {
+
+    val creationDate: Date = Date()
 
     private val _members = mutableStateListOf<UserViewModel.User>()
     val members: List<UserViewModel.User> get() = _members

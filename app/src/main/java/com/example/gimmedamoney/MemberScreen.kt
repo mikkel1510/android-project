@@ -37,6 +37,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.UserViewModel.User
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
@@ -63,7 +66,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
             contentDescription = "User icon"
         )
         Text(
-            if (isCreator) "👑 ${member.name}" else member.name
+            if (isCreator) "${member.name} 👑" else member.name
         )
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -160,6 +163,10 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
             }
 
             MemberList(vm.members, { member -> selectedMember = member })
+
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formattedDate = sdf.format(vm.creationDate)
+            Text("Group created on: $formattedDate")
         }
     }
 }
