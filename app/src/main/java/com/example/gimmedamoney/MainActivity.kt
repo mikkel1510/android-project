@@ -70,7 +70,16 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("settings") {
-                            SettingsScreen(onBack = { nav.popBackStack() }, vm = settingsVM)
+                            SettingsScreen(
+                                onBack = { nav.popBackStack() },
+                                vm = settingsVM,
+                                userVM = userVM,
+                                onLogOut = { nav.navigate("login_flow"){
+                                    popUpTo("settings"){
+                                        inclusive = true
+                                    }
+                                } }
+                            )
                         }
 
                         composable("createGroupScreen") {

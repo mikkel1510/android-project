@@ -1,17 +1,13 @@
 package com.example.gimmedamoney
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import java.util.UUID
 
 class UserViewModel : ViewModel() {
     data class User(
@@ -48,11 +44,48 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    fun login(email: String, password: String): Boolean{
+    fun logOut(){
+        _currentUser.value = null
+    }
+
+    fun logIn(email: String, password: String): Boolean{
         val user = _users.value.firstOrNull { it.email == email && it.password == password }
         user?.let {
             _currentUser.value = user.id
         }
         return user != null
+    }
+
+    fun createAccount(name: String, phone: String, email: String, password: String): Boolean {
+        val emailTaken = users.value.any { it.email.equals(email, ignoreCase = true) }
+        val phoneTaken = users.value.any { it.phone == phone }
+
+        if (emailTaken){
+            Log.w("UserVM", "Email already in use")
+            return false
+        }
+
+        if (phoneTaken){
+            Log.w("UserVM", "Phone already in use")
+            return false
+        }
+
+        val user = User(
+            name = name,
+            phone = phone,
+            email = email,
+            password = password
+        )
+
+        db.collection("users")
+            .add(user)
+            .addOnSuccessListener { docRef ->
+                Log.d("UserVM", "User created with id: ${docRef.id}")
+                _currentUser.value = docRef.id
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserVM", "Error creating user", e)
+            }
+        return true
     }
 }
