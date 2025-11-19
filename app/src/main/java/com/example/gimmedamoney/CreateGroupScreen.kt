@@ -45,7 +45,7 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 @Composable
 fun CreateGroupScreen(
     onBackPress: () -> Unit,
-    onGroupCreatePress: () -> Unit,
+    onGroupCreatePress: (String) -> Unit,
     vm: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel()
 ) {
@@ -109,9 +109,11 @@ fun CreateGroupScreen(
                 text = "Create Group",
                 onClick = {
                     userID?.let { id ->
-                        vm.createGroup(name = groupName, selectedImageUri.toString(), id)
-                        groupName = ""
-                        onGroupCreatePress()
+                        vm.createGroup(
+                            groupName,
+                            selectedImageUri.toString(),
+                            id,
+                            {  id -> if (id != null) onGroupCreatePress(id) })
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

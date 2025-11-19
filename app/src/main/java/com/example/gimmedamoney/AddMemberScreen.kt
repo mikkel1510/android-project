@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel
@@ -72,13 +73,15 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 fun AddMemberScreen(
     onBackPress: () -> Unit,
     memberVM: MemberViewModel = viewModel(),
-    userVM: UserViewModel = viewModel()
+    userVM: UserViewModel = viewModel(),
+    groupVM: GroupViewModel = viewModel(),
+    groupID: String
 ) {
     Scaffold(
         topBar = {
             TopNavBar(
                 title = "Add Members",
-                subtitle = "to GROUPNAME HERE AWIODNWAIDONAWIUDN",
+                subtitle = "to group with id $groupID",
                 centerAligned = false,
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {
@@ -116,7 +119,7 @@ fun AddMemberScreen(
                     selectedUsers,
                     memberVM.members,
                     {
-                        memberVM.addMembers(selectedUsers);
+                        groupVM.addMembers(groupID, selectedUsers.map { it.id })
                         onBackPress()
                     }
                 )

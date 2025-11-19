@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -62,11 +60,17 @@ class MainActivity : ComponentActivity() {
                     }
 
                     navigation(startDestination = "home", route = "app_flow"){ //Change startDestination to groupChat
-                        composable("home") {
+                        composable("home") { backStackEntry ->
+                            val parentEntry = remember(backStackEntry){
+                                nav.getBackStackEntry("app_flow")
+                            }
+                            val groupVM: GroupViewModel = viewModel(parentEntry)
+
                             HomeScreen(
                                 { id -> nav.navigate("group_flow/$id") },
                                 { nav.navigate("createGroupScreen") },
                                 { nav.navigate("settings") },
+                                groupVM = groupVM,
                                 userVM = userVM
                             )
                         }
@@ -87,7 +91,7 @@ class MainActivity : ComponentActivity() {
                         composable("createGroupScreen") {
                             CreateGroupScreen(
                                 { nav.popBackStack() },
-                                { nav.navigate("groupChat"){
+                                { id -> nav.navigate("group_flow/$id"){
                                     popUpTo("createGroupScreen") {
                                         inclusive = true
                                     }
@@ -105,10 +109,10 @@ class MainActivity : ComponentActivity() {
                         ){
                             composable("groupChat") { backStackEntry ->
                                 val parentEntry = remember(backStackEntry) {
-                                    nav.getBackStackEntry("app_flow")
+                                    nav.getBackStackEntry("group_flow/{groupID}")
                                 }
                                 val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+                                val groupID = parentEntry.arguments?.getString("groupID")!!
 
                                 GroupChatScreen(
                                     "Copenhagen Trip",
@@ -122,14 +126,15 @@ class MainActivity : ComponentActivity() {
 
                             composable("createRequest") { backStackEntry ->
                                 val parentEntry = remember(backStackEntry) {
-                                    nav.getBackStackEntry("app_flow")
+                                    nav.getBackStackEntry("group_flow/{groupID}")
                                 }
                                 val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+                                val groupID = parentEntry.arguments?.getString("groupID")!!
 
                                 RequestScreen(
                                     { nav.popBackStack() },
-                                    membervm = vm
+                                    membervm = vm,
+                                    groupID
                                 )
 
                             }
@@ -138,29 +143,34 @@ class MainActivity : ComponentActivity() {
                                 route = "members",
                             ) { backStackEntry ->
                                 val parentEntry = remember(backStackEntry) {
-                                    nav.getBackStackEntry("app_flow")
+                                    nav.getBackStackEntry("group_flow/{groupID}")
                                 }
                                 val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+                                val groupID = parentEntry.arguments?.getString("groupID")!!
 
                                 MembersScreen(
                                     { nav.popBackStack() },
                                     { nav.navigate("addMember") },
                                     vm = vm,
-                                    { nav.navigate("createRequest")},
                                     groupID = groupID
                                 )
                             }
                             composable("addMember") { backStackEntry ->
-                                val parentEntry = remember(backStackEntry){
+                                val appEntry = remember(backStackEntry){
                                     nav.getBackStackEntry("app_flow")
                                 }
-                                val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+                                val memberVM: MemberViewModel = viewModel(appEntry)
+                                val groupVM: GroupViewModel = viewModel(appEntry)
+
+                                val groupID = nav
+                                    .getBackStackEntry("group_flow/{groupID}")
+                                    .arguments?.getString("groupID")!!
 
                                 AddMemberScreen(
                                     { nav.popBackStack() },
-                                    memberVM = vm
+                                    memberVM = memberVM,
+                                    groupVM = groupVM,
+                                    groupID = groupID
                                 )
                             }
 

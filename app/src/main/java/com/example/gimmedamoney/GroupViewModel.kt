@@ -10,6 +10,8 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.example.gimmedamoney.UserViewModel.User
+import com.google.firebase.firestore.FieldValue
 
 class GroupViewModel() : ViewModel() {
 
@@ -72,7 +74,7 @@ class GroupViewModel() : ViewModel() {
     }
      */
 
-    fun createGroup(name: String, imageUri: String? = null, creatorID: String){
+    fun createGroup(name: String, imageUri: String? = null, creatorID: String, onResult: (String?) -> Unit){
         val group = Group(
             name = name,
             imageUri = imageUri,
@@ -83,11 +85,12 @@ class GroupViewModel() : ViewModel() {
             .add(group)
             .addOnSuccessListener { docRef ->
                 Log.d("GroupVM", "Group added with id ${docRef.id}")
+                onResult(docRef.id)
             }
             .addOnFailureListener { e ->
                 Log.e("GroupVM", "Error adding group", e)
+                onResult(null)
             }
-
     }
 
     fun getUserGroups(userID: String){
@@ -101,6 +104,21 @@ class GroupViewModel() : ViewModel() {
                 if (value != null){
                     _groups.value = value.toObjects<Group>()
                 }
+            }
+    }
+
+    fun addMembers(groupID: String, userIDs: List<String>){
+        val groupRef = db.collection("groups").document(groupID)
+
+        groupRef.update(
+            "memberIDs",
+            FieldValue.arrayUnion(*userIDs.toTypedArray())
+        )
+            .addOnSuccessListener {
+                Log.d("GroupVM", "Added ${userIDs.size} members")
+            }
+            .addOnFailureListener { e ->
+                Log.e("GroupVM", "Error adding members", e)
             }
     }
 

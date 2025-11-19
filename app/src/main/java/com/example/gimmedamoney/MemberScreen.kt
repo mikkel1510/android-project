@@ -122,14 +122,13 @@ fun MembersScreen(
     onBackPress: () -> Unit,
     onAddMember: () -> Unit,
     vm: MemberViewModel = viewModel(),
-    onCreateRequest: () -> Unit,
     groupID: String
 ){
     Scaffold (
         topBar = {
             TopNavBar(
                 title = "Members",
-                subtitle = "IN GROUP NAME AIWDNAWIPUMDWAPIUMDIP",
+                subtitle = "Group id: $groupID",
                 centerAligned = false,
                 actions = {
                     IconButton(onClick = { onAddMember() }) {
@@ -183,7 +182,7 @@ fun MemberScreenPreview() {
         vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
         vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
 
-        MembersScreen({}, {}, onCreateRequest = {}, groupID = "")
+        MembersScreen({}, {}, groupID = "")
     }
 
 }

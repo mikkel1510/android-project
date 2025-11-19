@@ -37,6 +37,7 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 fun RequestScreen(
     onBackPress: () -> Unit,
     membervm: MemberViewModel,
+    groupID: String
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -113,7 +114,11 @@ fun RequestScreen(
 
             PrimaryButton(
                 text = "Send Request",
-                onClick = {/*TODO: handle request with selectedMembers list*/},
+                onClick = {
+                    groupID?.let { id ->
+                        /*TODO: handle request with selectedMembers list*/
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -149,8 +154,6 @@ fun GroupBar(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    //val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-    //val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
 
     val borderColor: Color
 
@@ -197,7 +200,7 @@ fun RequestScreenPreview()  {
     membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
 
     GimmeDaMoneyTheme {
-        RequestScreen({}, membervm)
+        RequestScreen({}, membervm, "")
     }
 }
 
