@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -18,6 +17,8 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,11 +31,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.GroupViewModel.Group
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.GroupViewModel.Group
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +46,7 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     vm: GroupViewModel = viewModel()
 ) {
+    val groups by vm.groups.collectAsState()
 
     Scaffold(
         topBar = {
@@ -65,7 +67,7 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(innerPadding)) {
 
-            if (vm.groups.isEmpty()) {
+            if (groups.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -86,7 +88,8 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(vm.groupSummaries, key = { it.id }) { g ->
+                    items(groups, key = { it.id }) { g ->
+                        Text(g.name)
                         GroupCard(
                             group = g,
                             onClick = onMembersPress
@@ -108,7 +111,7 @@ fun HomeScreen(
 
 @Composable
 private fun GroupCard(
-    group: GroupSummary,
+    group: Group,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -150,15 +153,17 @@ private fun GroupCard(
                 )
                 Text("Total", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
+                /*
                 Text(
                     dkk(group.totalDkk),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
+                 */
             }
 
             Spacer(Modifier.height(6.dp))
-
+/*
             BalancePill(
                 label = "You owe",
                 value = group.youOweDkk,
@@ -170,6 +175,8 @@ private fun GroupCard(
                 value = group.youAreOwedDkk,
                 color = Green
             )
+
+ */
         }
     }
 }

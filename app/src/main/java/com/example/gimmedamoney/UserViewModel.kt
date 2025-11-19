@@ -13,23 +13,22 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class UserViewModel : ViewModel() {
-    init {
-        getUsers()
-    }
-
     data class User(
         @DocumentId val id: String = "",
         val name: String = "",
         val email: String = "",
         val phone: String = ""
     )
+    private val db = Firebase.firestore
+
+    init {
+        getUsers()
+    }
 
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
 
     fun getUsers(){
-        var db = Firebase.firestore
-
         db.collection("users")
             .addSnapshotListener { value, error ->
                 if (error != null){

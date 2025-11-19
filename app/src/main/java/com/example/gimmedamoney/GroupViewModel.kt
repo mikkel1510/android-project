@@ -7,6 +7,9 @@ import java.util.UUID
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObjects
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class GroupViewModel : ViewModel() {
 
@@ -31,19 +34,23 @@ class GroupViewModel : ViewModel() {
         val paidBy: String,
         val splitBetween: List<String>
     )
+    private val db = Firebase.firestore
+
+    init {
+        getGroups()
+    }
     /**
      *
      * Internal state
      *
      */
 
-    private val _groups = mutableStateListOf<Group>()
-    val groups: List<Group> get() = _groups;
+    private val _groups = MutableStateFlow<List<Group>>(emptyList())
+    val groups = _groups.asStateFlow();
 
     private val _groupSummaries = mutableStateListOf<GroupSummary>()
     val groupSummaries: List<GroupSummary> get() = _groupSummaries
 
-    val db = Firebase.firestore
 
     /**
      *
@@ -51,15 +58,19 @@ class GroupViewModel : ViewModel() {
      *
      */
 
+    /*
     fun addGroupSummary(g: GroupSummary) = _groupSummaries.add(g)
     fun clear() = _groups.clear()
+     */
 
+    /*
     fun addGroup(name: String, imageUri: String? = null): Group? {
         if (name.isBlank()) return null
         val newGroup = Group(name = name.trim(), imageUri = imageUri)
         _groups.add(newGroup)
         return newGroup
     }
+     */
 
     fun createGroup(name: String, imageUri: String? = null){
         val group = Group(
@@ -77,6 +88,20 @@ class GroupViewModel : ViewModel() {
 
     }
 
+    fun getGroups(){
+        db.collection("groups")
+            .addSnapshotListener { value, error ->
+                if (error != null){
+                    return@addSnapshotListener
+                }
+
+                if (value != null){
+                    _groups.value = value.toObjects<Group>()
+                }
+            }
+    }
+
+    /*
     fun addGroup(group: Group){
         _groups.add(group)
     }
@@ -86,6 +111,8 @@ class GroupViewModel : ViewModel() {
     fun getGroupById(id: String): Group? {
         return _groups.find { it.id == id}
     }
+
+     */
     /*
     fun updateGroupImage(groupId: String, newUri: String?) {
         getGroupById(groupId)?.imageUri = newUri

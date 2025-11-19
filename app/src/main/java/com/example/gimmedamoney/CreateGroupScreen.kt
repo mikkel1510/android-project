@@ -104,7 +104,7 @@ fun CreateGroupScreen(
             PrimaryButton(
                 text = "Create Group",
                 onClick = {
-                    vm.createGroup(name = groupName)
+                    vm.createGroup(name = groupName, selectedImageUri.toString())
                     groupName = ""
                     onGroupCreatePress()
                 },
