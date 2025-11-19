@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
@@ -45,8 +46,11 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 fun CreateGroupScreen(
     onBackPress: () -> Unit,
     onGroupCreatePress: () -> Unit,
-    vm: GroupViewModel = viewModel()
+    vm: GroupViewModel = viewModel(),
+    userVM: UserViewModel = viewModel()
 ) {
+    val userID by userVM.currentUser.collectAsState()
+
     var groupName by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val pickImageLauncher = rememberLauncherForActivityResult(
@@ -104,9 +108,11 @@ fun CreateGroupScreen(
             PrimaryButton(
                 text = "Create Group",
                 onClick = {
-                    vm.createGroup(name = groupName, selectedImageUri.toString())
-                    groupName = ""
-                    onGroupCreatePress()
+                    userID?.let { id ->
+                        vm.createGroup(name = groupName, selectedImageUri.toString(), id)
+                        groupName = ""
+                        onGroupCreatePress()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -123,7 +129,7 @@ fun CreateGroupScreenPreview(){
     GimmeDaMoneyTheme {
         CreateGroupScreen(
             onBackPress = {},
-            onGroupCreatePress = {}
+            onGroupCreatePress = {},
         )
     }
 }

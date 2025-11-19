@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,7 +36,7 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
-import com.example.gimmedamoney.GroupViewModel.Group
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,9 +45,18 @@ fun HomeScreen(
     onMembersPress: () -> Unit,
     onCreateGroup: () -> Unit,
     onOpenSettings: () -> Unit,
-    vm: GroupViewModel = viewModel()
+    groupVM: GroupViewModel = viewModel(),
+    userVM: UserViewModel = viewModel()
 ) {
-    val groups by vm.groups.collectAsState()
+
+    val userID by userVM.currentUser.collectAsState()
+    val groups by groupVM.groups.collectAsState()
+
+    LaunchedEffect(userID) {
+        userID?.let { id ->
+            groupVM.getUserGroups(id)
+        }
+    }
 
     Scaffold(
         topBar = {

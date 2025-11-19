@@ -11,7 +11,7 @@ import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class GroupViewModel : ViewModel() {
+class GroupViewModel() : ViewModel() {
 
     /**
      *
@@ -24,6 +24,7 @@ class GroupViewModel : ViewModel() {
         @DocumentId val id: String = "",
         val name: String = "",
         val imageUri: String? = null,
+        val creatorID: String = "",
         val memberIDs: List<String> = emptyList(),
     )
 
@@ -36,9 +37,6 @@ class GroupViewModel : ViewModel() {
     )
     private val db = Firebase.firestore
 
-    init {
-        getGroups()
-    }
     /**
      *
      * Internal state
@@ -72,10 +70,12 @@ class GroupViewModel : ViewModel() {
     }
      */
 
-    fun createGroup(name: String, imageUri: String? = null){
+    fun createGroup(name: String, imageUri: String? = null, creatorID: String){
         val group = Group(
             name = name,
             imageUri = imageUri,
+            creatorID = creatorID,
+            memberIDs = listOf(creatorID)
         )
         db.collection("groups")
             .add(group)
@@ -88,8 +88,9 @@ class GroupViewModel : ViewModel() {
 
     }
 
-    fun getGroups(){
+    fun getUserGroups(userID: String){
         db.collection("groups")
+            .whereArrayContains("memberIDs", userID)
             .addSnapshotListener { value, error ->
                 if (error != null){
                     return@addSnapshotListener

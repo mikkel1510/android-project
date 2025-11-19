@@ -1,6 +1,7 @@
 package com.example.gimmedamoney
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -17,9 +18,12 @@ class UserViewModel : ViewModel() {
         @DocumentId val id: String = "",
         val name: String = "",
         val email: String = "",
-        val phone: String = ""
+        val phone: String = "",
+        val password: String = ""
     )
     private val db = Firebase.firestore
+
+
 
     init {
         getUsers()
@@ -27,6 +31,9 @@ class UserViewModel : ViewModel() {
 
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
+
+    private var _currentUser = MutableStateFlow<String?>(null)
+    val currentUser = _currentUser.asStateFlow()
 
     fun getUsers(){
         db.collection("users")
@@ -39,5 +46,13 @@ class UserViewModel : ViewModel() {
                     _users.value = value.toObjects<User>()
                 }
             }
+    }
+
+    fun login(email: String, password: String): Boolean{
+        val user = _users.value.firstOrNull { it.email == email && it.password == password }
+        user?.let {
+            _currentUser.value = user.id
+        }
+        return user != null
     }
 }
