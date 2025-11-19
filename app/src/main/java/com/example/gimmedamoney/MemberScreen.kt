@@ -118,7 +118,13 @@ fun RemoveMemberDialog(
 }
 
 @Composable
-fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberViewModel = viewModel(), onCreateRequest: () -> Unit){
+fun MembersScreen(
+    onBackPress: () -> Unit,
+    onAddMember: () -> Unit,
+    vm: MemberViewModel = viewModel(),
+    onCreateRequest: () -> Unit,
+    groupID: String
+){
     Scaffold (
         topBar = {
             TopNavBar(
@@ -177,7 +183,7 @@ fun MemberScreenPreview() {
         vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
         vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
 
-        MembersScreen({}, {}, onCreateRequest = {})
+        MembersScreen({}, {}, onCreateRequest = {}, groupID = "")
     }
 
 }

@@ -9,10 +9,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.login.LoginScreen
 import com.example.gimmedamoney.payment.RequestScreen
@@ -62,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     navigation(startDestination = "home", route = "app_flow"){ //Change startDestination to groupChat
                         composable("home") {
                             HomeScreen(
-                                { nav.navigate("groupChat") },
+                                { id -> nav.navigate("group_flow/$id") },
                                 { nav.navigate("createGroupScreen") },
                                 { nav.navigate("settings") },
                                 userVM = userVM
@@ -93,55 +95,75 @@ class MainActivity : ComponentActivity() {
                                 userVM = userVM
                             )
                         }
-                        composable("groupChat") { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) {
-                                nav.getBackStackEntry("app_flow")
-                            }
-                            val vm: MemberViewModel = viewModel(parentEntry)
-                            GroupChatScreen(
-                                "Copenhagen Trip",
-                                vm.members.size,
-                                {nav.popBackStack()},
-                                {nav.navigate("members")},
-                                { nav.navigate("createRequest") }
+
+                        navigation(
+                            startDestination = "groupChat",
+                            route = "group_flow/{groupID}",
+                            arguments = listOf(
+                                navArgument("groupID") { type = NavType.StringType }
                             )
-                        }
+                        ){
+                            composable("groupChat") { backStackEntry ->
+                                val parentEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val vm: MemberViewModel = viewModel(parentEntry)
+                                val groupID = backStackEntry.arguments?.getString("groupID")!!
 
-                        composable("createRequest") { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) {
-                                nav.getBackStackEntry("app_flow")
+                                GroupChatScreen(
+                                    "Copenhagen Trip",
+                                    vm.members.size,
+                                    {nav.popBackStack()},
+                                    {nav.navigate("members")},
+                                    { nav.navigate("createRequest") },
+                                    groupID = groupID
+                                )
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
 
-                            RequestScreen(
-                                { nav.popBackStack() },
-                                membervm = vm
-                            )
+                            composable("createRequest") { backStackEntry ->
+                                val parentEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val vm: MemberViewModel = viewModel(parentEntry)
+                                val groupID = backStackEntry.arguments?.getString("groupID")!!
 
-                        }
+                                RequestScreen(
+                                    { nav.popBackStack() },
+                                    membervm = vm
+                                )
 
-
-                        composable("members") { backStackEntry ->
-                            val parentEntry = remember(backStackEntry) {
-                                nav.getBackStackEntry("app_flow")
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
-                            MembersScreen(
-                                { nav.popBackStack() },
-                                { nav.navigate("addMember") },
-                                vm = vm,
-                                { nav.navigate("createRequest")}
-                            )
-                        }
-                        composable("addMember") { backStackEntry ->
-                            val parentEntry = remember(backStackEntry){
-                                nav.getBackStackEntry("app_flow")
+
+                            composable(
+                                route = "members",
+                            ) { backStackEntry ->
+                                val parentEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val vm: MemberViewModel = viewModel(parentEntry)
+                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+
+                                MembersScreen(
+                                    { nav.popBackStack() },
+                                    { nav.navigate("addMember") },
+                                    vm = vm,
+                                    { nav.navigate("createRequest")},
+                                    groupID = groupID
+                                )
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
-                            AddMemberScreen(
-                                { nav.popBackStack() },
-                                memberVM = vm
-                            )
+                            composable("addMember") { backStackEntry ->
+                                val parentEntry = remember(backStackEntry){
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val vm: MemberViewModel = viewModel(parentEntry)
+                                val groupID = backStackEntry.arguments?.getString("groupID")!!
+
+                                AddMemberScreen(
+                                    { nav.popBackStack() },
+                                    memberVM = vm
+                                )
+                            }
+
                         }
                     }
                 }

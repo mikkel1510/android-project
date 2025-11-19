@@ -42,7 +42,7 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onMembersPress: () -> Unit,
+    onGroupPress: (String) -> Unit,
     onCreateGroup: () -> Unit,
     onOpenSettings: () -> Unit,
     groupVM: GroupViewModel = viewModel(),
@@ -102,7 +102,7 @@ fun HomeScreen(
                         Text(g.name)
                         GroupCard(
                             group = GroupSummary(g.id, g.name),
-                            onClick = onMembersPress
+                            onClick = { onGroupPress(g.id) }
                         )
                     }
                 }
@@ -328,7 +328,7 @@ private fun dkk(v: Double) = String.format("%.2f DKK", v)
 fun HomeScreenPreview(){
     GimmeDaMoneyTheme {
         HomeScreen(
-            onMembersPress = {},
+            onGroupPress = {},
             onCreateGroup = {},
             onOpenSettings = {}
         )

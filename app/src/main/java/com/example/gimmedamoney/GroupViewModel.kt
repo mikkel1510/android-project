@@ -46,6 +46,8 @@ class GroupViewModel() : ViewModel() {
     private val _groups = MutableStateFlow<List<Group>>(emptyList())
     val groups = _groups.asStateFlow();
 
+
+
     private val _groupSummaries = mutableStateListOf<GroupSummary>()
     val groupSummaries: List<GroupSummary> get() = _groupSummaries
 

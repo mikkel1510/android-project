@@ -39,12 +39,13 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
         memberCount: Int,
         onBack: () -> Unit = {},
         onInfo: () -> Unit = {},
-        onRequest: () -> Unit
+        onRequest: () -> Unit,
+        groupID: String
     ){
         Scaffold (
             topBar = {
                 TopNavBar(
-                    title = groupName,
+                    title = groupID,
                     subtitle = "Members: $memberCount",
                     actions = {
                         IconButton(onClick = onInfo) {
@@ -148,6 +149,6 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 @Composable
 fun GroupChatPreview() {
     GimmeDaMoneyTheme {
-        GroupChatScreen(groupName = "Copenhagen Trip", memberCount = 4, {}, {}, {})
+        GroupChatScreen(groupName = "Copenhagen Trip", memberCount = 4, {}, {}, {}, "")
     }
 }
