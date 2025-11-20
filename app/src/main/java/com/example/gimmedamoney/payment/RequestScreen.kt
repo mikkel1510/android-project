@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,15 +33,17 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.GroupViewModel
+import com.example.gimmedamoney.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestScreen(
     onBackPress: () -> Unit,
-    membervm: MemberViewModel,
-    groupID: String
-    //TODO: User ID
+    groupVM: GroupViewModel,
+    groupID: String,
+    userVM: UserViewModel
 ) {
+    val userID by userVM.currentUser.collectAsState()
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var selectedMembers by remember { mutableStateOf(setOf<String>()) }
@@ -76,7 +79,7 @@ fun RequestScreen(
                     .heightIn(max = 250.dp)
             ) {
                 GroupList(
-                    members = membervm.members,
+                    members = groupVM.getMembersForGroup(groupID, userVM.users.value).filter { it.id != userID },
                     selected = selectedMembers,
                     onToggleMember = { memberId ->
                         selectedMembers =
@@ -115,15 +118,16 @@ fun RequestScreen(
             PrimaryButton(
                 text = "Send Request",
                 onClick = {
-                    groupID?.let { id ->
+
+                    userID?.let { id ->
                         val amountValue = amount.toDoubleOrNull() ?: return@PrimaryButton
                         if (selectedMembers.isEmpty()) return@PrimaryButton
 
                         groupVM.addExpense(
-                            groupId = groupId,
+                            groupId = groupID,
                             description = message.ifBlank { "No description" },
                             amount = amountValue,
-                            paidBy = currentUserId,
+                            paidBy = id,
                             splitBetween = selectedMembers.toList()
                         )
 
@@ -191,23 +195,17 @@ fun GroupBar(
 @Preview(showBackground = true)
 @Composable
 fun RequestScreenPreview() {
-    val membervm: MemberViewModel = viewModel()
     val groupVM: GroupViewModel = viewModel()
-
-    membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    membervm.addMember(User("2", "Steve", "steve@email.com", "12345678"))
-    membervm.addMember(User("3", "Jan", "jan@email.com", "12345678"))
+    val userVM: UserViewModel = viewModel()
 
     val fakeGroupId = "group123"
-    val fakeUserId = "1"
 
     GimmeDaMoneyTheme {
         RequestScreen(
             onBackPress = {},
-            membervm = membervm,
             groupVM = groupVM,
             groupID = fakeGroupId,
-            currentUserId = fakeUserId
+            userVM
         )
     }
 }

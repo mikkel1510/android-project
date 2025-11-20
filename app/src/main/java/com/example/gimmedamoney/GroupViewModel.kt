@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.gimmedamoney.UserViewModel.User
 import com.google.firebase.firestore.FieldValue
+import kotlinx.coroutines.flow.firstOrNull
 
 class GroupViewModel() : ViewModel() {
 
@@ -31,11 +32,11 @@ class GroupViewModel() : ViewModel() {
     )
 
     data class Expense(
-        val id: String = UUID.randomUUID().toString(),
-        val description: String,
-        val amount: Double,
-        val paidBy: String,
-        val splitBetween: List<String>
+        @DocumentId val id: String = "",
+        val description: String = "",
+        val amount: Double = 0.0,
+        val paidBy: String = "",
+        val splitBetween: List<String> = emptyList()
     )
     private val db = Firebase.firestore
 
@@ -47,11 +48,6 @@ class GroupViewModel() : ViewModel() {
 
     private val _groups = MutableStateFlow<List<Group>>(emptyList())
     val groups = _groups.asStateFlow();
-
-
-
-    private val _groupSummaries = mutableStateListOf<GroupSummary>()
-    val groupSummaries: List<GroupSummary> get() = _groupSummaries
 
 
     /**
@@ -122,18 +118,22 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
-    /*
-    fun addGroup(group: Group){
-        _groups.add(group)
-    }
-    fun removeGroup(id: String) {
-        _groups.removeAll {it.id == id}
-    }
+
+
+
+
     fun getGroupById(id: String): Group? {
-        return _groups.find { it.id == id}
+        return _groups.value.firstOrNull { it.id == id }
     }
 
-     */
+    fun getMemberIDsForGroup(groupID: String): List<String> =
+        getGroupById(groupID)?.memberIDs ?: emptyList()
+
+    fun getMembersForGroup(groupID: String, allUsers: List<User>): List<User>{
+        val memberIDs = getMemberIDsForGroup(groupID)
+        return allUsers.filter { it.id in memberIDs }
+    }
+
     /*
     fun updateGroupImage(groupId: String, newUri: String?) {
         getGroupById(groupId)?.imageUri = newUri
@@ -147,22 +147,6 @@ class GroupViewModel() : ViewModel() {
      *
      */
 
-    /*
-    fun addMemberToGroup(groupId: String, user: User) {
-        val group = getGroupById(groupId) ?: return
-        if (!group.members.contains(user)) {
-            group.members.add(user)
-        }
-    }
-
-     */
-
-    /*
-    fun addMembersToGroup(groupId: String, users: List<User>) {
-        users.forEach { addMemberToGroup(groupId, it) }
-    }
-
-     */
 
     /*
     fun removeMemberFromGroup(groupId: String, userId: String) {
@@ -177,7 +161,6 @@ class GroupViewModel() : ViewModel() {
      *
      */
 
-    /*
     fun addExpense(
         groupId: String,
         description: String,
@@ -185,19 +168,28 @@ class GroupViewModel() : ViewModel() {
         paidBy: String,
         splitBetween: List<String>
     ) {
-        val group = getGroupById(groupId)
+        val expenseRef = db.collection("groups")
+            .document(groupId)
+            .collection("expenses")
+
+        val docRef = expenseRef.document()
 
         val expense = Expense(
-            //Kotlin giver os en Id
+            id = docRef.id,
             description = description,
             amount = amount,
             paidBy = paidBy,
             splitBetween = splitBetween
         )
-        group?.expenses?.add(expense)
-    }
 
-     */
+        docRef.set(expense)
+            .addOnSuccessListener {
+                Log.d("GroupVM", "Expense added with id ${docRef.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("GroupVM", "Error adding expense", e)
+            }
+    }
 
 
     /**

@@ -125,17 +125,20 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable("createRequest") { backStackEntry ->
-                                val parentEntry = remember(backStackEntry) {
+                                val groupEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("group_flow/{groupID}")
                                 }
-                                val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = parentEntry.arguments?.getString("groupID")!!
+                                val appEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val groupVM: GroupViewModel = viewModel(appEntry)
+                                val groupID = groupEntry.arguments?.getString("groupID")!!
 
                                 RequestScreen(
                                     { nav.popBackStack() },
-                                    membervm = vm,
-                                    groupID
-                                    //TODO: Add User id
+                                    groupVM = groupVM,
+                                    groupID = groupID,
+                                    userVM = userVM
                                 )
 
                             }
@@ -160,7 +163,6 @@ class MainActivity : ComponentActivity() {
                                 val appEntry = remember(backStackEntry){
                                     nav.getBackStackEntry("app_flow")
                                 }
-                                val memberVM: MemberViewModel = viewModel(appEntry)
                                 val groupVM: GroupViewModel = viewModel(appEntry)
 
                                 val groupID = nav
@@ -169,7 +171,6 @@ class MainActivity : ComponentActivity() {
 
                                 AddMemberScreen(
                                     { nav.popBackStack() },
-                                    memberVM = memberVM,
                                     groupVM = groupVM,
                                     groupID = groupID
                                 )
