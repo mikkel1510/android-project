@@ -33,11 +33,17 @@ class UserViewModel : ViewModel() {
 
     fun fetchUsers(){
         viewModelScope.launch {
-            val response = retrofitClient.api.getUsers()
-            val mapped = response.map { User(it.id, it.name, it.email, it.phone) }
-            _users.clear()
-            _users.addAll(mapped)
-            print(_users)
+            try {
+                val response = retrofitClient.api.getUsers()
+                val mapped = response.map { User(it.id, it.name, it.email, it.phone) }
+                _users.clear()
+                _users.addAll(mapped)
+                print(_users)
+
+            } catch (e: Exception) {
+                // Prevent crash
+                println("Failed to fetch users: ${e.message}")
+            }
         }
     }
 }

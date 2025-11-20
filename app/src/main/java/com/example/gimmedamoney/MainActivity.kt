@@ -84,14 +84,23 @@ class MainActivity : ComponentActivity() {
                             val parentEntry = remember(backStackEntry) {
                                 nav.getBackStackEntry("chat_flow")
                             }
-                            val vm: MemberViewModel = viewModel(parentEntry)
+
+                            val memberVM: MemberViewModel = viewModel(parentEntry)
+                            val groupVM: GroupViewModel = viewModel(parentEntry)
+
+                            //i need them from somewhere ig -.-
+                            val fakeGroupId = "group123"
+                            val fakeUserId = "1"
 
                             RequestScreen(
-                                { nav.popBackStack() },
-                                membervm = vm
+                                onBackPress = { nav.popBackStack() },
+                                membervm = memberVM,
+                                groupVM = groupVM,
+                                groupId = fakeGroupId,
+                                currentUserId = fakeUserId
                             )
-
                         }
+
 
 
                         composable("members") { backStackEntry ->
