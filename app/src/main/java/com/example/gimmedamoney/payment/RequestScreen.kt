@@ -26,11 +26,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
-import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.GroupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +39,7 @@ fun RequestScreen(
     onBackPress: () -> Unit,
     membervm: MemberViewModel,
     groupID: String
+    //TODO: User ID
 ) {
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -46,8 +48,8 @@ fun RequestScreen(
     Scaffold(
         topBar = {
             TopNavBar(
-                title = "Create Reqest",
-                subtitle = "INSERT GROUP NAME HERE AIPWDNBWAIPNDAWIPDNAWPIUNDPIWAND", //TODO: Use Group ID
+                title = "Create Request",
+                subtitle = "Group: $groupID",
                 navigationIcon = {
                     IconButton(onClick = onBackPress) {
                         Icon(
@@ -77,14 +79,13 @@ fun RequestScreen(
                     members = membervm.members,
                     selected = selectedMembers,
                     onToggleMember = { memberId ->
-                        selectedMembers = if (memberId in selectedMembers) {
-                            selectedMembers - memberId
-                        } else {
-                            selectedMembers + memberId
-                        }
+                        selectedMembers =
+                            if (memberId in selectedMembers) selectedMembers - memberId
+                            else selectedMembers + memberId
                     }
                 )
             }
+
             Spacer(modifier = Modifier.weight(1f))
 
             OutlinedTextField(
@@ -103,7 +104,7 @@ fun RequestScreen(
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
-                label = { Text("Enter Text") },
+                label = { Text("Description") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(75.dp)
@@ -111,12 +112,22 @@ fun RequestScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-
             PrimaryButton(
                 text = "Send Request",
                 onClick = {
                     groupID?.let { id ->
-                        /*TODO: handle request with selectedMembers list*/
+                        val amountValue = amount.toDoubleOrNull() ?: return@PrimaryButton
+                        if (selectedMembers.isEmpty()) return@PrimaryButton
+
+                        groupVM.addExpense(
+                            groupId = groupId,
+                            description = message.ifBlank { "No description" },
+                            amount = amountValue,
+                            paidBy = currentUserId,
+                            splitBetween = selectedMembers.toList()
+                        )
+
+                        onBackPress()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -124,7 +135,6 @@ fun RequestScreen(
         }
     }
 }
-
 
 @Composable
 fun GroupList(
@@ -137,7 +147,7 @@ fun GroupList(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-    ){
+    ) {
         items(members) { member ->
             GroupBar(
                 member = member,
@@ -154,15 +164,9 @@ fun GroupBar(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-
-    val borderColor: Color
-
-    if (isSelected){
-        borderColor = MaterialTheme.colorScheme.primary
-    } else {
-        borderColor = MaterialTheme.colorScheme.surfaceVariant
-    }
-
+    val borderColor =
+        if (isSelected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.surfaceVariant
 
     Row(
         modifier = Modifier
@@ -173,7 +177,7 @@ fun GroupBar(
             .clickable { onClick() }
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
-    ){
+    ) {
         Image(
             modifier = Modifier.size(40.dp),
             painter = painterResource(id = R.drawable.user_icon),
@@ -184,24 +188,26 @@ fun GroupBar(
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
-fun RequestScreenPreview()  {
+fun RequestScreenPreview() {
     val membervm: MemberViewModel = viewModel()
+    val groupVM: GroupViewModel = viewModel()
 
     membervm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-    membervm.addMember(User("2", "Steve", "bob@email.com", "12345678"))
-    membervm.addMember(User("3", "Jan", "bob@email.com", "12345678"))
-    membervm.addMember(User("4", "Man", "bob@email.com", "12345678"))
-    membervm.addMember(User("5", "Dan", "bob@email.com", "12345678"))
-    membervm.addMember(User("6", "Stan", "bob@email.com", "12345678"))
-    membervm.addMember(User("7", "Klan", "bob@email.com", "12345678"))
+    membervm.addMember(User("2", "Steve", "steve@email.com", "12345678"))
+    membervm.addMember(User("3", "Jan", "jan@email.com", "12345678"))
+
+    val fakeGroupId = "group123"
+    val fakeUserId = "1"
 
     GimmeDaMoneyTheme {
-        RequestScreen({}, membervm, "")
+        RequestScreen(
+            onBackPress = {},
+            membervm = membervm,
+            groupVM = groupVM,
+            groupID = fakeGroupId,
+            currentUserId = fakeUserId
+        )
     }
 }
-
-

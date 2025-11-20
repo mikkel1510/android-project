@@ -32,16 +32,20 @@ class UserViewModel : ViewModel() {
     val currentUser = _currentUser.asStateFlow()
 
     fun getUsers(){
-        db.collection("users")
-            .addSnapshotListener { value, error ->
-                if (error != null){
-                    return@addSnapshotListener
-                }
+        try {
+            db.collection("users")
+                .addSnapshotListener { value, error ->
+                    if (error != null){
+                        return@addSnapshotListener
+                    }
 
-                if (value != null){
-                    _users.value = value.toObjects<User>()
+                    if (value != null){
+                        _users.value = value.toObjects<User>()
+                    }
                 }
-            }
+        } catch (e: Exception) {
+            println("Failed to fetch users: ${e.message}")
+        }
     }
 
     fun logOut(){
