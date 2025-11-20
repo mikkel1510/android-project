@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.gimmedamoney.chat.ChatViewModel
 import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.login.LoginScreen
 import com.example.gimmedamoney.payment.RequestScreen
@@ -112,6 +113,7 @@ class MainActivity : ComponentActivity() {
                                     nav.getBackStackEntry("group_flow/{groupID}")
                                 }
                                 val vm: MemberViewModel = viewModel(parentEntry)
+                                val chatVM: ChatViewModel = viewModel(parentEntry)
                                 val groupID = parentEntry.arguments?.getString("groupID")!!
 
                                 GroupChatScreen(
@@ -120,7 +122,8 @@ class MainActivity : ComponentActivity() {
                                     {nav.popBackStack()},
                                     {nav.navigate("members")},
                                     { nav.navigate("createRequest") },
-                                    groupID = groupID
+                                    groupID = groupID,
+                                    chatVM = chatVM
                                 )
                             }
 
@@ -132,13 +135,15 @@ class MainActivity : ComponentActivity() {
                                     nav.getBackStackEntry("app_flow")
                                 }
                                 val groupVM: GroupViewModel = viewModel(appEntry)
+                                val chatVM: ChatViewModel = viewModel(groupEntry)
                                 val groupID = groupEntry.arguments?.getString("groupID")!!
 
                                 RequestScreen(
                                     { nav.popBackStack() },
                                     groupVM = groupVM,
                                     groupID = groupID,
-                                    userVM = userVM
+                                    userVM = userVM,
+                                    chatVM = chatVM
                                 )
 
                             }
