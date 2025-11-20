@@ -17,8 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gimmedamoney.GroupViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.chat.ChatViewModel.RequestMessage
 
 @Composable
 fun GroupChatScreen(
@@ -28,9 +30,28 @@ fun GroupChatScreen(
     onInfo: () -> Unit = {},
     onRequest: () -> Unit,
     chatVM: ChatViewModel,
-    groupID: String
+    groupID: String,
+    groupVM: GroupViewModel
 ) {
     var input by remember { mutableStateOf("") }
+
+    LaunchedEffect(groupID) {
+        groupVM.startListeningToExpenses(groupID)
+    }
+
+    val expensesByGroup by groupVM.expensesByGroup.collectAsState()
+    val expenses = expensesByGroup[groupID].orEmpty()
+
+    val expenseMessages = expenses.map { expense ->
+        RequestMessage(
+            id = expense.id,
+            senderID = expense.paidBy,
+            text = expense.description,
+            amount = expense.amount
+        )
+    }
+    val allMessages = expenseMessages + chatVM.messages
+
 
     Scaffold(
         topBar = {
@@ -74,7 +95,7 @@ fun GroupChatScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(chatVM.messages) { msg ->
+                items(allMessages) { msg ->
                     MessageItem(
                         message = msg,
                         currentUserId = "me",

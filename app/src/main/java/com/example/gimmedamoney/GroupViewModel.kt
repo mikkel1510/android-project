@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.gimmedamoney.UserViewModel.User
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 
 class GroupViewModel() : ViewModel() {
 
+    private val db = FirebaseFirestore.getInstance()
     /**
      *
      * Data models
@@ -30,15 +33,14 @@ class GroupViewModel() : ViewModel() {
         val creatorID: String = "",
         val memberIDs: List<String> = emptyList(),
     )
-
-    data class Expense(
+    data class Expense( //TODO: Should also have timestamp
         @DocumentId val id: String = "",
         val description: String = "",
         val amount: Double = 0.0,
         val paidBy: String = "",
         val splitBetween: List<String> = emptyList()
     )
-    private val db = Firebase.firestore
+
 
     /**
      *
@@ -49,25 +51,13 @@ class GroupViewModel() : ViewModel() {
     private val _groups = MutableStateFlow<List<Group>>(emptyList())
     val groups = _groups.asStateFlow();
 
+    private val _expensesByGroup = MutableStateFlow<Map<String, List<Expense>>>(emptyMap())
+    val expensesByGroup: StateFlow<Map<String, List<Expense>>> = _expensesByGroup
 
     /**
      *
      * Group management
      *
-     */
-
-    /*
-    fun addGroupSummary(g: GroupSummary) = _groupSummaries.add(g)
-    fun clear() = _groups.clear()
-     */
-
-    /*
-    fun addGroup(name: String, imageUri: String? = null): Group? {
-        if (name.isBlank()) return null
-        val newGroup = Group(name = name.trim(), imageUri = imageUri)
-        _groups.add(newGroup)
-        return newGroup
-    }
      */
 
     fun createGroup(name: String, imageUri: String? = null, creatorID: String, onResult: (String?) -> Unit){
@@ -103,6 +93,40 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
+    fun getGroupById(id: String): Group? {
+        return _groups.value.firstOrNull { it.id == id }
+    }
+
+    fun startListeningToExpenses(groupID: String){
+        db.collection("groups")
+            .document(groupID)
+            .collection("expenses")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null){
+                    Log.e("GroupVM", "Error listening to expenses", e)
+                    return@addSnapshotListener
+                }
+                val expenses = snapshot?.toObjects(Expense::class.java).orEmpty()
+                val current = _expensesByGroup.value.toMutableMap()
+                current[groupID] = expenses
+                _expensesByGroup.value = current
+            }
+    }
+
+
+    /*
+    fun updateGroupImage(groupId: String, newUri: String?) {
+        getGroupById(groupId)?.imageUri = newUri
+    }
+
+     */
+
+    /**
+     *
+     * Member management
+     *
+     */
+
     fun addMembers(groupID: String, userIDs: List<String>){
         val groupRef = db.collection("groups").document(groupID)
 
@@ -118,14 +142,6 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
-
-
-
-
-    fun getGroupById(id: String): Group? {
-        return _groups.value.firstOrNull { it.id == id }
-    }
-
     fun getMemberIDsForGroup(groupID: String): List<String> =
         getGroupById(groupID)?.memberIDs ?: emptyList()
 
@@ -133,20 +149,6 @@ class GroupViewModel() : ViewModel() {
         val memberIDs = getMemberIDsForGroup(groupID)
         return allUsers.filter { it.id in memberIDs }
     }
-
-    /*
-    fun updateGroupImage(groupId: String, newUri: String?) {
-        getGroupById(groupId)?.imageUri = newUri
-    }
-
-     */
-
-    /**
-     *
-     * Member management
-     *
-     */
-
 
     /*
     fun removeMemberFromGroup(groupId: String, userId: String) {

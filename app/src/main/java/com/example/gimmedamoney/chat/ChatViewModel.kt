@@ -1,10 +1,15 @@
 package com.example.gimmedamoney.chat
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
-class ChatViewModel : ViewModel() {
+class ChatViewModel(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     sealed interface Message {
         val id: String
@@ -31,27 +36,73 @@ class ChatViewModel : ViewModel() {
         override val text: String
     ) : Message
 
+    private val db = FirebaseFirestore.getInstance()
+
+    private val groupID: String = checkNotNull(savedStateHandle["groupID"]){
+        "ChatViewModel requires groupID in SavedStateHandle"
+    }
+
     private val _messages = mutableStateListOf<Message>()
     val messages: List<Message> get() = _messages
 
+    init {
+        db.collection("groups")
+            .document(groupID)
+            .collection("messages")
+            .orderBy("createdAt")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+
+                val docs = snapshot?.documents ?: emptyList()
+
+                val newMessages = docs.mapNotNull { doc ->
+                    when (doc.getString("type")) {
+                        "TEXT" -> {
+                            TextMessage(
+                                id = doc.id,
+                                senderID = doc.getString("senderId")!!,
+                                text = doc.getString("text")!!
+                            )
+                        }
+                        "SYSTEM" -> {
+                            SystemMessage(
+                                id = doc.id,
+                                senderID = doc.getString("senderId")!!,
+                                text = doc.getString("text")!!
+                            )
+                        }
+                        else -> null
+                    }
+                }
+
+                _messages.clear()
+                _messages.addAll(newMessages)
+
+            }
+    }
+
     fun sendTextMessage(senderId: String, text: String) {
         if (text.isBlank()) return
-        _messages.add(TextMessage(senderID = senderId, text = text))
-    }
 
-    fun sendRequestMessage(senderId: String, amount: Double, message: String) {
-        _messages.add(
-            RequestMessage(
-                senderID = senderId,
-                amount = amount,
-                text = message
-            )
+        val messagesRef = db.collection("groups")
+            .document(groupID)
+            .collection("messages")
+
+        val data = mapOf(
+            "type" to "TEXT",
+            "senderId" to senderId,
+            "text" to text,
+            "createdAt" to FieldValue.serverTimestamp()
         )
-    }
 
+        messagesRef.add(data)
+    }
 
     fun declineRequest(requestId: String) {
-        val msg = _messages.find { it.id == requestId }
+        //TODO: Should handle decline, not just delete message
+        /*val msg = _messages.find { it.id == requestId }
         if (msg != null) {
             _messages.remove(msg)
             _messages.add(
@@ -60,6 +111,7 @@ class ChatViewModel : ViewModel() {
                 )
             )
         }
+        */
     }
 
 }

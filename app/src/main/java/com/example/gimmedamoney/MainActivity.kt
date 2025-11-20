@@ -109,21 +109,26 @@ class MainActivity : ComponentActivity() {
                             )
                         ){
                             composable("groupChat") { backStackEntry ->
-                                val parentEntry = remember(backStackEntry) {
+                                val chatEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("group_flow/{groupID}")
                                 }
-                                val vm: MemberViewModel = viewModel(parentEntry)
-                                val chatVM: ChatViewModel = viewModel(parentEntry)
-                                val groupID = parentEntry.arguments?.getString("groupID")!!
+                                val appEntry = remember(backStackEntry){
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val memberVM: MemberViewModel = viewModel(chatEntry)
+                                val chatVM: ChatViewModel = viewModel(chatEntry)
+                                val groupVM: GroupViewModel = viewModel(appEntry)
+                                val groupID = chatEntry.arguments?.getString("groupID")!!
 
                                 GroupChatScreen(
                                     "Copenhagen Trip",
-                                    vm.members.size,
+                                    memberVM.members.size,
                                     {nav.popBackStack()},
                                     {nav.navigate("members")},
                                     { nav.navigate("createRequest") },
                                     groupID = groupID,
-                                    chatVM = chatVM
+                                    chatVM = chatVM,
+                                    groupVM = groupVM
                                 )
                             }
 
@@ -135,7 +140,6 @@ class MainActivity : ComponentActivity() {
                                     nav.getBackStackEntry("app_flow")
                                 }
                                 val groupVM: GroupViewModel = viewModel(appEntry)
-                                val chatVM: ChatViewModel = viewModel(groupEntry)
                                 val groupID = groupEntry.arguments?.getString("groupID")!!
 
                                 RequestScreen(
@@ -143,7 +147,6 @@ class MainActivity : ComponentActivity() {
                                     groupVM = groupVM,
                                     groupID = groupID,
                                     userVM = userVM,
-                                    chatVM = chatVM
                                 )
 
                             }

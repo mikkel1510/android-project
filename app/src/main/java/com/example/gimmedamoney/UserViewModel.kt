@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ class UserViewModel : ViewModel() {
         val phone: String = "",
         val password: String = ""
     )
-    private val db = Firebase.firestore
+    private val db = FirebaseFirestore.getInstance()
 
 
 
