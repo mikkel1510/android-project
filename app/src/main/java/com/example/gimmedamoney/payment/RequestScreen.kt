@@ -1,6 +1,5 @@
 package com.example.gimmedamoney.payment
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,21 +21,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.MemberViewModel
-import com.example.gimmedamoney.R
+import coil.compose.AsyncImage
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
-import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.GroupViewModel
+import com.example.gimmedamoney.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,11 +182,27 @@ fun GroupBar(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            modifier = Modifier.size(40.dp).clip(CircleShape),
-            painter = painterResource(id = member.profilePictureResId),
-            contentDescription = "User icon"
-        )
+        if (member.profilePictureURL.isNotBlank()){
+            AsyncImage(
+                model = member.profilePictureURL,
+                contentDescription = "User icon",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+                error = painterResource(id = R.drawable.user_icon)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "User icon",
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+        }
+
+
         Spacer(modifier = Modifier.width(10.dp))
         Text(member.name)
     }

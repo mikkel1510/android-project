@@ -142,6 +142,8 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
+    fun removeMember(groupID: String, id: String) {}
+
     fun getMemberIDsForGroup(groupID: String): List<String> =
         getGroupById(groupID)?.memberIDs ?: emptyList()
 

@@ -18,10 +18,10 @@ import com.example.gimmedamoney.chat.GroupChatScreen
 import com.example.gimmedamoney.login.LoginScreen
 import com.example.gimmedamoney.payment.RequestScreen
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
-import com.example.gimmedamoney.AddMemberScreen
 import com.example.gimmedamoney.settings.SettingsScreen
 import com.example.gimmedamoney.settings.SettingsViewModel
 import com.example.gimmedamoney.settings.ThemeMode
+import androidx.compose.runtime.collectAsState
 
 
 class MainActivity : ComponentActivity() {
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                 val nav = rememberNavController()
                 NavHost(
                     navController = nav,
-                    startDestination = if (userVM.currentUser.value == null) "login_flow" else "app_flow",
+                    startDestination = if (userVM.currentUser.collectAsState().value == null) "login_flow" else "app_flow",
                 ) {
 
                     navigation(startDestination = "login", route = "login_flow"){
@@ -154,16 +154,20 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = "members",
                             ) { backStackEntry ->
-                                val parentEntry = remember(backStackEntry) {
+                                val groupEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("group_flow/{groupID}")
                                 }
-                                val vm: MemberViewModel = viewModel(parentEntry)
-                                val groupID = parentEntry.arguments?.getString("groupID")!!
+                                val appEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("app_flow")
+                                }
+                                val groupID = groupEntry.arguments?.getString("groupID")!!
+                                val groupVM: GroupViewModel = viewModel(appEntry)
 
                                 MembersScreen(
                                     { nav.popBackStack() },
                                     { nav.navigate("addMember") },
-                                    vm = vm,
+                                    userVM = userVM,
+                                    groupVM = groupVM,
                                     groupID = groupID
                                 )
                             }

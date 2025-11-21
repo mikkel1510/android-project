@@ -1,19 +1,13 @@
 package com.example.gimmedamoney
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
     data class User(
@@ -22,7 +16,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         val email: String = "",
         val phone: String = "",
         val password: String = "",
-        val profilePictureResId: Int
+        val profilePictureURL: String = ""
     )
     private val db = FirebaseFirestore.getInstance()
 
@@ -91,8 +85,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             name = name,
             phone = phone,
             email = email,
-            password = password,
-            profilePictureResId = 1
+            password = password
         )
 
         db.collection("users")

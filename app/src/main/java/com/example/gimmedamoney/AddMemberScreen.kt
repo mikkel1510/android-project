@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,11 +39,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -57,8 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.GroupViewModel
-import com.example.gimmedamoney.MemberViewModel
+import coil.compose.AsyncImage
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
@@ -221,11 +220,25 @@ fun UserIcon(user: User, onUnselect: () -> Unit){
             onClick = { onUnselect() },
             Modifier.size(50.dp)
         ) {
-            Image(
-                painter = painterResource(id = user.profilePictureResId),
-                contentDescription = "User profile picture",
-                modifier = Modifier.fillMaxSize().clip(CircleShape)
-            )
+            if (user.profilePictureURL.isNotBlank()){
+                AsyncImage(
+                    model = user.profilePictureURL,
+                    contentDescription = "User icon",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape),
+                    error = painterResource(id = R.drawable.user_icon)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "User icon",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                )
+            }
         }
         val firstName = user.name.substringBefore(" ")
         Text(firstName, fontSize = 12.sp)
@@ -291,12 +304,25 @@ fun UserCard(user: User, onSelect: () -> Unit, isSelected: Boolean){
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-
-            Image(
-                painter = painterResource(id = user.profilePictureResId),
-                contentDescription = "User profile picture",
-                modifier = Modifier.size(70.dp).clip(CircleShape)
-            )
+            if (user.profilePictureURL.isNotBlank()){
+                AsyncImage(
+                    model = user.profilePictureURL,
+                    contentDescription = "User icon",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape),
+                    error = painterResource(id = R.drawable.user_icon)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "User icon",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape)
+                )
+            }
 
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -352,9 +378,9 @@ fun maskEmail(email: String): String{
 @Composable
 fun UserListPreview() {
     GimmeDaMoneyTheme {
-        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678", R.drawable.user_icon)
-        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678", R.drawable.user_icon)
-        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678", R.drawable.user_icon)
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678", "1234", "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678", "1234")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678", "1234", "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80")
         val users =  listOf(user, user2, user3)
 
         val members = listOf<String>()
@@ -369,9 +395,9 @@ fun UserListPreview() {
 @Composable
 fun SelectedUsersPreview(){
     GimmeDaMoneyTheme {
-        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678")
-        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678")
-        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678")
+        val user = User("1", "Bob Stevens", "bobsteve@email.com", "12345678", "1234", "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80")
+        val user2 = User("2", "Stevens Bob", "bobsteve@email.com", "12345678", "1234")
+        val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678", "1234", "https://static.wikia.nocookie.net/breakingbad/images/e/e0/Saul_2009.jpg/revision/latest/scale-to-width/360?cb=20220812220131")
         val users =  listOf(user, user2, user3).toMutableList()
 
         val members = listOf<String>()
