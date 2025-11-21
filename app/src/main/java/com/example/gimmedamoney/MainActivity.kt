@@ -115,14 +115,11 @@ class MainActivity : ComponentActivity() {
                                 val appEntry = remember(backStackEntry){
                                     nav.getBackStackEntry("app_flow")
                                 }
-                                val memberVM: MemberViewModel = viewModel(chatEntry)
                                 val chatVM: ChatViewModel = viewModel(chatEntry)
                                 val groupVM: GroupViewModel = viewModel(appEntry)
                                 val groupID = chatEntry.arguments?.getString("groupID")!!
 
                                 GroupChatScreen(
-                                    "Copenhagen Trip",
-                                    memberVM.members.size,
                                     {nav.popBackStack()},
                                     {nav.navigate("members")},
                                     { nav.navigate("createRequest") },

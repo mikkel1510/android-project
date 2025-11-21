@@ -24,8 +24,6 @@ import com.example.gimmedamoney.chat.ChatViewModel.RequestMessage
 
 @Composable
 fun GroupChatScreen(
-    groupName: String,
-    memberCount: Int,
     onBack: () -> Unit = {},
     onInfo: () -> Unit = {},
     onRequest: () -> Unit,
@@ -56,8 +54,8 @@ fun GroupChatScreen(
     Scaffold(
         topBar = {
             TopNavBar(
-                title = groupName,
-                subtitle = "Members: $memberCount",
+                title = groupVM.getGroupById(groupID).name,
+                subtitle = "Members: ${groupVM.getGroupById(groupID).memberIDs.size}",
                 actions = {
                     IconButton(onClick = onInfo) {
                         Icon(Icons.Filled.Info, contentDescription = "Group info")
@@ -221,7 +219,7 @@ fun TextMessageBubble(
 
 @Composable
 fun RequestMessageCard(
-    message: ChatViewModel.RequestMessage,
+    message: RequestMessage,
     isMe: Boolean,
     chatVM: ChatViewModel
 ) {

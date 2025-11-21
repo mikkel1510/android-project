@@ -86,7 +86,7 @@ fun AddMemberScreen(
         topBar = {
             TopNavBar(
                 title = "Add Members",
-                subtitle = "to group with id $groupID",
+                subtitle = "to ${groupVM.getGroupById(groupID).name}",
                 centerAligned = false,
                 navigationIcon = {
                     IconButton(onClick = { onBackPress() }) {

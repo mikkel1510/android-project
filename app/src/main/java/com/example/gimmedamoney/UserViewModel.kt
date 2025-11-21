@@ -26,12 +26,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         getUsers()
     }
 
-    /*
-    fun addUser(id: String, name: String, email: String, phone: String){
-        _users.add(User(id, name, email, phone, mapIdToProfilePicture(id)))
-    }
-     */
-
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
 

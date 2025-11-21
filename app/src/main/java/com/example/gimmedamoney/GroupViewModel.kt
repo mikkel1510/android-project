@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import java.util.Date
 
 class GroupViewModel() : ViewModel() {
 
@@ -32,6 +33,7 @@ class GroupViewModel() : ViewModel() {
         val imageUri: String? = null,
         val creatorID: String = "",
         val memberIDs: List<String> = emptyList(),
+        val creationDate: Date = Date()
     )
     data class Expense( //TODO: Should also have timestamp
         @DocumentId val id: String = "",
@@ -65,7 +67,8 @@ class GroupViewModel() : ViewModel() {
             name = name,
             imageUri = imageUri,
             creatorID = creatorID,
-            memberIDs = listOf(creatorID)
+            memberIDs = listOf(creatorID),
+            creationDate = Date()
         )
         db.collection("groups")
             .add(group)
@@ -93,8 +96,8 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
-    fun getGroupById(id: String): Group? {
-        return _groups.value.firstOrNull { it.id == id }
+    fun getGroupById(id: String): Group {
+        return _groups.value.firstOrNull { it.id == id } ?: Group()
     }
 
     fun startListeningToExpenses(groupID: String){
@@ -145,7 +148,7 @@ class GroupViewModel() : ViewModel() {
     fun removeMember(groupID: String, id: String) {}
 
     fun getMemberIDsForGroup(groupID: String): List<String> =
-        getGroupById(groupID)?.memberIDs ?: emptyList()
+        getGroupById(groupID).memberIDs
 
     fun getMembersForGroup(groupID: String, allUsers: List<User>): List<User>{
         val memberIDs = getMemberIDsForGroup(groupID)

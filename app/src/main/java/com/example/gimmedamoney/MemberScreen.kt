@@ -146,7 +146,7 @@ fun MembersScreen(
         topBar = {
             TopNavBar(
                 title = "Members",
-                subtitle = "Group id: $groupID",
+                subtitle = "of ${groupVM.getGroupById(groupID).name}",
                 centerAligned = false,
                 actions = {
                     IconButton(onClick = { onAddMember() }) {
@@ -188,10 +188,9 @@ fun MembersScreen(
             val members = groupVM.getMembersForGroup(groupID, userVM.users.value)
 
             MemberList(members, { member -> selectedMember = member })
-            MemberList(vm.members, { member -> selectedMember = member })
 
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formattedDate = sdf.format(vm.creationDate)
+            val formattedDate = sdf.format(groupVM.getGroupById(groupID).creationDate)
             Text("Group created on: $formattedDate")
         }
     }
