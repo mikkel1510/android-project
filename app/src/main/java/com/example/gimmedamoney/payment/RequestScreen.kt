@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,12 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gimmedamoney.MemberViewModel
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.GroupViewModel
-import com.example.gimmedamoney.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,8 +185,8 @@ fun GroupBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            modifier = Modifier.size(40.dp),
-            painter = painterResource(id = R.drawable.user_icon),
+            modifier = Modifier.size(40.dp).clip(CircleShape),
+            painter = painterResource(id = member.profilePictureResId),
             contentDescription = "User icon"
         )
         Spacer(modifier = Modifier.width(10.dp))

@@ -9,14 +9,20 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
-class UserViewModel : ViewModel() {
+class UserViewModel(application: Application) : AndroidViewModel(application) {
     data class User(
         @DocumentId val id: String = "",
         val name: String = "",
         val email: String = "",
         val phone: String = "",
-        val password: String = ""
+        val password: String = "",
+        val profilePictureResId: Int
     )
     private val db = FirebaseFirestore.getInstance()
 
@@ -25,6 +31,12 @@ class UserViewModel : ViewModel() {
     init {
         getUsers()
     }
+
+    /*
+    fun addUser(id: String, name: String, email: String, phone: String){
+        _users.add(User(id, name, email, phone, mapIdToProfilePicture(id)))
+    }
+     */
 
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
@@ -79,7 +91,8 @@ class UserViewModel : ViewModel() {
             name = name,
             phone = phone,
             email = email,
-            password = password
+            password = password,
+            profilePictureResId = 1
         )
 
         db.collection("users")
@@ -92,5 +105,28 @@ class UserViewModel : ViewModel() {
                 Log.e("UserVM", "Error creating user", e)
             }
         return true
+    }
+
+    private fun mapIdToProfilePicture(id: String): Int {
+        val context = getApplication<Application>().applicationContext
+        val drawableName = when (id) {
+            "1" -> "luke_skywalker"
+            "2" -> "leia_organa"
+            "3" -> "han_solo"
+            "4" -> "chewbacca"
+            "5" -> "obi_wan_kenobi"
+            else -> null
+        }
+
+        if (drawableName != null) {
+            // Safely check for the drawable's existence at runtime
+            val resourceId = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+            if (resourceId != 0) {
+                return resourceId
+            }
+        }
+
+        // If no specific drawable is found, return the default icon
+        return R.drawable.user_icon
     }
 }
