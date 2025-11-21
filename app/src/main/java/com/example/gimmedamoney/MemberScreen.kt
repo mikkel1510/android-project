@@ -41,17 +41,20 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
-        members.forEach { member ->
-           MemberBar(member, onRemove)
+        members.forEachIndexed { index, member ->
+           MemberBar(member, onRemove, index == 0)
         }
     }
 }
 
 @Composable
-fun MemberBar(member: User, onRemove: (User) -> Unit){
+fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false){
 
     Row(modifier = Modifier
         .padding(10.dp)
@@ -82,7 +85,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
             )
         }
         Text(
-            member.name
+            if (isCreator) "${member.name} 👑" else member.name
         )
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
@@ -185,6 +188,11 @@ fun MembersScreen(
             val members = groupVM.getMembersForGroup(groupID, userVM.users.value)
 
             MemberList(members, { member -> selectedMember = member })
+            MemberList(vm.members, { member -> selectedMember = member })
+
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formattedDate = sdf.format(vm.creationDate)
+            Text("Group created on: $formattedDate")
         }
     }
 }
