@@ -1,5 +1,6 @@
 package com.example.gimmedamoney.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.navigation.compose.rememberNavController
+import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.ui.theme.PrimaryButton
+import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
@@ -52,7 +56,9 @@ fun SettingsScreen(
     onDeleteAccount: () -> Unit = {},
     onThemeChanged: (ThemeMode) -> Unit = {},
     onLanguageChanged: (AppLanguage) -> Unit = {},
-    vm: SettingsViewModel = viewModel()
+    vm: SettingsViewModel = viewModel(),
+    userVM: UserViewModel = viewModel(),
+    onLogOut: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -188,8 +194,15 @@ fun SettingsScreen(
             // Danger zone
             Text("Account", style = MaterialTheme.typography.titleMedium)
             Button(
+                onClick = { userVM.logOut(); onLogOut() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text("Log out")
+            }
+            Button(
                 onClick = onDeleteAccount,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.buttonColors(containerColor = Red),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)

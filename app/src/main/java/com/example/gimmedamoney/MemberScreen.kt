@@ -9,21 +9,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,28 +29,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.gimmedamoney.UserViewModel.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 @Composable
 fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
     Column {
-        members.forEach { member ->
-           MemberBar(member, onRemove)
+        members.forEachIndexed { index, member ->
+           MemberBar(member, onRemove, index == 0)
         }
     }
 }
 
 @Composable
-fun MemberBar(member: User, onRemove: (User) -> Unit){
+fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false){
 
     Row(modifier = Modifier
         .padding(10.dp)
@@ -62,13 +64,28 @@ fun MemberBar(member: User, onRemove: (User) -> Unit){
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ){
-        Image(
-            modifier = Modifier.size(40.dp),
-            painter = painterResource(id = R.drawable.user_icon),
-            contentDescription = "User icon"
-        )
+
+        if (member.profilePictureURL.isNotBlank()){
+            AsyncImage(
+                model = member.profilePictureURL,
+                contentDescription = "User icon",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+                error = painterResource(id = R.drawable.user_icon)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "User icon",
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(
-            member.name
+            if (isCreator) "${member.name} 👑" else member.name
         )
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
@@ -118,12 +135,18 @@ fun RemoveMemberDialog(
 }
 
 @Composable
-fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberViewModel = viewModel(), onCreateRequest: () -> Unit){
+fun MembersScreen(
+    onBackPress: () -> Unit,
+    onAddMember: () -> Unit,
+    groupVM: GroupViewModel = viewModel(),
+    userVM: UserViewModel = viewModel(),
+    groupID: String
+){
     Scaffold (
         topBar = {
             TopNavBar(
                 title = "Members",
-                subtitle = "IN GROUP NAME AIWDNAWIPUMDWAPIUMDIP",
+                subtitle = "of ${groupVM.getGroupById(groupID).name}",
                 centerAligned = false,
                 actions = {
                     IconButton(onClick = { onAddMember() }) {
@@ -157,12 +180,18 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
                 RemoveMemberDialog(
                     true,
                     { selectedMember = null },
-                    { vm.removeMember(member) },
+                    { groupVM.removeMember(groupID, member.id) },
                     member.name
                 )
             }
 
-            MemberList(vm.members, { member -> selectedMember = member })
+            val members = groupVM.getMembersForGroup(groupID, userVM.users.value)
+
+            MemberList(members, { member -> selectedMember = member })
+
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formattedDate = sdf.format(groupVM.getGroupById(groupID).creationDate)
+            Text("Group created on: $formattedDate")
         }
     }
 }
@@ -173,11 +202,11 @@ fun MembersScreen(onBackPress: () -> Unit, onAddMember: () -> Unit, vm: MemberVi
 fun MemberScreenPreview() {
     GimmeDaMoneyTheme {
         val vm: MemberViewModel = viewModel()
-        vm.addMember(User("1", "Bob", "bob@email.com", "12345678"))
-        vm.addMember(User("2", "Steve", "steve@email.com", "87654321"))
-        vm.addMember(User("3", "Joe", "joe@email.com", "45362718"))
+        vm.addMember(User("1", "Bob", "bob@email.com", "12345678", "1234"))
+        vm.addMember(User("2", "Steve", "steve@email.com", "87654321", "1234"))
+        vm.addMember(User("3", "Joe", "joe@email.com", "45362718", "1234", "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"))
 
-        MembersScreen({}, {}, onCreateRequest = {})
+        MembersScreen({}, {}, groupID = "")
     }
 
 }

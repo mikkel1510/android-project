@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -18,6 +17,9 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,29 +32,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.GroupViewModel.Group
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onMembersPress: () -> Unit,
+    onGroupPress: (String) -> Unit,
     onCreateGroup: () -> Unit,
     onOpenSettings: () -> Unit,
-    vm: GroupViewModel = viewModel()
+    groupVM: GroupViewModel = viewModel(),
+    userVM: UserViewModel = viewModel()
 ) {
-    //Dummy group
-    val dummyGroup = Group("1","dummy", members = (mutableListOf()))
-    if (vm.groups.isEmpty()){
-        vm.addGroup(dummyGroup)
-    }
-    val summary = GroupSummary(id = "1", name = "dummysummary")
-    if (vm.groupSummaries.isEmpty()){
-        vm.addGroupSummary(summary)
+
+    val userID by userVM.currentUser.collectAsState()
+    val groups by groupVM.groups.collectAsState()
+
+    LaunchedEffect(userID) {
+        userID?.let { id ->
+            groupVM.getUserGroups(id)
+        }
     }
 
     Scaffold(
@@ -74,7 +77,7 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(innerPadding)) {
 
-            if (vm.groups.isEmpty()) {
+            if (groups.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -95,10 +98,11 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(vm.groupSummaries, key = { it.id }) { g ->
+                    items(groups, key = { it.id }) { g ->
+                        Text(g.name)
                         GroupCard(
-                            group = g,
-                            onClick = onMembersPress
+                            group = GroupSummary(g.id, g.name),
+                            onClick = { onGroupPress(g.id) }
                         )
                     }
                 }
@@ -159,11 +163,13 @@ private fun GroupCard(
                 )
                 Text("Total", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
+
                 Text(
                     dkk(group.totalDkk),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
+
             }
 
             Spacer(Modifier.height(6.dp))
@@ -322,7 +328,7 @@ private fun dkk(v: Double) = String.format("%.2f DKK", v)
 fun HomeScreenPreview(){
     GimmeDaMoneyTheme {
         HomeScreen(
-            onMembersPress = {},
+            onGroupPress = {},
             onCreateGroup = {},
             onOpenSettings = {}
         )
