@@ -12,6 +12,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.util.Patterns.EMAIL_ADDRESS
 import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 
@@ -137,6 +138,17 @@ fun LoginScreen(onLoginSuccess: () -> Unit, userVM: UserViewModel = viewModel())
                                     error = "All fields must be filled"
                                     return@PrimaryButton
                                 }
+
+                                if (!EMAIL_ADDRESS.matcher(email).matches()){
+                                    error = "Please enter a valid email address"
+                                    return@PrimaryButton
+                                }
+
+                                if (!(phone.length == 8 && phone.all { it.isDigit() })){
+                                    error = "Phone number must be exactly 8 digits"
+                                    return@PrimaryButton
+                                }
+
                                 if (userVM.createAccount(name, phone, email, password)) {
                                     onLoginSuccess()
                                 } else {
