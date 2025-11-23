@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gimmedamoney.GroupViewModel
+import com.example.gimmedamoney.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.chat.ChatViewModel.RequestMessage
@@ -29,9 +30,13 @@ fun GroupChatScreen(
     onRequest: () -> Unit,
     chatVM: ChatViewModel,
     groupID: String,
-    groupVM: GroupViewModel
+    groupVM: GroupViewModel,
+    userVM: UserViewModel
 ) {
     var input by remember { mutableStateOf("") }
+
+    val currentUserId by userVM.currentUser.collectAsState()
+
 
     LaunchedEffect(groupID) {
         groupVM.startListeningToExpenses(groupID)
@@ -45,11 +50,15 @@ fun GroupChatScreen(
             id = expense.id,
             senderID = expense.paidBy,
             text = expense.description,
-            amount = expense.amount
+            amount = expense.amount,
+            acceptedBy = expense.acceptedBy,
+            declinedBy = expense.declinedBy,
+            timestamp = expense.createdAt
         )
     }
-    val allMessages = expenseMessages + chatVM.messages
+    val allMessages = (expenseMessages + chatVM.messages).sortedBy { it.timestamp }
 
+    val safeUserId = currentUserId ?: ""
 
     Scaffold(
         topBar = {
@@ -76,8 +85,10 @@ fun GroupChatScreen(
                 input = input,
                 onInputChange = { input = it },
                 onSend = {
-                    chatVM.sendTextMessage(senderId = "me", text = input)
-                    input = ""
+                    if (safeUserId.isNotEmpty() && input.isNotBlank()){
+                        chatVM.sendTextMessage(senderId = safeUserId, text = input)
+                        input = ""
+                    }
                 },
                 onRequest = onRequest
             )
@@ -89,6 +100,7 @@ fun GroupChatScreen(
                 .padding(padding)
                 .padding(8.dp),
         ) {
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
@@ -96,8 +108,10 @@ fun GroupChatScreen(
                 items(allMessages) { msg ->
                     MessageItem(
                         message = msg,
-                        currentUserId = "me",
-                        chatVM = chatVM
+                        currentUserId = safeUserId,
+                        chatVM = chatVM,
+                        groupId = groupID,
+                        groupVM = groupVM
                     )
                 }
             }
@@ -171,13 +185,21 @@ fun BottomBar(
 fun MessageItem(
     message: ChatViewModel.Message,
     currentUserId: String,
-    chatVM: ChatViewModel
+    chatVM: ChatViewModel,
+    groupId: String,
+    groupVM: GroupViewModel
 ) {
     when (message) {
         is ChatViewModel.TextMessage ->
             TextMessageBubble(message, isMe = message.senderID == currentUserId)
         is ChatViewModel.RequestMessage ->
-            RequestMessageCard(message, isMe = message.senderID == currentUserId, chatVM = chatVM)
+            RequestMessageCard(
+                message = message,
+                isMe = message.senderID == currentUserId,
+                currentUserId = currentUserId,
+                groupId = groupId,
+                groupVM = groupVM
+            )
         is ChatViewModel.SystemMessage ->
             SystemMessageBubble(message)
     }
@@ -221,8 +243,13 @@ fun TextMessageBubble(
 fun RequestMessageCard(
     message: RequestMessage,
     isMe: Boolean,
-    chatVM: ChatViewModel
+    currentUserId: String,
+    groupId: String,
+    groupVM: GroupViewModel
 ) {
+    val hasPaid = message.acceptedBy.contains(currentUserId)
+    val hasDeclined = message.declinedBy.contains(currentUserId)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -276,34 +303,66 @@ fun RequestMessageCard(
 
             Spacer(Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = { /* TODO: Pay */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
+            when {
+                hasPaid -> {
+                    Text(
+                        text = "You have paid this request",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
                     )
-                ) {
-                    Text("Pay")
                 }
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = { chatVM.declineRequest(message.id) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
+                hasDeclined -> {
+                    Text(
+                        text = "You declined this request",
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.SemiBold
                     )
-                ) {
-                    Text("Decline")
+                }
+                else -> {
+                    // No decision yet -> show Pay / Decline buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                groupVM.markExpensePaid(
+                                    groupId = groupId,
+                                    expenseId = message.id,
+                                    userId = currentUserId
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text("Pay")
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                groupVM.markExpenseDeclined(
+                                    groupId = groupId,
+                                    expenseId = message.id,
+                                    userId = currentUserId
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text("Decline")
+                        }
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun SystemMessageBubble(message: ChatViewModel.SystemMessage) {

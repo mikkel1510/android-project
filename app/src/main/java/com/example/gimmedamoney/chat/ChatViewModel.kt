@@ -1,8 +1,10 @@
 package com.example.gimmedamoney.chat
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
@@ -15,30 +17,37 @@ class ChatViewModel(
         val id: String
         val senderID: String
         val text: String
+        val timestamp: Long
     }
 
     data class TextMessage(
         override val id: String = UUID.randomUUID().toString(),
         override val senderID: String,
-        override val text: String
+        override val text: String,
+        override val timestamp: Long = System.currentTimeMillis()
     ) : Message
 
     data class RequestMessage(
         override val id: String = UUID.randomUUID().toString(),
         override val senderID: String,
         override val text: String,
-        val amount: Double
+        val amount: Double,
+        val acceptedBy: List<String> = emptyList(),
+        val declinedBy: List<String> = emptyList(),
+        override val timestamp: Long = System.currentTimeMillis()
     ) : Message
+
 
     data class SystemMessage(
         override val id: String = UUID.randomUUID().toString(),
         override val senderID: String = "system",
-        override val text: String
+        override val text: String,
+        override val timestamp: Long = System.currentTimeMillis()
     ) : Message
 
     private val db = FirebaseFirestore.getInstance()
 
-    private val groupID: String = checkNotNull(savedStateHandle["groupID"]){
+    private val groupID: String = checkNotNull(savedStateHandle["groupID"]) {
         "ChatViewModel requires groupID in SavedStateHandle"
     }
 
@@ -49,37 +58,44 @@ class ChatViewModel(
         db.collection("groups")
             .document(groupID)
             .collection("messages")
-            .orderBy("createdAt")
+            .orderBy("createdAt")  // correct sorting in Firestore
             .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    return@addSnapshotListener
-                }
+                if (e != null) return@addSnapshotListener
 
                 val docs = snapshot?.documents ?: emptyList()
 
                 val newMessages = docs.mapNotNull { doc ->
+                    val timestamp = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+
                     when (doc.getString("type")) {
-                        "TEXT" -> {
-                            TextMessage(
-                                id = doc.id,
-                                senderID = doc.getString("senderId")!!,
-                                text = doc.getString("text")!!
-                            )
-                        }
-                        "SYSTEM" -> {
-                            SystemMessage(
-                                id = doc.id,
-                                senderID = doc.getString("senderId")!!,
-                                text = doc.getString("text")!!
-                            )
-                        }
+                        "TEXT" -> TextMessage(
+                            id = doc.id,
+                            senderID = doc.getString("senderId")!!,
+                            text = doc.getString("text")!!,
+                            timestamp = timestamp
+                        )
+
+                        "REQUEST" -> RequestMessage(
+                            id = doc.id,
+                            senderID = doc.getString("senderId")!!,
+                            text = doc.getString("text")!!,
+                            amount = doc.getDouble("amount") ?: 0.0,
+                            timestamp = timestamp
+                        )
+
+                        "SYSTEM" -> SystemMessage(
+                            id = doc.id,
+                            senderID = doc.getString("senderId") ?: "system",
+                            text = doc.getString("text")!!,
+                            timestamp = timestamp
+                        )
+
                         else -> null
                     }
                 }
 
                 _messages.clear()
                 _messages.addAll(newMessages)
-
             }
     }
 
@@ -100,18 +116,29 @@ class ChatViewModel(
         messagesRef.add(data)
     }
 
-    fun declineRequest(requestId: String) {
-        //TODO: Should handle decline, not just delete message
-        /*val msg = _messages.find { it.id == requestId }
-        if (msg != null) {
-            _messages.remove(msg)
-            _messages.add(
-                SystemMessage(
-                    text = "declined the request"
-                )
+    enum class RequestStatus { PENDING, PAID, DECLINED}
+
+    private val _requestStatuses = mutableStateMapOf<String, RequestStatus>()
+    val requestStatuses: Map<String, RequestStatus> get() = _requestStatuses
+
+    fun getRequestStatus(requestId: String): RequestStatus = _requestStatuses[requestId] ?: RequestStatus.PENDING
+
+    fun payRequest(requestId: String) {
+        _requestStatuses[requestId] = RequestStatus.PAID
+        _messages.add(
+            SystemMessage(
+                text = "You paid request $requestId"
             )
-        }
-        */
+        )
     }
 
+    fun declineRequest(requestId: String) {
+        _requestStatuses[requestId] = RequestStatus.DECLINED
+
+        _messages.add(
+            SystemMessage(
+                text = "You declined request $requestId"
+            )
+        )
+    }
 }
