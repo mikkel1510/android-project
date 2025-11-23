@@ -1,5 +1,6 @@
 package com.example.gimmedamoney.chat
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,10 @@ fun GroupChatScreen(
 
     val currentUserId by userVM.currentUser.collectAsState()
 
+    val users by userVM.users.collectAsState()
+    val userNameById = remember(users) {
+        users.associate { it.id to it.name }
+    }
 
     LaunchedEffect(groupID) {
         groupVM.startListeningToExpenses(groupID)
@@ -53,9 +58,11 @@ fun GroupChatScreen(
             amount = expense.amount,
             acceptedBy = expense.acceptedBy,
             declinedBy = expense.declinedBy,
+            splitBetween = expense.splitBetween,
             timestamp = expense.createdAt
         )
     }
+
     val allMessages = (expenseMessages + chatVM.messages).sortedBy { it.timestamp }
 
     val safeUserId = currentUserId ?: ""
@@ -85,7 +92,7 @@ fun GroupChatScreen(
                 input = input,
                 onInputChange = { input = it },
                 onSend = {
-                    if (safeUserId.isNotEmpty() && input.isNotBlank()){
+                    if (safeUserId.isNotEmpty() && input.isNotBlank()) {
                         chatVM.sendTextMessage(senderId = safeUserId, text = input)
                         input = ""
                     }
@@ -100,18 +107,26 @@ fun GroupChatScreen(
                 .padding(padding)
                 .padding(8.dp),
         ) {
-
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
                 items(allMessages) { msg ->
+                    val isMe = msg.senderID == safeUserId
+                    val senderName = if (isMe) {
+                        "You"
+                    } else {
+                        userNameById[msg.senderID] ?: msg.senderID
+                    }
+
                     MessageItem(
                         message = msg,
+                        isMe = isMe,
+                        senderName = senderName,
                         currentUserId = safeUserId,
-                        chatVM = chatVM,
                         groupId = groupID,
-                        groupVM = groupVM
+                        groupVM = groupVM,
+                        userNameById = userNameById
                     )
                 }
             }
@@ -179,27 +194,31 @@ fun BottomBar(
     }
 }
 
-
-//message and request message ui
 @Composable
 fun MessageItem(
     message: ChatViewModel.Message,
+    isMe: Boolean,
+    senderName: String,
     currentUserId: String,
-    chatVM: ChatViewModel,
     groupId: String,
-    groupVM: GroupViewModel
+    groupVM: GroupViewModel,
+    userNameById: Map<String, String>
 ) {
     when (message) {
         is ChatViewModel.TextMessage ->
-            TextMessageBubble(message, isMe = message.senderID == currentUserId)
-        is ChatViewModel.RequestMessage ->
+            TextMessageBubble(message, isMe = isMe, senderName = senderName)
+
+        is RequestMessage ->
             RequestMessageCard(
                 message = message,
-                isMe = message.senderID == currentUserId,
+                isMe = isMe,
+                senderName = senderName,
                 currentUserId = currentUserId,
                 groupId = groupId,
-                groupVM = groupVM
+                groupVM = groupVM,
+                userNameById = userNameById
             )
+
         is ChatViewModel.SystemMessage ->
             SystemMessageBubble(message)
     }
@@ -208,7 +227,8 @@ fun MessageItem(
 @Composable
 fun TextMessageBubble(
     message: ChatViewModel.TextMessage,
-    isMe: Boolean
+    isMe: Boolean,
+    senderName: String
 ) {
     Column(
         modifier = Modifier
@@ -217,7 +237,7 @@ fun TextMessageBubble(
         horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
     ) {
         Text(
-            text = if (isMe) "You" else message.senderID,
+            text = senderName,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -243,12 +263,40 @@ fun TextMessageBubble(
 fun RequestMessageCard(
     message: RequestMessage,
     isMe: Boolean,
+    senderName: String,
     currentUserId: String,
     groupId: String,
-    groupVM: GroupViewModel
+    groupVM: GroupViewModel,
+    userNameById: Map<String, String>
 ) {
     val hasPaid = message.acceptedBy.contains(currentUserId)
     val hasDeclined = message.declinedBy.contains(currentUserId)
+
+    // the members if the groups
+    val groupMemberIds = groupVM.getGroupById(groupId).memberIDs
+
+    // who the request is for
+    val recipientIds = message.splitBetween
+
+    // is everyone in the group choosen?
+    val isEveryone = recipientIds.toSet() == groupMemberIds.toSet()
+
+    // display if request is to everyone or specific members
+    val recipientsText = if (isEveryone || recipientIds.isEmpty()) {
+        "Everyone"
+    } else {
+        recipientIds.joinToString(", ") { id -> userNameById[id] ?: "Unknown" }
+    }
+
+    // Names of people who paid / declined (visible to EVERYONE)
+    val paidNames = message.acceptedBy
+        .mapNotNull { userNameById[it] }
+        .distinct()
+
+    val declinedNames = message.declinedBy
+        .mapNotNull { userNameById[it] }
+        .distinct()
+
 
     Column(
         modifier = Modifier
@@ -273,7 +321,7 @@ fun RequestMessageCard(
                 .padding(16.dp)
         ) {
             Text(
-                text = "From ${if (isMe) "You" else message.senderID} to Everyone",
+                text = "From $senderName to $recipientsText",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -303,60 +351,91 @@ fun RequestMessageCard(
 
             Spacer(Modifier.height(12.dp))
 
-            when {
-                hasPaid -> {
-                    Text(
-                        text = "You have paid this request",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                hasDeclined -> {
-                    Text(
-                        text = "You declined this request",
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                else -> {
-                    // No decision yet -> show Pay / Decline buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                                groupVM.markExpensePaid(
-                                    groupId = groupId,
-                                    expenseId = message.id,
-                                    userId = currentUserId
-                                )
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Pay")
-                        }
-                        Button(
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                                groupVM.markExpenseDeclined(
-                                    groupId = groupId,
-                                    expenseId = message.id,
-                                    userId = currentUserId
-                                )
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Decline")
-                        }
+            if (isMe) {
+                Text(
+                    text = "Waiting for others to respond",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium
+                )
+            } else {
+                when {
+                    hasPaid -> {
+                        Text(
+                            text = "You have paid this request",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
+
+                    hasDeclined -> {
+                        Text(
+                            text = "You declined this request",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    else -> {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    groupVM.markExpensePaid(
+                                        groupId = groupId,
+                                        expenseId = message.id,
+                                        userId = currentUserId
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Pay")
+                            }
+
+                            Button(
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    groupVM.markExpenseDeclined(
+                                        groupId = groupId,
+                                        expenseId = message.id,
+                                        userId = currentUserId
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Decline")
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+
+                    }
+                }
+            }
+            if (paidNames.isNotEmpty() || declinedNames.isNotEmpty()) {
+                Divider(Modifier.padding(vertical = 4.dp))
+
+                if (paidNames.isNotEmpty()) {
+                    Text(
+                        text = "Paid by: ${paidNames.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                if (declinedNames.isNotEmpty()) {
+                    Text(
+                        text = "Declined by: ${declinedNames.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

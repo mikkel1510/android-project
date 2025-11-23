@@ -34,6 +34,7 @@ class ChatViewModel(
         val amount: Double,
         val acceptedBy: List<String> = emptyList(),
         val declinedBy: List<String> = emptyList(),
+        val splitBetween: List<String> = emptyList(),
         override val timestamp: Long = System.currentTimeMillis()
     ) : Message
 
