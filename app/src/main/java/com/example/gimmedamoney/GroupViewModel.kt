@@ -1,12 +1,8 @@
 package com.example.gimmedamoney
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import java.util.UUID
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -100,7 +96,7 @@ class GroupViewModel() : ViewModel() {
         return _groups.value.firstOrNull { it.id == id } ?: Group()
     }
 
-    fun startListeningToExpenses(groupID: String){
+    fun listenToExpenses(groupID: String){
         db.collection("groups")
             .document(groupID)
             .collection("expenses")
@@ -113,6 +109,31 @@ class GroupViewModel() : ViewModel() {
                 val current = _expensesByGroup.value.toMutableMap()
                 current[groupID] = expenses
                 _expensesByGroup.value = current
+            }
+    }
+
+    fun listenToGroup(groupID: String){
+        db.collection("groups")
+            .document(groupID)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null){
+                    Log.e("GroupVM", "Error listening to group $groupID", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()){
+                    val updatedGroup = snapshot.toObject(Group::class.java)?.copy(id = snapshot.id)
+                    if (updatedGroup != null){
+                        val current = _groups.value.toMutableList()
+                        val index = current.indexOfFirst { it.id == groupID }
+                        if (index >= 0){
+                            current[index] = updatedGroup
+                        } else{
+                            current.add(updatedGroup)
+                        }
+                        _groups.value = current
+                    }
+                }
             }
     }
 
@@ -130,7 +151,7 @@ class GroupViewModel() : ViewModel() {
      *
      */
 
-    fun addMembers(groupID: String, userIDs: List<String>){
+    fun addMembers(groupID: String, userIDs: List<String>, onAdd: () -> Unit){
         val groupRef = db.collection("groups").document(groupID)
 
         groupRef.update(
@@ -139,13 +160,25 @@ class GroupViewModel() : ViewModel() {
         )
             .addOnSuccessListener {
                 Log.d("GroupVM", "Added ${userIDs.size} members")
+                onAdd()
             }
             .addOnFailureListener { e ->
                 Log.e("GroupVM", "Error adding members", e)
             }
     }
 
-    fun removeMember(groupID: String, id: String) {}
+    fun removeMember(groupID: String, memberID: String, onDone: () -> Unit) {
+        db.collection("groups")
+            .document(groupID)
+            .update("memberIDs", FieldValue.arrayRemove(memberID))
+            .addOnSuccessListener {
+                Log.d("GroupVM", "User deleted")
+                onDone()
+            }
+            .addOnFailureListener { e ->
+                Log.w("GroupVM", "Failed deleting user", e)
+            }
+    }
 
     fun getMemberIDsForGroup(groupID: String): List<String> =
         getGroupById(groupID).memberIDs
@@ -154,13 +187,6 @@ class GroupViewModel() : ViewModel() {
         val memberIDs = getMemberIDsForGroup(groupID)
         return allUsers.filter { it.id in memberIDs }
     }
-
-    /*
-    fun removeMemberFromGroup(groupId: String, userId: String) {
-        getGroupById(groupId)?.members?.removeAll { it.id == userId }
-    }
-
-     */
 
     /**
      *

@@ -122,10 +122,10 @@ fun AddMemberScreen(
             if (selectedUsers.isNotEmpty()){
                 SelectedUsers(
                     selectedUsers,
-                    groupVM.getMemberIDsForGroup(groupID),
                     {
-                        groupVM.addMembers(groupID, selectedUsers.map { it.id })
-                        onBackPress()
+                        groupVM.addMembers(groupID, selectedUsers.map { it.id }){
+                            onBackPress()
+                        }
                     }
                 )
             }
@@ -183,7 +183,7 @@ fun SearchBar(updateQuery: (String) -> Unit){
 }
 
 @Composable
-fun SelectedUsers(users: MutableList<User>, memberIDs: List<String>, onAdd: () -> Unit){
+fun SelectedUsers(users: MutableList<User>, onAdd: () -> Unit){
     Column {
         Row(
             Modifier.fillMaxWidth(),
@@ -400,8 +400,6 @@ fun SelectedUsersPreview(){
         val user3 = User("3", "Joe Man", "bobsteve@email.com", "12345678", "1234", "https://static.wikia.nocookie.net/breakingbad/images/e/e0/Saul_2009.jpg/revision/latest/scale-to-width/360?cb=20220812220131")
         val users =  listOf(user, user2, user3).toMutableList()
 
-        val members = listOf<String>()
-
-        SelectedUsers(users, members, {})
+        SelectedUsers(users,  {})
     }
 }
