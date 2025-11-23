@@ -1,6 +1,5 @@
 package com.example.gimmedamoney
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +22,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -122,7 +123,7 @@ fun RemoveMemberDialog(
             onDismissRequest()
         },
         confirmButton = {
-            Button(onClick = { onConfirmation(); onDismissRequest() }) {
+            Button(onClick = { onConfirmation()}) {
                 Text("Yes")
             }
         },
@@ -174,18 +175,26 @@ fun MembersScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            LaunchedEffect(groupID) {
+                groupVM.listenToGroup(groupID)
+            }
+
+            val users by userVM.users.collectAsState()
+            val groups by groupVM.groups.collectAsState() //Recompose when groups are changed
+            val members = groupVM.getMembersForGroup(groupID, users)
+
             var selectedMember by remember { mutableStateOf<User?>(null) }
 
             selectedMember?.let { member ->
                 RemoveMemberDialog(
                     true,
                     { selectedMember = null },
-                    { groupVM.removeMember(groupID, member.id) },
+                    { groupVM.removeMember(groupID, member.id){ selectedMember = null } },
                     member.name
                 )
             }
 
-            val members = groupVM.getMembersForGroup(groupID, userVM.users.value)
 
             MemberList(members, { member -> selectedMember = member })
 

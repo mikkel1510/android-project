@@ -34,7 +34,7 @@ fun GroupChatScreen(
     var input by remember { mutableStateOf("") }
 
     LaunchedEffect(groupID) {
-        groupVM.startListeningToExpenses(groupID)
+        groupVM.listenToExpenses(groupID)
     }
 
     val expensesByGroup by groupVM.expensesByGroup.collectAsState()

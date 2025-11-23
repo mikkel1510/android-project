@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    navigation(startDestination = "home", route = "app_flow"){ //Change startDestination to groupChat
+                    navigation(startDestination = "home", route = "app_flow"){
                         composable("home") { backStackEntry ->
                             val parentEntry = remember(backStackEntry){
                                 nav.getBackStackEntry("app_flow")
