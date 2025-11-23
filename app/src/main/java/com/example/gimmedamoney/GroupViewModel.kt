@@ -230,12 +230,14 @@ class GroupViewModel() : ViewModel() {
      * Balance calculation
      *
      */
-    /*
-    fun calculateBalances(group: Group): Map<String, Double> {
-        // Starts all members at 0
-        val balances = group.members.associate { it.id to 0.0 }.toMutableMap()
 
-        for (expense in group.expenses) {
+    fun calculateBalances(groupID: String): Map<String, Double> {
+        val memberIDs = getMemberIDsForGroup(groupID)
+
+        // Starts all members at 0
+        val balances = memberIDs.associateWith {0.0}.toMutableMap()
+        val expenses = expensesByGroup.value[groupID] ?: emptyList()
+        for (expense in expenses) {
             val payer = expense.paidBy
             val participants = expense.splitBetween
             val share = expense.amount / participants.size
@@ -258,8 +260,4 @@ class GroupViewModel() : ViewModel() {
         }
         return balances
     }
-
-     */
-
-
 }
