@@ -38,10 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.ui.theme.DialogPopUp
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
-
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -59,7 +59,11 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
 
     Row(modifier = Modifier
         .padding(10.dp)
-        .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.large)
+        .border(
+            width = 2.dp,
+            color = MaterialTheme.colorScheme.primary,
+            shape = MaterialTheme.shapes.large
+        )
         .padding(10.dp)
         .width(250.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -97,43 +101,6 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
     }
 }
 
-@Composable
-fun RemoveMemberDialog(
-    active: Boolean,
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    memberName: String
-){
-    if (!active) return
-    AlertDialog(
-        title = {
-            Text("Confirm removal")
-        },
-        text = {
-            Row {
-                Text("Remove ")
-                Text(memberName, fontWeight = FontWeight.Bold)
-                Text("?")
-            }
-
-        },
-        textContentColor = MaterialTheme.colorScheme.onBackground,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            Button(onClick = { onConfirmation()}) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            Button({ onDismissRequest() }) {
-                Text("No")
-            }
-        }
-    )
-}
 
 @Composable
 fun MembersScreen(
@@ -181,17 +148,24 @@ fun MembersScreen(
             }
 
             val users by userVM.users.collectAsState()
-            val groups by groupVM.groups.collectAsState() //Recompose when groups are changed
             val members = groupVM.getMembersForGroup(groupID, users)
 
             var selectedMember by remember { mutableStateOf<User?>(null) }
 
             selectedMember?.let { member ->
-                RemoveMemberDialog(
-                    true,
-                    { selectedMember = null },
-                    { groupVM.removeMember(groupID, member.id){ selectedMember = null } },
-                    member.name
+                DialogPopUp(
+                    active = true,
+                    title = "Confirm Removal",
+                    content = {
+                        Row{
+                            Text("Remove ")
+                            Text(member.name, fontWeight = FontWeight.Bold)
+                            Text("?")
+                        }
+                    },
+                    onDismissRequest = { selectedMember = null },
+                    onConfirmation = { groupVM.removeMember(groupID, member.id){ selectedMember = null } },
+                    confirmButtonColor = Red
                 )
             }
 
