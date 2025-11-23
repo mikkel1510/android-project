@@ -49,18 +49,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun logOut(){
-        _currentUser.value = null
-    }
-
-    fun logIn(email: String, password: String): Boolean{
-        val user = _users.value.firstOrNull { it.email == email && it.password == password }
-        user?.let {
-            _currentUser.value = user.id
-        }
-        return user != null
-    }
-
     fun createAccount(name: String, phone: String, email: String, password: String): Boolean {
         val emailTaken = users.value.any { it.email.equals(email, ignoreCase = true) }
         val phoneTaken = users.value.any { it.phone == phone }
@@ -93,6 +81,31 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         return true
     }
+
+    fun deleteAccount(userID: String){
+        db.collection("users")
+            .document(userID)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("UserVM", "Successfully deleted account $userID")
+                logOut()
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserVM", "Failed deleting user", e)
+            }
+    }
+
+    fun logIn(email: String, password: String): Boolean{
+        val user = _users.value.firstOrNull { it.email == email && it.password == password }
+        user?.let {
+            _currentUser.value = user.id
+        }
+        return user != null
+    }
+    fun logOut(){
+        _currentUser.value = null
+    }
+
 
     private fun mapIdToProfilePicture(id: String): Int {
         val context = getApplication<Application>().applicationContext

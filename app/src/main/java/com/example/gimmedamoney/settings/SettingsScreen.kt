@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.navigation.compose.rememberNavController
 import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.ui.theme.DialogPopUp
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
@@ -200,8 +201,24 @@ fun SettingsScreen(
             ){
                 Text("Log out")
             }
+
+            var popupActive by remember{ mutableStateOf(false) }
+            val userID = userVM.currentUser.value
+            userID?.let { id ->
+                if (popupActive){
+                    DialogPopUp(
+                        active = true,
+                        title = "Confirm Deletion",
+                        content = { Text("Are you sure?") },
+                        onDismissRequest = { popupActive = false },
+                        onConfirmation = { popupActive = false; userVM.deleteAccount(userID = id); onLogOut() },
+                        confirmButtonColor = Red
+                    )
+                }
+
+            }
             Button(
-                onClick = onDeleteAccount,
+                onClick = { popupActive = true; onDeleteAccount },
                 colors = ButtonDefaults.buttonColors(containerColor = Red),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -282,7 +299,9 @@ private fun LanguageDropdown(current: AppLanguage, onChange: (AppLanguage) -> Un
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         TextField(
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
             value = current.name.lowercase().replaceFirstChar { it.titlecase() },
             onValueChange = {}, readOnly = true, label = { Text("Language") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }

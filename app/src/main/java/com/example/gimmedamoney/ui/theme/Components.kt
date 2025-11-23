@@ -1,10 +1,16 @@
 package com.example.gimmedamoney.ui.theme
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -94,6 +100,35 @@ fun TopNavBar(
             )
         }
     }
+
+}
+@Composable
+fun DialogPopUp(
+    active: Boolean,
+    title: String,
+    content: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    confirmButtonColor: Color? = null
+){
+    if (!active) return
+    AlertDialog(
+        title = {
+            Text(title)
+        },
+        text = { content() },
+        textContentColor = MaterialTheme.colorScheme.onBackground,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            PrimaryButton(onClick = { onConfirmation()}, text = "Confirm", color = confirmButtonColor, modifier = Modifier.size(100.dp, 50.dp))
+        },
+        dismissButton = {
+            PrimaryButton(onClick = { onDismissRequest() }, text = "Cancel", modifier = Modifier.size(100.dp, 50.dp))
+        }
+    )
 }
 
 @Composable
@@ -102,7 +137,8 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    color: Color? = null
 ){
     Button(
         onClick = onClick,
@@ -110,7 +146,7 @@ fun PrimaryButton(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = color ?: MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ){
@@ -138,7 +174,7 @@ fun TopNavBarPreview(){
     GimmeDaMoneyTheme {
         TopNavBar(
             "Top Bar",
-            "false",
+            "Subtitle",
             false,
             {
                 IconButton(onClick = {  }) {
@@ -156,6 +192,26 @@ fun TopNavBarPreview(){
                     )
                 }
             },
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DialogPopupPreview(){
+    GimmeDaMoneyTheme{
+        DialogPopUp(
+            active = true,
+            title = "Popup",
+            content = {
+                Row{
+                    Text("Hello ", fontWeight = FontWeight.Bold)
+                    Text("there")
+                }
+            },
+            onDismissRequest = { },
+            onConfirmation = {},
+            confirmButtonColor = Red
         )
     }
 }

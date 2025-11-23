@@ -172,11 +172,11 @@ class GroupViewModel() : ViewModel() {
             .document(groupID)
             .update("memberIDs", FieldValue.arrayRemove(memberID))
             .addOnSuccessListener {
-                Log.d("GroupVM", "User deleted")
+                Log.d("GroupVM", "Member removed")
                 onDone()
             }
             .addOnFailureListener { e ->
-                Log.w("GroupVM", "Failed deleting user", e)
+                Log.w("GroupVM", "Failed removing member", e)
             }
     }
 
