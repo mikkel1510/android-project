@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun RequestScreen(
     val userID by userVM.currentUser.collectAsState()
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
-    var selectedMembers by remember { mutableStateOf(setOf<String>()) }
+    var selectedMembers by rememberSaveable { mutableStateOf(setOf<String>()) }
 
     Scaffold(
         topBar = {
@@ -79,7 +80,7 @@ fun RequestScreen(
                     .heightIn(max = 250.dp)
             ) {
                 GroupList(
-                    members = groupVM.getMembersForGroup(groupID, userVM.users.value).filter { it.id != userID },
+                    members = groupVM.getMembersForGroup(groupID, userVM.users.value),
                     selected = selectedMembers,
                     onToggleMember = { memberId ->
                         selectedMembers =
@@ -95,7 +96,7 @@ fun RequestScreen(
                 value = amount,
                 onValueChange = { input -> amount = input.filter { it.isDigit() } },
                 label = { Text("Amount") },
-                prefix = { Text("$") },
+                suffix = { Text("DKK")},
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
                     .fillMaxWidth()
