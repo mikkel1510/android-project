@@ -18,5 +18,3 @@ class RetrofitClient {
         retrofit.create(GimmeDaMoneyService::class.java)
     }
 }
-
-

@@ -260,4 +260,25 @@ class GroupViewModel() : ViewModel() {
         }
         return balances
     }
+    fun getBalanceForUserInGroup(groupID: String, userID: String): Double {
+        val balances = calculateBalances(groupID)
+        return balances[userID] ?: 0.0
+    }
+
+    fun getYouOweAndYouAreOwed(groupID: String, userID: String): Pair<Double, Double> {
+        val balance = getBalanceForUserInGroup(groupID, userID)
+
+        return if (balance >= 0) {
+            // You are owed money
+            0.0 to balance      // (youOwe, youAreOwed)
+        } else {
+            // You owe money
+            (-balance) to 0.0
+        }
+    }
+    fun getTotalForGroup(groupID: String): Double {
+        val expenses = expensesByGroup.value[groupID] ?: emptyList()
+        return expenses.sumOf { it.amount }
+    }
+
 }
