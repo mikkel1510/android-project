@@ -302,7 +302,7 @@ fun RequestMessageCard(
             // else the user id get stored in either acceptedBy or declinedBy (removed the id from the opposite list)
             if (isMe) {
                 Text(
-                    text = "Waiting for others to respond",
+                    text = "Status",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )

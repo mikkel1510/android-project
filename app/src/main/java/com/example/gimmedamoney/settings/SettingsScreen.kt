@@ -53,7 +53,6 @@ fun SettingsScreen(
     onOpenLicenses: () -> Unit = {},
     onExportData: () -> Unit = {},
     onClearCache: () -> Unit = {},
-    onDeleteAccount: () -> Unit = {},
     onThemeChanged: (ThemeMode) -> Unit = {},
     onLanguageChanged: (AppLanguage) -> Unit = {},
     vm: SettingsViewModel = viewModel(),
@@ -213,7 +212,7 @@ fun SettingsScreen(
 
             }
             Button(
-                onClick = { popupActive = true; onDeleteAccount },
+                onClick = { popupActive = true; },
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
                 modifier = Modifier
                     .fillMaxWidth()

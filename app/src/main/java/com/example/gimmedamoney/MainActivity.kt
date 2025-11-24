@@ -84,7 +84,13 @@ class MainActivity : ComponentActivity() {
                                 onOpenHome = { nav.navigate("home") },
                                 onOpenProfile = { nav.navigate("profile") },
                                 vm = settingsVM,
-                                userVM = userVM
+                                userVM = userVM,
+                                onLogOut = {
+                                    nav.navigate("login_flow") {
+                                        popUpTo("app_flow") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
                             )
                         }
 
