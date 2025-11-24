@@ -1,4 +1,4 @@
-package com.example.gimmedamoney.login
+package com.example.gimmedamoney.ui.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.util.Patterns.EMAIL_ADDRESS
-import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,7 +149,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, userVM: UserViewModel = viewModel())
                                     return@PrimaryButton
                                 }
 
-                                if (userVM.createAccount(name, phone, email, password)) {
+                                if (userVM.createUser(name, phone, email, password)) {
                                     onLoginSuccess()
                                 } else {
                                     error = "Email or Phone already taken"

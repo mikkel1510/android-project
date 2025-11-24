@@ -1,7 +1,5 @@
-package com.example.gimmedamoney.settings
+package com.example.gimmedamoney.ui.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -16,11 +14,8 @@ import com.example.gimmedamoney.BuildConfig
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.navigation.compose.rememberNavController
-import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.ui.theme.DialogPopUp
-import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 
@@ -205,7 +200,7 @@ fun SettingsScreen(
                         title = "Confirm Deletion",
                         content = { Text("Are you sure?") },
                         onDismissRequest = { popupActive = false },
-                        onConfirmation = { popupActive = false; userVM.deleteAccount(userID = id); onLogOut() },
+                        onConfirmation = { popupActive = false; userVM.deleteUser(userID = id); onLogOut() },
                         confirmButtonColor = Red
                     )
                 }

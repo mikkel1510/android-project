@@ -1,4 +1,4 @@
-package com.example.gimmedamoney.profile
+package com.example.gimmedamoney.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,12 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.navigationBarsPadding
+import com.example.gimmedamoney.ui.theme.TopNavBar
 
 class ProfileViewModel : ViewModel() {
     var name by mutableStateOf("")
@@ -47,7 +47,7 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            com.example.gimmedamoney.ui.theme.TopNavBar(
+            TopNavBar(
                 title = "Profile",
                 centerAligned = true,
             )

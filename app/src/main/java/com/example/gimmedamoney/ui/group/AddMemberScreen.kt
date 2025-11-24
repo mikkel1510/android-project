@@ -1,8 +1,7 @@
-package com.example.gimmedamoney
+package com.example.gimmedamoney.ui.group
 
 import android.app.Application
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -58,10 +57,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.gimmedamoney.R
 import com.example.gimmedamoney.ui.theme.PrimaryButton
-import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.data.model.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 
 
 class UserViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

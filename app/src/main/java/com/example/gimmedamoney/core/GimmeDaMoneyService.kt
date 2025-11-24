@@ -1,6 +1,7 @@
-package com.example.gimmedamoney;
+package com.example.gimmedamoney.core
 
 import retrofit2.http.GET
+
 interface GimmeDaMoneyService {
 
     data class ApiResponse(
