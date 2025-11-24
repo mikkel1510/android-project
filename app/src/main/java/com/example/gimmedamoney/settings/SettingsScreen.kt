@@ -58,7 +58,8 @@ fun SettingsScreen(
     onLanguageChanged: (AppLanguage) -> Unit = {},
     vm: SettingsViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
-    onLogOut: () -> Unit
+    onOpenHome: () -> Unit,
+    onOpenProfile: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -71,6 +72,13 @@ fun SettingsScreen(
                     }
                 },
             )
+        },
+        bottomBar = {
+            SettingsBottomNavBar(
+                onGoHome   = onOpenHome,
+                onProfile  = onOpenProfile,
+                onFavourites = { /* TODO */ }
+            )
         }
     ) { inner ->
         val scroll = rememberScrollState()
@@ -78,9 +86,9 @@ fun SettingsScreen(
         Column(
             Modifier
                 .padding(inner)
-                .verticalScroll(scroll)        // enable scrolling
+                .verticalScroll(scroll)
                 .padding(horizontal = 16.dp)
-                .navigationBarsPadding()       // avoid cut-off behind gesture bar
+                .navigationBarsPadding()
         ) {
             Spacer(Modifier.height(8.dp))
 
@@ -191,18 +199,13 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Danger zone
             Text("Account", style = MaterialTheme.typography.titleMedium)
-            Button(
-                onClick = { userVM.logOut(); onLogOut() },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text("Log out")
-            }
+
             Button(
                 onClick = onDeleteAccount,
-                colors = ButtonDefaults.buttonColors(containerColor = Red),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
@@ -221,7 +224,60 @@ fun SettingsScreen(
     }
 }
 
-/* --- Small helpers --- */
+@Composable
+private fun SettingsBottomNavBar(
+    onGoHome: () -> Unit,
+    onProfile: () -> Unit = {},
+    onFavourites: () -> Unit = {}
+) {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+        NavigationBarItem(
+            selected = false,
+            onClick = onProfile,
+            icon = { Icon(Icons.Outlined.Person, null) },
+            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = onGoHome, // “Groups”
+            icon = { Icon(Icons.Outlined.Group, null) },
+            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = onFavourites,
+            icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
+            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = true, // you’re on Settings
+            onClick = { /* no-op */ },
+            icon = { Icon(Icons.Outlined.Settings, null) },
+            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+    }
+}
+
 
 @Composable
 private fun SectionHeader(title: String) {

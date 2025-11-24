@@ -45,6 +45,7 @@ fun HomeScreen(
     onGroupPress: (String) -> Unit,
     onCreateGroup: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenProfile: () -> Unit,
     groupVM: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel()
 ) {
@@ -70,7 +71,14 @@ fun HomeScreen(
                 }
             )
         },
-        bottomBar = { BottomNavBar(onSettings = onOpenSettings) },
+        bottomBar = {
+            BottomNavBar(
+                onSettings   = onOpenSettings,
+                onProfile    = onOpenProfile,
+                onGroups     = {},
+                onFavourites = { /* TODO */ }
+            )
+        },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(Modifier
@@ -309,7 +317,7 @@ private fun BottomNavBar(
         )
         NavigationBarItem(
             selected = false,
-            onClick = onSettings,        // <-- navigate
+            onClick = onSettings,
             icon = { Icon(Icons.Outlined.Settings, null) },
             label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) },
             colors = NavigationBarItemDefaults.colors(
@@ -322,15 +330,3 @@ private fun BottomNavBar(
 }
 
 private fun dkk(v: Double) = String.format("%.2f DKK", v)
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview(){
-    GimmeDaMoneyTheme {
-        HomeScreen(
-            onGroupPress = {},
-            onCreateGroup = {},
-            onOpenSettings = {}
-        )
-    }
-}
