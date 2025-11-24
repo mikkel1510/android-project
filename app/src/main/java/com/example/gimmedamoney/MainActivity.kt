@@ -79,7 +79,6 @@ class MainActivity : ComponentActivity() {
 
                         composable("settings") {
                             SettingsScreen(
-                                onBack = { nav.popBackStack() },
                                 onOpenHome = { nav.navigate("home") },
                                 onOpenProfile = { nav.navigate("profile") },
                                 vm = settingsVM,
@@ -101,7 +100,6 @@ class MainActivity : ComponentActivity() {
 
                         composable("profile") {
                             com.example.gimmedamoney.profile.ProfileScreen(
-                                onBack = { nav.popBackStack() },
                                 onOpenHome = { nav.navigate("home") },
                                 onOpenSettings = { nav.navigate("settings") },
                                 onSaveBasic = { name, email, phone -> /* TODO */ },

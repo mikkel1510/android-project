@@ -30,7 +30,6 @@ enum class PaymentMethod { GoogleWallet, PayPal, Card }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    onBack: () -> Unit,
     onOpenHome: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenFavourites: () -> Unit = {},
@@ -48,13 +47,9 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Profile") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            com.example.gimmedamoney.ui.theme.TopNavBar(
+                title = "Profile",
+                centerAligned = true,
             )
         },
         bottomBar = {
@@ -256,30 +251,40 @@ private fun ProfileBottomNavBar(
     onOpenSettings: () -> Unit,
     onFavourites: () -> Unit
 ) {
+    val itemColors = NavigationBarItemDefaults.colors(
+        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+        selectedIconColor   = MaterialTheme.colorScheme.primary,
+        indicatorColor      = MaterialTheme.colorScheme.onPrimary
+    )
+
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         NavigationBarItem(
             selected = true,
             onClick = { /* no-op */ },
             icon = { Icon(Icons.Outlined.Person, null) },
-            label = { Text("Profile") }
+            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) },
+            colors = itemColors
         )
         NavigationBarItem(
             selected = false,
             onClick = onGoHome,
             icon = { Icon(Icons.Outlined.Group, null) },
-            label = { Text("Groups") }
+            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) },
+            colors = itemColors
         )
         NavigationBarItem(
             selected = false,
             onClick = onFavourites,
             icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
-            label = { Text("Favourites") }
+            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) },
+            colors = itemColors
         )
         NavigationBarItem(
             selected = false,
             onClick = onOpenSettings,
             icon = { Icon(Icons.Outlined.Settings, null) },
-            label = { Text("Settings") }
+            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) },
+            colors = itemColors
         )
     }
 }

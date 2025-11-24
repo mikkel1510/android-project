@@ -48,7 +48,6 @@ class SettingsViewModel : ViewModel() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenLicenses: () -> Unit = {},
     onExportData: () -> Unit = {},
@@ -66,11 +65,6 @@ fun SettingsScreen(
             TopNavBar(
                 title = "Settings",
                 centerAligned = true,
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
             )
         },
         bottomBar = {
