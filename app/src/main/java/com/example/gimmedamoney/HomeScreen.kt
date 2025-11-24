@@ -58,6 +58,11 @@ fun HomeScreen(
             groupVM.getUserGroups(id)
         }
     }
+    LaunchedEffect(groups) {
+        groups.forEach { g ->
+            groupVM.listenToExpenses(g.id)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -108,8 +113,15 @@ fun HomeScreen(
                 ) {
                     items(groups, key = { it.id }) { g ->
                         Text(g.name)
+                        val total = groupVM.getTotalForGroup(g.id)
+                        val balancePair = groupVM.getYouOweAndYouAreOwed(g.id,userID ?: "")
+                        val youOwe = balancePair.first
+                        val youAreOwed = balancePair.second
                         GroupCard(
-                            group = GroupSummary(g.id, g.name),
+                            groupName = g.name,
+                            total = total,
+                            youOwe = youOwe,
+                            youAreOwed = youAreOwed,
                             onClick = { onGroupPress(g.id) }
                         )
                     }
@@ -129,7 +141,10 @@ fun HomeScreen(
 
 @Composable
 private fun GroupCard(
-    group: GroupSummary,
+    groupName: String,
+    total: Double,
+    youOwe: Double,
+    youAreOwed: Double,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -152,7 +167,7 @@ private fun GroupCard(
 
         Column(Modifier.padding(12.dp)) {
             Text(
-                text = group.name,
+                text = groupName,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
@@ -173,7 +188,7 @@ private fun GroupCard(
                 Spacer(Modifier.weight(1f))
 
                 Text(
-                    dkk(group.totalDkk),
+                    dkk(total),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
@@ -184,13 +199,13 @@ private fun GroupCard(
 
             BalancePill(
                 label = "You owe",
-                value = group.youOweDkk,
+                value = youOwe,
                 color = Red
             )
             Spacer(Modifier.height(4.dp))
             BalancePill(
                 label = "You are owed",
-                value = group.youAreOwedDkk,
+                value = youAreOwed,
                 color = Green
             )
         }
