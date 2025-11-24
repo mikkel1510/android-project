@@ -1,4 +1,4 @@
-package com.example.gimmedamoney
+package com.example.gimmedamoney.core
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -14,16 +15,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.gimmedamoney.chat.ChatViewModel
-import com.example.gimmedamoney.chat.GroupChatScreen
-import com.example.gimmedamoney.login.LoginScreen
-import com.example.gimmedamoney.payment.RequestScreen
+import com.example.gimmedamoney.ui.group.AddMemberScreen
+import com.example.gimmedamoney.ui.group.CreateGroupScreen
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.ui.home.HomeScreen
+import com.example.gimmedamoney.ui.group.MembersScreen
+import com.example.gimmedamoney.viewmodel.UserViewModel
+import com.example.gimmedamoney.viewmodel.ChatViewModel
+import com.example.gimmedamoney.ui.group.GroupChatScreen
+import com.example.gimmedamoney.ui.login.LoginScreen
+import com.example.gimmedamoney.ui.payment.RequestScreen
+import com.example.gimmedamoney.ui.profile.ProfileScreen
+import com.example.gimmedamoney.ui.settings.SettingsScreen
+import com.example.gimmedamoney.ui.settings.SettingsViewModel
+import com.example.gimmedamoney.ui.settings.ThemeMode
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
-import com.example.gimmedamoney.settings.SettingsScreen
-import com.example.gimmedamoney.settings.SettingsViewModel
-import com.example.gimmedamoney.settings.ThemeMode
-import androidx.compose.runtime.collectAsState
-
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnrememberedGetBackStackEntry")
@@ -49,22 +55,24 @@ class MainActivity : ComponentActivity() {
                     startDestination = if (userVM.currentUser.collectAsState().value == null) "login_flow" else "app_flow",
                 ) {
 
-                    navigation(startDestination = "login", route = "login_flow"){
-                        composable("login"){
+                    navigation(startDestination = "login", route = "login_flow") {
+                        composable("login") {
                             LoginScreen(
-                                { nav.navigate("app_flow"){
-                                  popUpTo("login") {
-                                      inclusive = true
-                                  }
-                                } },
+                                {
+                                    nav.navigate("app_flow") {
+                                        popUpTo("login") {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
                                 userVM = userVM
                             )
                         }
                     }
 
-                    navigation(startDestination = "home", route = "app_flow"){
+                    navigation(startDestination = "home", route = "app_flow") {
                         composable("home") { backStackEntry ->
-                            val parentEntry = remember(backStackEntry){
+                            val parentEntry = remember(backStackEntry) {
                                 nav.getBackStackEntry("app_flow")
                             }
                             val groupVM: GroupViewModel = viewModel(parentEntry)
@@ -73,7 +81,7 @@ class MainActivity : ComponentActivity() {
                                 { id -> nav.navigate("group_flow/$id") },
                                 { nav.navigate("createGroupScreen") },
                                 { nav.navigate("settings") },
-                                onOpenProfile = { nav.navigate("profile")},
+                                onOpenProfile = { nav.navigate("profile") },
                                 groupVM = groupVM,
                                 userVM = userVM
                             )
@@ -97,17 +105,19 @@ class MainActivity : ComponentActivity() {
                         composable("createGroupScreen") {
                             CreateGroupScreen(
                                 { nav.popBackStack() },
-                                { id -> nav.navigate("group_flow/$id"){
-                                    popUpTo("createGroupScreen") {
-                                        inclusive = true
+                                { id ->
+                                    nav.navigate("group_flow/$id") {
+                                        popUpTo("createGroupScreen") {
+                                            inclusive = true
+                                        }
                                     }
-                                } },
+                                },
                                 userVM = userVM
                             )
                         }
 
                         composable("profile") {
-                            com.example.gimmedamoney.profile.ProfileScreen(
+                            ProfileScreen(
                                 onOpenHome = { nav.navigate("home") },
                                 onOpenSettings = { nav.navigate("settings") },
                                 onSaveBasic = { name, email, phone -> /* TODO */ },
@@ -127,14 +137,14 @@ class MainActivity : ComponentActivity() {
                             startDestination = "groupChat",
                             route = "group_flow/{groupID}",
                             arguments = listOf(
-                                navArgument("groupID") { type = NavType.StringType }
+                                navArgument("groupID") { type = NavType.Companion.StringType }
                             )
-                        ){
+                        ) {
                             composable("groupChat") { backStackEntry ->
                                 val chatEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("group_flow/{groupID}")
                                 }
-                                val appEntry = remember(backStackEntry){
+                                val appEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("app_flow")
                                 }
                                 val chatVM: ChatViewModel = viewModel(chatEntry)
@@ -142,8 +152,8 @@ class MainActivity : ComponentActivity() {
                                 val groupID = chatEntry.arguments?.getString("groupID")!!
 
                                 GroupChatScreen(
-                                    {nav.popBackStack()},
-                                    {nav.navigate("members")},
+                                    { nav.popBackStack() },
+                                    { nav.navigate("members") },
                                     { nav.navigate("createRequest") },
                                     groupID = groupID,
                                     chatVM = chatVM,

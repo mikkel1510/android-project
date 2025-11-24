@@ -1,5 +1,6 @@
-package com.example.gimmedamoney
+package com.example.gimmedamoney.ui.home
 
+import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,15 +29,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
-
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,7 +158,7 @@ private fun GroupCard(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Image(
-                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                painter = painterResource(id = R.drawable.ic_menu_gallery),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()

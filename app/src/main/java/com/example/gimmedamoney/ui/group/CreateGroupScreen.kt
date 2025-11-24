@@ -1,4 +1,4 @@
-package com.example.gimmedamoney
+package com.example.gimmedamoney.ui.group
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,8 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +36,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

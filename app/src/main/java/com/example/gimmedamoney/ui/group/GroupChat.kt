@@ -1,4 +1,4 @@
-package com.example.gimmedamoney.chat
+package com.example.gimmedamoney.ui.group
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,11 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.gimmedamoney.GroupViewModel
-import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.data.model.Message
+import com.example.gimmedamoney.data.model.TextMessage
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
-import com.example.gimmedamoney.chat.ChatViewModel.RequestMessage
+import com.example.gimmedamoney.viewmodel.ChatViewModel
+import com.example.gimmedamoney.data.model.RequestMessage
+import com.example.gimmedamoney.data.model.SystemMessage
 
 @Composable
 fun GroupChatScreen(
@@ -141,7 +145,7 @@ fun GroupChatScreen(
 
 @Composable
 fun MessageItem(
-    message: ChatViewModel.Message,
+    message: Message,
     isMe: Boolean,
     senderName: String,
     currentUserId: String,
@@ -150,7 +154,7 @@ fun MessageItem(
     userNameById: Map<String, String>
 ) {
     when (message) {
-        is ChatViewModel.TextMessage ->
+        is TextMessage ->
             TextMessageBubble(message, isMe = isMe, senderName = senderName)
 
         is RequestMessage ->
@@ -164,14 +168,14 @@ fun MessageItem(
                 userNameById = userNameById
             )
 
-        is ChatViewModel.SystemMessage ->
+        is SystemMessage ->
             SystemMessageBubble(message)
     }
 }
 
 @Composable
 fun TextMessageBubble(
-    message: ChatViewModel.TextMessage,
+    message: TextMessage,
     isMe: Boolean,
     senderName: String
 ) {
@@ -395,7 +399,7 @@ fun RequestMessageCard(
 
 
 @Composable
-fun SystemMessageBubble(message: ChatViewModel.SystemMessage) {
+fun SystemMessageBubble(message: SystemMessage) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

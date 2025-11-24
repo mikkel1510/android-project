@@ -1,4 +1,4 @@
-package com.example.gimmedamoney.payment
+package com.example.gimmedamoney.ui.payment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,12 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.gimmedamoney.UserViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
-import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.data.model.User
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
-import com.example.gimmedamoney.GroupViewModel
+import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.R
 
 @OptIn(ExperimentalMaterial3Api::class)

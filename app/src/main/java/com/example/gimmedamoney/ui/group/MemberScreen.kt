@@ -1,4 +1,4 @@
-package com.example.gimmedamoney
+package com.example.gimmedamoney.ui.group
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -37,11 +36,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.R
+import com.example.gimmedamoney.data.model.User
 import com.example.gimmedamoney.ui.theme.DialogPopUp
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -184,11 +186,6 @@ fun MembersScreen(
 @Composable
 fun MemberScreenPreview() {
     GimmeDaMoneyTheme {
-        val vm: MemberViewModel = viewModel()
-        vm.addMember(User("1", "Bob", "bob@email.com", "12345678", "1234"))
-        vm.addMember(User("2", "Steve", "steve@email.com", "87654321", "1234"))
-        vm.addMember(User("3", "Joe", "joe@email.com", "45362718", "1234", "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"))
-
         MembersScreen({}, {}, groupID = "")
     }
 
