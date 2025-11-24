@@ -43,8 +43,8 @@ class GroupViewModel() : ViewModel() {
         val paidBy: String = "",
         val splitBetween: List<String> = emptyList(),
         val createdAt: Long = System.currentTimeMillis(),
-        val acceptedBy: List<String> = emptyList(),   // users who pressed "Pay"
-        val declinedBy: List<String> = emptyList()    // users who pressed "Decline"
+        val acceptedBy: List<String> = emptyList(),   // users that pressed "Pay"
+        val declinedBy: List<String> = emptyList()    // users that pressed "Decline"
     )
 
 
@@ -203,6 +203,8 @@ class GroupViewModel() : ViewModel() {
             }
     }
 
+    // adds the user, who pressed pay in request, to the acceptedBy list in Firestore
+    // and removes the user from declinedBy list
     fun markExpensePaid(groupId: String, expenseId: String, userId: String) {
         val expenseRef = db.collection("groups")
             .document(groupId)
@@ -217,6 +219,8 @@ class GroupViewModel() : ViewModel() {
         )
     }
 
+    // adds the user, who pressed declined in request, to the declinedBy list in Firestore
+    // and removes the user from acceptedBY list
     fun markExpenseDeclined(groupId: String, expenseId: String, userId: String) {
         val expenseRef = db.collection("groups")
             .document(groupId)

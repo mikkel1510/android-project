@@ -1,6 +1,5 @@
 package com.example.gimmedamoney.chat
 
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,21 +35,23 @@ fun GroupChatScreen(
 ) {
     var input by remember { mutableStateOf("") }
 
+    // load current user and all users (with name instead of id)
     val currentUserId by userVM.currentUser.collectAsState()
-
     val users by userVM.users.collectAsState()
     val userNameById = remember(users) {
         users.associate { it.id to it.name }
     }
 
+    // listens to expenses in the group from Firestore
     LaunchedEffect(groupID) {
         groupVM.startListeningToExpenses(groupID)
     }
-
     val expensesByGroup by groupVM.expensesByGroup.collectAsState()
     val expenses = expensesByGroup[groupID].orEmpty()
 
-    val expenseMessages = expenses.map { expense ->
+
+    // from expenses to display request message in the chat
+    val requestMessages = expenses.map { expense ->
         RequestMessage(
             id = expense.id,
             senderID = expense.paidBy,
@@ -63,7 +64,8 @@ fun GroupChatScreen(
         )
     }
 
-    val allMessages = (expenseMessages + chatVM.messages).sortedBy { it.timestamp }
+    // load messages in correct order (sorted by timestamp)
+    val allMessages = (requestMessages + chatVM.messages).sortedBy { it.timestamp }
 
     val safeUserId = currentUserId ?: ""
 
@@ -111,6 +113,9 @@ fun GroupChatScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
+
+                // if message is from current user = displays "You"
+                // else displays the name of the sender id
                 items(allMessages) { msg ->
                     val isMe = msg.senderID == safeUserId
                     val senderName = if (isMe) {
@@ -129,66 +134,6 @@ fun GroupChatScreen(
                         userNameById = userNameById
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomBar(
-    input: String,
-    onInputChange: (String) -> Unit,
-    onSend: () -> Unit,
-    onRequest: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-            .imePadding(),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            PrimaryButton(
-                text = "Request",
-                onClick = onRequest,
-                modifier = Modifier.weight(1f)
-            )
-            PrimaryButton(
-                text = "Pay all",
-                onClick = { /* TODO */ },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            OutlinedTextField(
-                value = input,
-                onValueChange = onInputChange,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Type a message...") },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                    focusedTextColor = MaterialTheme.colorScheme.onBackground
-                ),
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = onSend) {
-                Icon(
-                    Icons.Default.Send,
-                    contentDescription = "Send",
-                    Modifier.size(30.dp)
-                )
             }
         }
     }
@@ -234,6 +179,8 @@ fun TextMessageBubble(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
+
+        // aligns the messages based on the sender of message
         horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
     ) {
         Text(
@@ -282,13 +229,13 @@ fun RequestMessageCard(
     val isEveryone = recipientIds.toSet() == groupMemberIds.toSet()
 
     // display if request is to everyone or specific members
-    val recipientsText = if (isEveryone || recipientIds.isEmpty()) {
+    val recipientsText = if (isEveryone) {
         "Everyone"
     } else {
         recipientIds.joinToString(", ") { id -> userNameById[id] ?: "Unknown" }
     }
 
-    // Names of people who paid / declined (visible to EVERYONE)
+    // members that had paid or declined (later displaying for everyone)
     val paidNames = message.acceptedBy
         .mapNotNull { userNameById[it] }
         .distinct()
@@ -351,6 +298,8 @@ fun RequestMessageCard(
 
             Spacer(Modifier.height(12.dp))
 
+            // if current user sends the request = don't show pay/decline buttons
+            // else the user id get stored in either acceptedBy or declinedBy (removed the id from the opposite list)
             if (isMe) {
                 Text(
                     text = "Waiting for others to respond",
@@ -419,6 +368,8 @@ fun RequestMessageCard(
                     }
                 }
             }
+
+            // fetching the acceptedBy and declinedBy list from Firestore, to display for everyone in the group
             if (paidNames.isNotEmpty() || declinedNames.isNotEmpty()) {
                 Divider(Modifier.padding(vertical = 4.dp))
 
@@ -461,6 +412,66 @@ fun SystemMessageBubble(message: ChatViewModel.SystemMessage) {
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 fontSize = 13.sp
             )
+        }
+    }
+}
+
+@Composable
+fun BottomBar(
+    input: String,
+    onInputChange: (String) -> Unit,
+    onSend: () -> Unit,
+    onRequest: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .imePadding(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            PrimaryButton(
+                text = "Request",
+                onClick = onRequest,
+                modifier = Modifier.weight(1f)
+            )
+            PrimaryButton(
+                text = "Pay all",
+                onClick = { /* TODO */ },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            OutlinedTextField(
+                value = input,
+                onValueChange = onInputChange,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Type a message...") },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground
+                ),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(onClick = onSend) {
+                Icon(
+                    Icons.Default.Send,
+                    contentDescription = "Send",
+                    Modifier.size(30.dp)
+                )
+            }
         }
     }
 }
