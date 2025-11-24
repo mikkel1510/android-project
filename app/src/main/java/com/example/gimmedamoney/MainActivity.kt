@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
                                 { id -> nav.navigate("group_flow/$id") },
                                 { nav.navigate("createGroupScreen") },
                                 { nav.navigate("settings") },
+                                onOpenProfile = { nav.navigate("profile")},
                                 groupVM = groupVM,
                                 userVM = userVM
                             )
@@ -80,14 +81,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("settings") {
                             SettingsScreen(
-                                onBack = { nav.popBackStack() },
+                                onOpenHome = { nav.navigate("home") },
+                                onOpenProfile = { nav.navigate("profile") },
                                 vm = settingsVM,
-                                userVM = userVM,
-                                onLogOut = { nav.navigate("login_flow"){
-                                    popUpTo("settings"){
-                                        inclusive = true
-                                    }
-                                } }
+                                userVM = userVM
                             )
                         }
 
@@ -100,6 +97,23 @@ class MainActivity : ComponentActivity() {
                                     }
                                 } },
                                 userVM = userVM
+                            )
+                        }
+
+                        composable("profile") {
+                            com.example.gimmedamoney.profile.ProfileScreen(
+                                onOpenHome = { nav.navigate("home") },
+                                onOpenSettings = { nav.navigate("settings") },
+                                onSaveBasic = { name, email, phone -> /* TODO */ },
+                                onChangePassword = { current, new -> /* TODO */ },
+                                onAddPayment = { method -> /* TODO */ },
+                                onLogOut = {
+                                    // userVM.logOut()
+                                    nav.navigate("login_flow") {
+                                        popUpTo("app_flow") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
                             )
                         }
 
@@ -171,23 +185,23 @@ class MainActivity : ComponentActivity() {
                                     groupID = groupID
                                 )
                             }
-                            composable("addMember") { backStackEntry ->
-                                val appEntry = remember(backStackEntry){
+                            composable(route = "addMember") { backStackEntry ->
+                                val appEntry = remember(backStackEntry) {
                                     nav.getBackStackEntry("app_flow")
                                 }
                                 val groupVM: GroupViewModel = viewModel(appEntry)
 
-                                val groupID = nav
-                                    .getBackStackEntry("group_flow/{groupID}")
-                                    .arguments?.getString("groupID")!!
+                                val groupEntry = remember(backStackEntry) {
+                                    nav.getBackStackEntry("group_flow/{groupID}")
+                                }
+                                val groupID = groupEntry.arguments?.getString("groupID")!!
 
                                 AddMemberScreen(
-                                    { nav.popBackStack() },
+                                    onBackPress = { nav.popBackStack() },
                                     groupVM = groupVM,
                                     groupID = groupID
                                 )
                             }
-
                         }
                     }
                 }

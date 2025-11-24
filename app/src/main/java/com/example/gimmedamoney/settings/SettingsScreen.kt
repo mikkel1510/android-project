@@ -49,7 +49,6 @@ class SettingsViewModel : ViewModel() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenLicenses: () -> Unit = {},
     onExportData: () -> Unit = {},
@@ -59,18 +58,22 @@ fun SettingsScreen(
     onLanguageChanged: (AppLanguage) -> Unit = {},
     vm: SettingsViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
-    onLogOut: () -> Unit
+    onLogOut: () -> Unit,
+    onOpenHome: () -> Unit,
+    onOpenProfile: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopNavBar(
                 title = "Settings",
                 centerAligned = true,
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
+            )
+        },
+        bottomBar = {
+            SettingsBottomNavBar(
+                onGoHome   = onOpenHome,
+                onProfile  = onOpenProfile,
+                onFavourites = { /* TODO */ }
             )
         }
     ) { inner ->
@@ -79,9 +82,9 @@ fun SettingsScreen(
         Column(
             Modifier
                 .padding(inner)
-                .verticalScroll(scroll)        // enable scrolling
+                .verticalScroll(scroll)
                 .padding(horizontal = 16.dp)
-                .navigationBarsPadding()       // avoid cut-off behind gesture bar
+                .navigationBarsPadding()
         ) {
             Spacer(Modifier.height(8.dp))
 
@@ -192,15 +195,7 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Danger zone
             Text("Account", style = MaterialTheme.typography.titleMedium)
-            Button(
-                onClick = { userVM.logOut(); onLogOut() },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text("Log out")
-            }
 
             var popupActive by remember{ mutableStateOf(false) }
             val userID = userVM.currentUser.value
@@ -219,7 +214,7 @@ fun SettingsScreen(
             }
             Button(
                 onClick = { popupActive = true; onDeleteAccount },
-                colors = ButtonDefaults.buttonColors(containerColor = Red),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
@@ -238,7 +233,60 @@ fun SettingsScreen(
     }
 }
 
-/* --- Small helpers --- */
+@Composable
+private fun SettingsBottomNavBar(
+    onGoHome: () -> Unit,
+    onProfile: () -> Unit = {},
+    onFavourites: () -> Unit = {}
+) {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+        NavigationBarItem(
+            selected = false,
+            onClick = onProfile,
+            icon = { Icon(Icons.Outlined.Person, null) },
+            label = { Text("Profile", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = onGoHome, // “Groups”
+            icon = { Icon(Icons.Outlined.Group, null) },
+            label = { Text("Groups", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = onFavourites,
+            icon = { Icon(Icons.Outlined.FavoriteBorder, null) },
+            label = { Text("Favourites", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        NavigationBarItem(
+            selected = true, // you’re on Settings
+            onClick = { /* no-op */ },
+            icon = { Icon(Icons.Outlined.Settings, null) },
+            label = { Text("Settings", color = MaterialTheme.colorScheme.onSurface) },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+    }
+}
+
 
 @Composable
 private fun SectionHeader(title: String) {
@@ -299,9 +347,7 @@ private fun LanguageDropdown(current: AppLanguage, onChange: (AppLanguage) -> Un
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         TextField(
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(),
+            modifier = Modifier.menuAnchor().fillMaxWidth(),
             value = current.name.lowercase().replaceFirstChar { it.titlecase() },
             onValueChange = {}, readOnly = true, label = { Text("Language") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }
