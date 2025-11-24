@@ -1,5 +1,6 @@
 package com.example.gimmedamoney
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnrememberedGetBackStackEntry")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -125,7 +127,8 @@ class MainActivity : ComponentActivity() {
                                     { nav.navigate("createRequest") },
                                     groupID = groupID,
                                     chatVM = chatVM,
-                                    groupVM = groupVM
+                                    groupVM = groupVM,
+                                    userVM = userVM
                                 )
                             }
 

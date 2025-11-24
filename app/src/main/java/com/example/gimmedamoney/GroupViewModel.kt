@@ -7,6 +7,7 @@ import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.gimmedamoney.UserViewModel.User
+import com.example.gimmedamoney.chat.SystemMessageBubble
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +37,10 @@ class GroupViewModel() : ViewModel() {
         val description: String = "",
         val amount: Double = 0.0,
         val paidBy: String = "",
-        val splitBetween: List<String> = emptyList()
+        val splitBetween: List<String> = emptyList(),
+        val createdAt: Long = System.currentTimeMillis(),
+        val acceptedBy: List<String> = emptyList(),   // users that pressed "Pay"
+        val declinedBy: List<String> = emptyList()    // users that pressed "Decline"
     )
 
 
@@ -212,7 +216,8 @@ class GroupViewModel() : ViewModel() {
             description = description,
             amount = amount,
             paidBy = paidBy,
-            splitBetween = splitBetween
+            splitBetween = splitBetween,
+            createdAt = System.currentTimeMillis()
         )
 
         docRef.set(expense)
@@ -223,6 +228,39 @@ class GroupViewModel() : ViewModel() {
                 Log.e("GroupVM", "Error adding expense", e)
             }
     }
+
+    // adds the user, who pressed pay in request, to the acceptedBy list in Firestore
+    // and removes the user from declinedBy list
+    fun markExpensePaid(groupId: String, expenseId: String, userId: String) {
+        val expenseRef = db.collection("groups")
+            .document(groupId)
+            .collection("expenses")
+            .document(expenseId)
+
+        expenseRef.update(
+            mapOf(
+                "acceptedBy" to FieldValue.arrayUnion(userId),
+                "declinedBy" to FieldValue.arrayRemove(userId)
+            )
+        )
+    }
+
+    // adds the user, who pressed declined in request, to the declinedBy list in Firestore
+    // and removes the user from acceptedBY list
+    fun markExpenseDeclined(groupId: String, expenseId: String, userId: String) {
+        val expenseRef = db.collection("groups")
+            .document(groupId)
+            .collection("expenses")
+            .document(expenseId)
+
+        expenseRef.update(
+            mapOf(
+                "declinedBy" to FieldValue.arrayUnion(userId),
+                "acceptedBy" to FieldValue.arrayRemove(userId)
+            )
+        )
+    }
+
 
 
     /**
