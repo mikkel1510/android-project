@@ -48,10 +48,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
+fun MemberList(members: List<User>, onRemove: (User) -> Unit, creatorID: String) {
     Column {
-        members.forEachIndexed { index, member ->
-           MemberBar(member, onRemove, index == 0)
+        members.forEach { member ->
+           MemberBar(member, onRemove, member.id == creatorID)
         }
     }
 }
@@ -112,11 +112,12 @@ fun MembersScreen(
     userVM: UserViewModel = viewModel(),
     groupID: String
 ){
+    val group = groupVM.getGroupById(groupID)
     Scaffold (
         topBar = {
             TopNavBar(
                 title = "Members",
-                subtitle = "of ${groupVM.getGroupById(groupID).name}",
+                subtitle = "of ${group.name}",
                 centerAligned = false,
                 actions = {
                     IconButton(onClick = { onAddMember() }) {
@@ -172,10 +173,10 @@ fun MembersScreen(
             }
 
 
-            MemberList(members, { member -> selectedMember = member })
+            MemberList(members, { member -> selectedMember = member }, group.creatorID)
 
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formattedDate = sdf.format(groupVM.getGroupById(groupID).creationDate)
+            val formattedDate = sdf.format(group.creationDate)
             Text("Group created on: $formattedDate")
         }
     }
