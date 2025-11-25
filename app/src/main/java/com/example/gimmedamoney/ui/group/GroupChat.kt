@@ -26,6 +26,8 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.ChatViewModel
 import com.example.gimmedamoney.data.model.RequestMessage
 import com.example.gimmedamoney.data.model.SystemMessage
+import com.example.gimmedamoney.ui.common.GroupSyncSnackbarHandler
+import com.example.gimmedamoney.viewmodel.GroupViewModel.GroupActionState
 
 @Composable
 fun GroupChatScreen(
@@ -35,8 +37,10 @@ fun GroupChatScreen(
     chatVM: ChatViewModel,
     groupID: String,
     groupVM: GroupViewModel,
-    userVM: UserViewModel
+    userVM: UserViewModel,
+    snackBarHostState: SnackbarHostState
 ) {
+    GroupSyncSnackbarHandler(groupVM, snackBarHostState)
     var input by remember { mutableStateOf("") }
 
     // load current user and all users (with name instead of id)
@@ -45,10 +49,20 @@ fun GroupChatScreen(
     val userNameById = remember(users) {
         users.associate { it.id to it.name }
     }
+    val syncState by groupVM.groupActionState.collectAsState()
 
     // listens to expenses in the group from Firestore
     LaunchedEffect(groupID) {
         groupVM.listenToExpenses(groupID)
+    }
+
+    val subtitleText = when (syncState) {
+        is GroupActionState.PendingSync -> "Saving group to cloud…"
+        is GroupActionState.Synced -> "Synced"
+        else -> {
+            val group = groupVM.getGroupById(groupID)
+            "Members: ${group.memberIDs.size}"
+        }
     }
     val expensesByGroup by groupVM.expensesByGroup.collectAsState()
     val expenses = expensesByGroup[groupID].orEmpty()
@@ -77,7 +91,7 @@ fun GroupChatScreen(
         topBar = {
             TopNavBar(
                 title = groupVM.getGroupById(groupID).name,
-                subtitle = "Members: ${groupVM.getGroupById(groupID).memberIDs.size}",
+                subtitle = subtitleText,
                 actions = {
                     IconButton(onClick = onInfo) {
                         Icon(Icons.Filled.Info, contentDescription = "Group info")

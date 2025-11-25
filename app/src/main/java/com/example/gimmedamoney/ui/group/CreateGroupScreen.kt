@@ -29,14 +29,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
+import com.example.gimmedamoney.ui.common.GroupSyncSnackbarHandler
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
+import com.example.gimmedamoney.viewmodel.GroupViewModel.GroupActionState
 import com.example.gimmedamoney.viewmodel.UserViewModel
 
 
@@ -45,9 +51,11 @@ import com.example.gimmedamoney.viewmodel.UserViewModel
 fun CreateGroupScreen(
     onBackPress: () -> Unit,
     onGroupCreatePress: (String) -> Unit,
-    vm: GroupViewModel = viewModel(),
-    userVM: UserViewModel = viewModel()
+    vm: GroupViewModel,
+    userVM: UserViewModel,
+    snackbarHostState: SnackbarHostState
 ) {
+    GroupSyncSnackbarHandler(vm, snackbarHostState)
     val userID by userVM.currentUser.collectAsState()
 
     var groupName by remember { mutableStateOf("") }
@@ -57,6 +65,9 @@ fun CreateGroupScreen(
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
+
+    val groupActionState by vm.groupActionState.collectAsState()
+
     Scaffold(
         topBar = {
             TopNavBar(
@@ -70,7 +81,7 @@ fun CreateGroupScreen(
                     }
                 },
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -103,16 +114,16 @@ fun CreateGroupScreen(
                 onClick = { pickImageLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
             )
-
+            val isCreating = groupActionState is GroupActionState.Creating
             PrimaryButton(
-                text = "Create Group",
+                text = if (isCreating) "Creating..." else "Create Group",
                 onClick = {
                     userID?.let { id ->
                         vm.createGroup(
                             groupName,
                             selectedImageUri.toString(),
-                            id,
-                            {  id -> if (id != null) onGroupCreatePress(id) })
+                            id
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -121,6 +132,14 @@ fun CreateGroupScreen(
 
 
     }
+    LaunchedEffect(groupActionState) {
+        when (groupActionState) {
+            is GroupActionState.PendingSync -> {
+                onGroupCreatePress((groupActionState as GroupActionState.PendingSync).groupID)
+            }
+            else -> Unit
+        }
+    }
 
 }
 
@@ -128,9 +147,15 @@ fun CreateGroupScreen(
 @Composable
 fun CreateGroupScreenPreview(){
     GimmeDaMoneyTheme {
+        val userVM: UserViewModel = viewModel()
+        val groupVM: GroupViewModel = viewModel()
+        val snackbarHost = remember { SnackbarHostState() }
         CreateGroupScreen(
             onBackPress = {},
             onGroupCreatePress = {},
+            userVM = userVM,
+            vm = groupVM,
+            snackbarHostState = snackbarHost
         )
     }
 }

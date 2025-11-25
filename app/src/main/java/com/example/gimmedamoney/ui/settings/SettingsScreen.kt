@@ -208,7 +208,7 @@ fun SettingsScreen(
             }
             Button(
                 onClick = { popupActive = true; },
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.buttonColors(Red),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)

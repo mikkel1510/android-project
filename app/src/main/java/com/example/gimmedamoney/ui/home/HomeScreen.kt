@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gimmedamoney.ui.common.GroupSyncSnackbarHandler
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
@@ -47,8 +48,10 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenProfile: () -> Unit,
     groupVM: GroupViewModel = viewModel(),
-    userVM: UserViewModel = viewModel()
+    userVM: UserViewModel = viewModel(),
+    snackbarHostState: SnackbarHostState,
 ) {
+    GroupSyncSnackbarHandler(groupVM, snackbarHostState)
 
     val userID by userVM.currentUser.collectAsState()
     val groups by groupVM.groups.collectAsState()
@@ -67,7 +70,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopNavBar(
-                title = "GimmeDaMoney",
+                title = "ChequeMate",
                 centerAligned = true,
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {

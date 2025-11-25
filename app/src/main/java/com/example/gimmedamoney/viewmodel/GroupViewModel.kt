@@ -2,18 +2,36 @@ package com.example.gimmedamoney.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.gimmedamoney.data.model.Expense
 import com.example.gimmedamoney.data.model.Group
 import com.example.gimmedamoney.data.model.User
 import com.example.gimmedamoney.data.repository.GroupRepository
-import com.google.firebase.firestore.FieldValue
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class GroupViewModel() : ViewModel() {
 
     private val groupRepo: GroupRepository = GroupRepository()
+
+    sealed class GroupActionState {
+        object Idle : GroupActionState()
+        object Creating : GroupActionState()
+        data class PendingSync(val groupID: String) : GroupActionState()
+        data class Synced(val groupID: String) : GroupActionState()
+        data class Error(val message: String) : GroupActionState()
+    }
+
+    private val _groupActionState = MutableStateFlow<GroupActionState>(GroupActionState.Idle)
+    val groupActionState = _groupActionState.asStateFlow()
+
+    fun resetGroupActionState() {
+        _groupActionState.value = GroupActionState.Idle
+    }
+
 
 
     /**
@@ -37,11 +55,41 @@ class GroupViewModel() : ViewModel() {
     fun createGroup(
         name: String,
         imageUri: String? = null,
-        creatorID: String,
-        onResult: (String?) -> Unit
-    ){
-       groupRepo.createGroup(name, imageUri, creatorID, onResult)
+        creatorID: String
+    ) {
+        _groupActionState.value = GroupActionState.Creating
+
+        groupRepo.createGroup(
+            name = name,
+            imageUri = imageUri,
+            creatorID = creatorID,
+            onLocalWrite = { id ->
+                _groupActionState.value = GroupActionState.PendingSync(id)
+
+                groupRepo.observeGroupSync(
+                    groupID = id,
+                    onPending = {
+                    },
+                    onSynced = {
+                        _groupActionState.value = GroupActionState.Synced(id)
+                    },
+                    onError = { e ->
+                        _groupActionState.value = GroupActionState.Error(
+                            "Problem syncing group: ${e.message ?: "Unknown error"}"
+                        )
+                    }
+                )
+            },
+            onError = { e ->
+                _groupActionState.value = GroupActionState.Error(
+                    "Could not create group: ${e.message ?: "Unknown error"}"
+                )
+            }
+        )
     }
+
+
+
 
     fun getUserGroups(userID: String){
         groupRepo.listenToUserGroups(
@@ -212,5 +260,6 @@ class GroupViewModel() : ViewModel() {
         val expenses = expensesByGroup.value[groupID] ?: emptyList()
         return expenses.sumOf { it.amount }
     }
+
 
 }

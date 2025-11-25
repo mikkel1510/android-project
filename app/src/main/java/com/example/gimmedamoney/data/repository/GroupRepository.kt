@@ -1,10 +1,13 @@
 package com.example.gimmedamoney.data.repository
 
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
 import com.example.gimmedamoney.data.model.Expense
 import com.example.gimmedamoney.data.model.Group
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.toObjects
 import java.util.Date
 
@@ -15,8 +18,9 @@ class GroupRepository(
         name: String,
         imageUri: String? = null,
         creatorID: String,
-        onResult: (String?) -> Unit
-    ){
+        onLocalWrite: (String) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
         val group = Group(
             name = name,
             imageUri = imageUri,
@@ -24,18 +28,51 @@ class GroupRepository(
             memberIDs = listOf(creatorID),
             creationDate = Date()
         )
-        db.collection("groups")
-            .add(group)
-            .addOnSuccessListener { docRef ->
-                Log.d("GroupVM", "Group added with id ${docRef.id}")
-                onResult(docRef.id)
-            }
+
+        val docRef = db.collection("groups").document()
+
+        onLocalWrite(docRef.id)
+
+        docRef.set(group)
             .addOnFailureListener { e ->
-                Log.e("GroupVM", "Error adding group", e)
-                onResult(null)
+                onError(e)
             }
     }
-    fun listenToUserGroups(
+
+    fun observeGroupSync(
+        groupID: String,
+        onPending: () -> Unit,
+        onSynced: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        val docRef = db.collection("groups").document(groupID)
+
+        var registration: ListenerRegistration? = null
+
+        registration = docRef.addSnapshotListener(
+            MetadataChanges.INCLUDE
+        ) { snapshot, e ->
+            if (e != null) {
+                onError(e)
+                registration?.remove()
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val pending = snapshot.metadata.hasPendingWrites()
+
+                if (pending) {
+                    onPending()
+                } else {
+                    onSynced()
+                    registration?.remove()
+                }
+            }
+        }
+    }
+
+
+fun listenToUserGroups(
         userID: String,
         onGroupsUpdated: (List<Group>) -> Unit
     ){
