@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,8 +98,12 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
             modifier = Modifier
-                .width(100.dp)){
-            Text("Remove")
+                .width(70.dp)){
+            Icon(
+                painter = painterResource(id = R.drawable.leaveicon),
+                contentDescription = "remove member",
+                tint = Color.Unspecified
+            )
         }
     }
 }
