@@ -116,9 +116,10 @@ fun MembersScreen(
     groupVM: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
     groupID: String
-){
+) {
     val group = groupVM.getGroupById(groupID)
-    Scaffold (
+    val total = groupVM.getTotalForGroup(groupID)
+    Scaffold(
         topBar = {
             TopNavBar(
                 title = "Members",
@@ -143,7 +144,7 @@ fun MembersScreen(
             )
         }
     ) { innerPadding ->
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
@@ -165,14 +166,18 @@ fun MembersScreen(
                     active = true,
                     title = "Confirm Removal",
                     content = {
-                        Row{
+                        Row {
                             Text("Remove ")
                             Text(member.name, fontWeight = FontWeight.Bold)
                             Text("?")
                         }
                     },
                     onDismissRequest = { selectedMember = null },
-                    onConfirmation = { groupVM.removeMember(groupID, member.id){ selectedMember = null } },
+                    onConfirmation = {
+                        groupVM.removeMember(groupID, member.id) {
+                            selectedMember = null
+                        }
+                    },
                     confirmButtonColor = Red
                 )
             }
@@ -180,19 +185,16 @@ fun MembersScreen(
 
             MemberList(members, { member -> selectedMember = member }, group.creatorID)
 
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formattedDate = sdf.format(group.creationDate)
-            Text("Group created on: $formattedDate")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Total Spent: ${"%.2f".format(total)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val formattedDate = sdf.format(group.creationDate)
+                Text("Group created on: $formattedDate")
+            }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MemberScreenPreview() {
-    GimmeDaMoneyTheme {
-        MembersScreen({}, {}, groupID = "")
-    }
-
 }
