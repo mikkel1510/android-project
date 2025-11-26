@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,10 +49,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun MemberList(members: List<User>, onRemove: (User) -> Unit) {
+fun MemberList(members: List<User>, onRemove: (User) -> Unit, creatorID: String) {
     Column {
-        members.forEachIndexed { index, member ->
-           MemberBar(member, onRemove, index == 0)
+        members.forEach { member ->
+           MemberBar(member, onRemove, member.id == creatorID)
         }
     }
 }
@@ -97,8 +98,12 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
         Button(
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
             modifier = Modifier
-                .width(100.dp)){
-            Text("Remove")
+                .width(70.dp)){
+            Icon(
+                painter = painterResource(id = R.drawable.leaveicon),
+                contentDescription = "remove member",
+                tint = Color.Unspecified
+            )
         }
     }
 }
@@ -111,12 +116,14 @@ fun MembersScreen(
     groupVM: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
     groupID: String
-){
-    Scaffold (
+) {
+    val group = groupVM.getGroupById(groupID)
+    val total = groupVM.getTotalForGroup(groupID)
+    Scaffold(
         topBar = {
             TopNavBar(
                 title = "Members",
-                subtitle = "of ${groupVM.getGroupById(groupID).name}",
+                subtitle = "of ${group.name}",
                 centerAligned = false,
                 actions = {
                     IconButton(onClick = { onAddMember() }) {
@@ -137,7 +144,7 @@ fun MembersScreen(
             )
         }
     ) { innerPadding ->
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
@@ -159,34 +166,35 @@ fun MembersScreen(
                     active = true,
                     title = "Confirm Removal",
                     content = {
-                        Row{
+                        Row {
                             Text("Remove ")
                             Text(member.name, fontWeight = FontWeight.Bold)
                             Text("?")
                         }
                     },
                     onDismissRequest = { selectedMember = null },
-                    onConfirmation = { groupVM.removeMember(groupID, member.id){ selectedMember = null } },
+                    onConfirmation = {
+                        groupVM.removeMember(groupID, member.id) {
+                            selectedMember = null
+                        }
+                    },
                     confirmButtonColor = Red
                 )
             }
 
 
-            MemberList(members, { member -> selectedMember = member })
+            MemberList(members, { member -> selectedMember = member }, group.creatorID)
 
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formattedDate = sdf.format(groupVM.getGroupById(groupID).creationDate)
-            Text("Group created on: $formattedDate")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Total Spent: ${"%.2f".format(total)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val formattedDate = sdf.format(group.creationDate)
+                Text("Group created on: $formattedDate")
+            }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MemberScreenPreview() {
-    GimmeDaMoneyTheme {
-        MembersScreen({}, {}, groupID = "")
-    }
-
 }
