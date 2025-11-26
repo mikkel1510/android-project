@@ -13,8 +13,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.util.Patterns.EMAIL_ADDRESS
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.ui.theme.PrimaryButton
+import com.example.gimmedamoney.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +34,15 @@ fun LoginScreen(onLoginSuccess: () -> Unit, userVM: UserViewModel = viewModel())
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Cheque Mate Logo",
+                modifier = Modifier
+                    .width(250.dp)
+                    .padding(bottom = 32.dp)
+            )
+
             if (!createAccount){
                 Column(
                     verticalArrangement = Arrangement.spacedBy(25.dp)
