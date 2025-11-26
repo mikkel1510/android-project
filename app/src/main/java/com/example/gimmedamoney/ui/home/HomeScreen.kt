@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -24,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -67,42 +67,60 @@ fun HomeScreen(
             groupVM.listenToExpenses(g.id)
         }
     }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
 
-    Scaffold(
-        topBar = {
-            TopNavBar(
-                title = "ChequeMate",
-                centerAligned = true,
-                actions = {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+        // baggrunds logo
+        Image(
+            painter = painterResource(id = R.drawable.backgroundlogo),
+            contentDescription = "Background Logo",
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.1f), // ret denne hvis i vil have den mere tydelig
+            contentScale = ContentScale.Fit
+        )
+
+
+
+        Scaffold(
+            topBar = {
+                TopNavBar(
+                    title = "ChequeMate",
+                    centerAligned = true,
+                    actions = {
+                        IconButton(onClick = { /* TODO */ }) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+                        }
                     }
-                }
-            )
-        },
-        bottomBar = {
-            BottomNavBar(
-                onSettings   = onOpenSettings,
-                onProfile    = onOpenProfile,
-                onGroups     = {},
-                onFavourites = { /* TODO */ }
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        Box(Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+                )
+            },
+            bottomBar = {
+                BottomNavBar(
+                    onSettings = onOpenSettings,
+                    onProfile = onOpenProfile,
+                    onGroups = {},
+                    onFavourites = { /* TODO */ }
+                )
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
 
-            if (groups.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    EmptyState(onCreate = onCreateGroup, modifier = Modifier.fillMaxWidth())
+                if (groups.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        EmptyState(onCreate = onCreateGroup, modifier = Modifier.fillMaxWidth())
 
                 }
             } else {
@@ -142,7 +160,6 @@ fun HomeScreen(
         }
     }
 }
-
 @Composable
 private fun GroupCard(
     group: Group,
