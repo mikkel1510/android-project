@@ -1,5 +1,6 @@
 package com.example.gimmedamoney.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.SavedStateHandle
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gimmedamoney.data.model.Message
 import com.example.gimmedamoney.data.model.SystemMessage
 import com.example.gimmedamoney.data.repository.ChatRepository
+
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -31,14 +33,22 @@ class ChatViewModel(
 
     }
 
-    fun sendTextMessage(senderId: String, text: String) {
+    fun sendTextMessage(
+        senderId: String,
+        text: String,
+    ) {
         if (text.isBlank()) return
+
         chatRepo.sendTextMessage(
             groupID = groupID,
             senderId = senderId,
-            text = text
+            text = text,
+            onError = { e ->
+                Log.e("ChatVM", "Could not send message", e)
+            }
         )
     }
+
 
     enum class RequestStatus { PENDING, PAID, DECLINED}
 

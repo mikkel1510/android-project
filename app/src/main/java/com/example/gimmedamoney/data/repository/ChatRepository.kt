@@ -4,8 +4,11 @@ import com.example.gimmedamoney.data.model.Message
 import com.example.gimmedamoney.data.model.RequestMessage
 import com.example.gimmedamoney.data.model.SystemMessage
 import com.example.gimmedamoney.data.model.TextMessage
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.MetadataChanges
 
 class ChatRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -60,11 +63,14 @@ class ChatRepository(
     fun sendTextMessage(
         groupID: String,
         senderId: String,
-        text: String
+        text: String,
+        onError: (Throwable) -> Unit
     ) {
         val messagesRef = db.collection("groups")
             .document(groupID)
             .collection("messages")
+
+        val docRef = messagesRef.document()
 
         val data = mapOf(
             "type" to "TEXT",
@@ -73,6 +79,8 @@ class ChatRepository(
             "createdAt" to FieldValue.serverTimestamp()
         )
 
-        messagesRef.add(data)
+        docRef.set(data)
+            .addOnFailureListener { e -> onError(e) }
     }
+
 }

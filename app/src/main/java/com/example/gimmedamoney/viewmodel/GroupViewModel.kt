@@ -7,6 +7,8 @@ import com.example.gimmedamoney.data.model.Expense
 import com.example.gimmedamoney.data.model.Group
 import com.example.gimmedamoney.data.model.User
 import com.example.gimmedamoney.data.repository.GroupRepository
+import com.example.gimmedamoney.data.sync.SyncType
+import com.example.gimmedamoney.data.sync.SyncViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,23 +18,6 @@ import kotlinx.coroutines.launch
 class GroupViewModel() : ViewModel() {
 
     private val groupRepo: GroupRepository = GroupRepository()
-
-    sealed class GroupActionState {
-        object Idle : GroupActionState()
-        object Creating : GroupActionState()
-        data class PendingSync(val groupID: String) : GroupActionState()
-        data class Synced(val groupID: String) : GroupActionState()
-        data class Error(val message: String) : GroupActionState()
-    }
-
-    private val _groupActionState = MutableStateFlow<GroupActionState>(GroupActionState.Idle)
-    val groupActionState = _groupActionState.asStateFlow()
-
-    fun resetGroupActionState() {
-        _groupActionState.value = GroupActionState.Idle
-    }
-
-
 
     /**
      *
@@ -55,41 +40,42 @@ class GroupViewModel() : ViewModel() {
     fun createGroup(
         name: String,
         imageUri: String? = null,
-        creatorID: String
+        creatorID: String,
+        syncVM: SyncViewModel
     ) {
-        _groupActionState.value = GroupActionState.Creating
 
         groupRepo.createGroup(
             name = name,
             imageUri = imageUri,
             creatorID = creatorID,
             onLocalWrite = { id ->
-                _groupActionState.value = GroupActionState.PendingSync(id)
+                syncVM.reportPending(SyncType.GROUP, id)
 
-                groupRepo.observeGroupSync(
-                    groupID = id,
-                    onPending = {
-                    },
+                val docRef = groupRepo.groupDocRef(id)
+                groupRepo.observeDocumentSync(
+                    docRef = docRef,
+                    onPending = {},
                     onSynced = {
-                        _groupActionState.value = GroupActionState.Synced(id)
+                        syncVM.reportSynced(SyncType.GROUP, id)
                     },
                     onError = { e ->
-                        _groupActionState.value = GroupActionState.Error(
+                        syncVM.reportError(
+                            SyncType.GROUP,
+                            id,
                             "Problem syncing group: ${e.message ?: "Unknown error"}"
                         )
                     }
                 )
             },
             onError = { e ->
-                _groupActionState.value = GroupActionState.Error(
-                    "Could not create group: ${e.message ?: "Unknown error"}"
+                syncVM.reportError(
+                    SyncType.GROUP,
+                    id = null,
+                    message = "Could not create group: ${e.message ?: "Unknown error"}"
                 )
             }
         )
     }
-
-
-
 
     fun getUserGroups(userID: String){
         groupRepo.listenToUserGroups(
@@ -180,16 +166,44 @@ class GroupViewModel() : ViewModel() {
         description: String,
         amount: Double,
         paidBy: String,
-        splitBetween: List<String>
+        splitBetween: List<String>,
+        syncVM: SyncViewModel
     ) {
         groupRepo.addExpense(
             groupId = groupId,
             description = description,
             amount = amount,
             paidBy = paidBy,
-            splitBetween = splitBetween
+            splitBetween = splitBetween,
+            onLocalWrite = { expenseId ->
+                syncVM.reportPending(SyncType.EXPENSE, expenseId)
+
+                val docRef = groupRepo.expenseDocRef(groupId, expenseId)
+                groupRepo.observeDocumentSync(
+                    docRef = docRef,
+                    onPending = {},
+                    onSynced = {
+                        syncVM.reportSynced(SyncType.EXPENSE, expenseId)
+                    },
+                    onError = { e ->
+                        syncVM.reportError(
+                            SyncType.EXPENSE,
+                            expenseId,
+                            "Problem syncing expense: ${e.message ?: "Unknown error"}"
+                        )
+                    }
+                )
+            },
+            onError = { e ->
+                syncVM.reportError(
+                    SyncType.EXPENSE,
+                    id = null,
+                    message = "Could not add expense: ${e.message ?: "Unknown error"}"
+                )
+            }
         )
     }
+
 
     // adds the user, who pressed pay in request, to the acceptedBy list in Firestore
     // and removes the user from declinedBy list

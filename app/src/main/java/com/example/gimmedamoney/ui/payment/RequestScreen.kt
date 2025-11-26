@@ -35,6 +35,7 @@ import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.data.sync.SyncViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +43,8 @@ fun RequestScreen(
     onBackPress: () -> Unit,
     groupVM: GroupViewModel,
     groupID: String,
-    userVM: UserViewModel
+    userVM: UserViewModel,
+    syncVM: SyncViewModel
 ) {
     val userID by userVM.currentUser.collectAsState()
     var amount by remember { mutableStateOf("") }
@@ -129,7 +131,8 @@ fun RequestScreen(
                             description = message.ifBlank { "No description" },
                             amount = amountValue,
                             paidBy = id,
-                            splitBetween = selectedMembers.toList()
+                            splitBetween = selectedMembers.toList(),
+                            syncVM = syncVM
                         )
 
                         onBackPress()
@@ -214,6 +217,7 @@ fun GroupBar(
 fun RequestScreenPreview() {
     val groupVM: GroupViewModel = viewModel()
     val userVM: UserViewModel = viewModel()
+    val syncVM: SyncViewModel = viewModel()
 
     val fakeGroupId = "group123"
 
@@ -222,7 +226,8 @@ fun RequestScreenPreview() {
             onBackPress = {},
             groupVM = groupVM,
             groupID = fakeGroupId,
-            userVM
+            userVM = userVM,
+            syncVM = syncVM
         )
     }
 }

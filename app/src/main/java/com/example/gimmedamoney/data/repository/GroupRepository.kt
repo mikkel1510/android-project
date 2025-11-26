@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.snapshotFlow
 import com.example.gimmedamoney.data.model.Expense
 import com.example.gimmedamoney.data.model.Group
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -39,19 +40,15 @@ class GroupRepository(
             }
     }
 
-    fun observeGroupSync(
-        groupID: String,
+    fun observeDocumentSync(
+        docRef: DocumentReference,
         onPending: () -> Unit,
         onSynced: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
-        val docRef = db.collection("groups").document(groupID)
-
         var registration: ListenerRegistration? = null
 
-        registration = docRef.addSnapshotListener(
-            MetadataChanges.INCLUDE
-        ) { snapshot, e ->
+        registration = docRef.addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
             if (e != null) {
                 onError(e)
                 registration?.remove()
@@ -71,8 +68,17 @@ class GroupRepository(
         }
     }
 
+    fun groupDocRef(groupId: String): DocumentReference {
+        return db.collection("groups").document(groupId)
+    }
 
-fun listenToUserGroups(
+    fun expenseDocRef(groupId: String, expenseId: String): DocumentReference {
+        return groupDocRef(groupId)
+            .collection("expenses")
+            .document(expenseId)
+    }
+
+    fun listenToUserGroups(
         userID: String,
         onGroupsUpdated: (List<Group>) -> Unit
     ){
@@ -172,7 +178,9 @@ fun listenToUserGroups(
         description: String,
         amount: Double,
         paidBy: String,
-        splitBetween: List<String>
+        splitBetween: List<String>,
+        onLocalWrite: (String) -> Unit,
+        onError: (Throwable) -> Unit
     ) {
         val expenseRef = db.collection("groups")
             .document(groupId)
@@ -189,14 +197,12 @@ fun listenToUserGroups(
             createdAt = System.currentTimeMillis()
         )
 
+        onLocalWrite(docRef.id)
+
         docRef.set(expense)
-            .addOnSuccessListener {
-                Log.d("GroupVM", "Expense added with id ${docRef.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.e("GroupVM", "Error adding expense", e)
-            }
+            .addOnFailureListener { e -> onError(e) }
     }
+
 
     fun markExpensePaid(groupId: String, expenseId: String, userId: String) {
         val expenseRef = db.collection("groups")

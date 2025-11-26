@@ -6,15 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,10 +19,10 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gimmedamoney.data.sync.SyncViewModel
+import com.example.gimmedamoney.ui.common.SyncSnackbarHandler
 import com.example.gimmedamoney.ui.group.AddMemberScreen
 import com.example.gimmedamoney.ui.group.CreateGroupScreen
 import com.example.gimmedamoney.viewmodel.GroupViewModel
-import com.example.gimmedamoney.viewmodel.GroupViewModel.GroupActionState
 import com.example.gimmedamoney.ui.home.HomeScreen
 import com.example.gimmedamoney.ui.group.MembersScreen
 import com.example.gimmedamoney.viewmodel.UserViewModel
@@ -49,6 +45,7 @@ class MainActivity : ComponentActivity() {
 
             val settingsVM: SettingsViewModel = viewModel()
             val userVM: UserViewModel = viewModel()
+            val syncVM: SyncViewModel = viewModel()
 
             val darkTheme = when (settingsVM.theme) {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -65,6 +62,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     snackbarHost = { SnackbarHost(globalSnackbarHost) }
                 ) {
+                    SyncSnackbarHandler(syncVM, globalSnackbarHost)
                     NavHost(
                         navController = nav,
                         startDestination = if (userVM.currentUser.collectAsState().value == null)
@@ -101,7 +99,6 @@ class MainActivity : ComponentActivity() {
                                     onOpenProfile = { nav.navigate("profile") },
                                     groupVM = groupVM,
                                     userVM = userVM,
-                                    snackbarHostState = globalSnackbarHost,
                                 )
                             }
 
@@ -134,7 +131,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     userVM = userVM,
                                     vm = groupVM,
-                                    snackbarHostState = globalSnackbarHost
+                                    syncVM = syncVM
                                 )
                             }
 
@@ -173,14 +170,14 @@ class MainActivity : ComponentActivity() {
                                     val groupID = chatEntry.arguments?.getString("groupID")!!
 
                                     GroupChatScreen(
-                                        onBack = { nav.popBackStack(); groupVM.resetGroupActionState() },
+                                        onBack = { nav.popBackStack() },
                                         onInfo = { nav.navigate("members") },
                                         onRequest = { nav.navigate("createRequest") },
                                         chatVM = chatVM,
                                         groupID = groupID,
                                         groupVM = groupVM,
                                         userVM = userVM,
-                                        snackBarHostState = globalSnackbarHost
+                                        syncVM = syncVM,
                                     )
                                 }
 
@@ -199,6 +196,7 @@ class MainActivity : ComponentActivity() {
                                         groupVM = groupVM,
                                         groupID = groupID,
                                         userVM = userVM,
+                                        syncVM = syncVM
                                     )
                                 }
 

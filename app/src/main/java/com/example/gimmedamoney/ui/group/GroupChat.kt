@@ -26,8 +26,10 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.ChatViewModel
 import com.example.gimmedamoney.data.model.RequestMessage
 import com.example.gimmedamoney.data.model.SystemMessage
-import com.example.gimmedamoney.ui.common.GroupSyncSnackbarHandler
-import com.example.gimmedamoney.viewmodel.GroupViewModel.GroupActionState
+import com.example.gimmedamoney.data.sync.SyncEvent
+import com.example.gimmedamoney.data.sync.SyncType
+import com.example.gimmedamoney.data.sync.SyncViewModel
+import com.example.gimmedamoney.ui.theme.Red
 
 @Composable
 fun GroupChatScreen(
@@ -38,9 +40,8 @@ fun GroupChatScreen(
     groupID: String,
     groupVM: GroupViewModel,
     userVM: UserViewModel,
-    snackBarHostState: SnackbarHostState
+    syncVM: SyncViewModel,
 ) {
-    GroupSyncSnackbarHandler(groupVM, snackBarHostState)
     var input by remember { mutableStateOf("") }
 
     // load current user and all users (with name instead of id)
@@ -49,21 +50,33 @@ fun GroupChatScreen(
     val userNameById = remember(users) {
         users.associate { it.id to it.name }
     }
-    val syncState by groupVM.groupActionState.collectAsState()
+    val syncState by syncVM.syncEvent.collectAsState()
 
     // listens to expenses in the group from Firestore
     LaunchedEffect(groupID) {
         groupVM.listenToExpenses(groupID)
     }
 
-    val subtitleText = when (syncState) {
-        is GroupActionState.PendingSync -> "Saving group to cloud…"
-        is GroupActionState.Synced -> "Synced"
+    var chatSyncText by remember { mutableStateOf("") }
+    var subtitleText by remember { mutableStateOf("") }
+    when (val event = syncState) {
+        is SyncEvent.Pending -> if ((event.type == SyncType.GROUP && event.id == groupID) || event.type == SyncType.EXPENSE) {
+            subtitleText = "Syncing..."
+            chatSyncText = "Chat not synced. Attempting to resync..."
+        }
+        else {
+            val group = groupVM.getGroupById(groupID)
+            subtitleText = "Members: ${group.memberIDs.size}"
+            chatSyncText = ""
+        }
+
         else -> {
             val group = groupVM.getGroupById(groupID)
-            "Members: ${group.memberIDs.size}"
+            subtitleText = "Members: ${group.memberIDs.size}"
+            chatSyncText = ""
         }
     }
+
     val expensesByGroup by groupVM.expensesByGroup.collectAsState()
     val expenses = expensesByGroup[groupID].orEmpty()
 
@@ -127,6 +140,13 @@ fun GroupChatScreen(
                 .padding(padding)
                 .padding(8.dp),
         ) {
+            if (chatSyncText.isNotBlank()){
+                Text(
+                    text = chatSyncText,
+                    color = Red,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)

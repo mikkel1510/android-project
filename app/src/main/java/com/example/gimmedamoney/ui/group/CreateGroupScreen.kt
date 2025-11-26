@@ -37,12 +37,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
-import com.example.gimmedamoney.ui.common.GroupSyncSnackbarHandler
+import com.example.gimmedamoney.data.sync.SyncEvent
+import com.example.gimmedamoney.data.sync.SyncType
+import com.example.gimmedamoney.data.sync.SyncViewModel
 import com.example.gimmedamoney.ui.theme.GimmeDaMoneyTheme
 import com.example.gimmedamoney.ui.theme.PrimaryButton
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
-import com.example.gimmedamoney.viewmodel.GroupViewModel.GroupActionState
 import com.example.gimmedamoney.viewmodel.UserViewModel
 
 
@@ -53,10 +54,10 @@ fun CreateGroupScreen(
     onGroupCreatePress: (String) -> Unit,
     vm: GroupViewModel,
     userVM: UserViewModel,
-    snackbarHostState: SnackbarHostState
+    syncVM: SyncViewModel
 ) {
-    GroupSyncSnackbarHandler(vm, snackbarHostState)
     val userID by userVM.currentUser.collectAsState()
+    val syncEvent by syncVM.syncEvent.collectAsState()
 
     var groupName by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -65,8 +66,6 @@ fun CreateGroupScreen(
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
-
-    val groupActionState by vm.groupActionState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -114,7 +113,8 @@ fun CreateGroupScreen(
                 onClick = { pickImageLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
             )
-            val isCreating = groupActionState is GroupActionState.Creating
+            val isCreating = syncEvent is SyncEvent.Pending &&
+                    (syncEvent as SyncEvent.Pending).type == SyncType.GROUP
             PrimaryButton(
                 text = if (isCreating) "Creating..." else "Create Group",
                 onClick = {
@@ -122,7 +122,8 @@ fun CreateGroupScreen(
                         vm.createGroup(
                             groupName,
                             selectedImageUri.toString(),
-                            id
+                            id,
+                            syncVM
                         )
                     }
                 },
@@ -132,14 +133,18 @@ fun CreateGroupScreen(
 
 
     }
-    LaunchedEffect(groupActionState) {
-        when (groupActionState) {
-            is GroupActionState.PendingSync -> {
-                onGroupCreatePress((groupActionState as GroupActionState.PendingSync).groupID)
+
+    LaunchedEffect(syncEvent) {
+        when (val event = syncEvent) {
+            is SyncEvent.Pending -> {
+                if (event.type == SyncType.GROUP) {
+                    onGroupCreatePress(event.id)
+                }
             }
             else -> Unit
         }
     }
+
 
 }
 
@@ -149,13 +154,13 @@ fun CreateGroupScreenPreview(){
     GimmeDaMoneyTheme {
         val userVM: UserViewModel = viewModel()
         val groupVM: GroupViewModel = viewModel()
-        val snackbarHost = remember { SnackbarHostState() }
+        val synvVM: SyncViewModel = viewModel()
         CreateGroupScreen(
             onBackPress = {},
             onGroupCreatePress = {},
             userVM = userVM,
             vm = groupVM,
-            snackbarHostState = snackbarHost
+            syncVM = synvVM
         )
     }
 }
