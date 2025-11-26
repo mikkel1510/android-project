@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -32,12 +33,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.gimmedamoney.ui.theme.Green
 import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.data.model.Group
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +122,7 @@ fun HomeScreen(
                         val youOwe = balancePair.first
                         val youAreOwed = balancePair.second
                         GroupCard(
-                            groupName = g.name,
+                            group = g,
                             total = total,
                             youOwe = youOwe,
                             youAreOwed = youAreOwed,
@@ -142,7 +145,7 @@ fun HomeScreen(
 
 @Composable
 private fun GroupCard(
-    groupName: String,
+    group: Group,
     total: Double,
     youOwe: Double,
     youAreOwed: Double,
@@ -158,17 +161,27 @@ private fun GroupCard(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            Image(
-                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            if (!group.imageUri.isNullOrBlank()){
+                AsyncImage(
+                    model = group.imageUri,
+                    contentDescription = "Group image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    error = painterResource(id = android.R.drawable.ic_menu_gallery)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         Column(Modifier.padding(12.dp)) {
             Text(
-                text = groupName,
+                text = group.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground

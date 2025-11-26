@@ -67,28 +67,4 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun logOut(){
         _currentUser.value = null
     }
-
-
-    private fun mapIdToProfilePicture(id: String): Int {
-        val context = getApplication<Application>().applicationContext
-        val drawableName = when (id) {
-            "1" -> "luke_skywalker"
-            "2" -> "leia_organa"
-            "3" -> "han_solo"
-            "4" -> "chewbacca"
-            "5" -> "obi_wan_kenobi"
-            else -> null
-        }
-
-        if (drawableName != null) {
-            // Safely check for the drawable's existence at runtime
-            val resourceId = context.resources.getIdentifier(drawableName, "drawable", context.packageName)
-            if (resourceId != 0) {
-                return resourceId
-            }
-        }
-
-        // If no specific drawable is found, return the default icon
-        return R.drawable.user_icon
-    }
 }
