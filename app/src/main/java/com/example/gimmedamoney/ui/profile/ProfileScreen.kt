@@ -18,6 +18,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.navigationBarsPadding
 import com.example.gimmedamoney.ui.theme.TopNavBar
+import coil.compose.AsyncImage
+import androidx.compose.ui.res.painterResource
+import com.example.gimmedamoney.R
+import com.example.gimmedamoney.viewmodel.UserViewModel
 
 class ProfileViewModel : ViewModel() {
     var name by mutableStateOf("")
@@ -38,12 +42,25 @@ fun ProfileScreen(
     onChangePassword: (current: String, new: String) -> Unit = { _,_ -> },
     onAddPayment: (PaymentMethod) -> Unit = {},
     onLogOut: () -> Unit,
-    vm: ProfileViewModel = viewModel()
+    vm: ProfileViewModel = viewModel(),
+    userVM: UserViewModel = viewModel()
 ) {
     var showAddPayment by remember { mutableStateOf(false) }
     var currentPass by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
     var confirmPass by remember { mutableStateOf("") }
+    val uid = userVM.currentUser.collectAsState().value
+    val users by userVM.users.collectAsState()
+    val me = users.firstOrNull { it.id == uid }
+    var initialized by remember { mutableStateOf(false) }
+    LaunchedEffect(me?.id) {
+        if (me != null && !initialized) {
+            vm.name  = me.name
+            vm.email = me.email
+            vm.phone = me.phone
+            initialized = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -82,15 +99,30 @@ fun ProfileScreen(
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Outlined.AccountCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    val url = me?.profilePictureURL.orEmpty()
+                    if (url.isNotBlank()) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = "User icon",
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape),
+                            error = painterResource(id = R.drawable.user_icon)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.AccountCircle,
+                            contentDescription = "User icon",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape)
+                        )
+                    }
                 }
+
                 Column(Modifier.weight(1f)) {
                     Text("Profile picture", style = MaterialTheme.typography.titleMedium)
-                    Text("Tap to change", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 TextButton(onClick = onChangeProfilePic) { Text("Change") }
             }

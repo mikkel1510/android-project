@@ -146,7 +146,8 @@ class MainActivity : ComponentActivity() {
                                         nav.navigate("login_flow") {
                                             popUpTo("app_flow") { inclusive = true }
                                         }
-                                    }
+                                    },
+                                    userVM = userVM
                                 )
                             }
 
