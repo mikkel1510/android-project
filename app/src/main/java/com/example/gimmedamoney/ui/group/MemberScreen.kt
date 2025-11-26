@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.GroupRemove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -99,11 +100,7 @@ fun MemberBar(member: User, onRemove: (User) -> Unit, isCreator: Boolean = false
             onClick = { onRemove(member) }, colors = ButtonDefaults.buttonColors(containerColor = Red),
             modifier = Modifier
                 .width(70.dp)){
-            Icon(
-                painter = painterResource(id = R.drawable.leaveicon),
-                contentDescription = "remove member",
-                tint = Color.Unspecified
-            )
+            Icon(imageVector = Icons.Default.GroupRemove, contentDescription = "remove member")
         }
     }
 }

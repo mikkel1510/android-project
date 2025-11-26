@@ -1,9 +1,9 @@
 package com.example.gimmedamoney.ui.home
 
-import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -37,6 +37,7 @@ import com.example.gimmedamoney.ui.theme.Red
 import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.viewmodel.UserViewModel
+import com.example.gimmedamoney.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,7 +159,7 @@ private fun GroupCard(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_menu_gallery),
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -198,38 +199,49 @@ private fun GroupCard(
             Spacer(Modifier.height(6.dp))
 
             BalancePill(
-                label = "You owe",
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.wallet_minus_svgrepo_com),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(40.dp)
+                    )
+                },
                 value = youOwe,
                 color = Red
             )
             Spacer(Modifier.height(4.dp))
             BalancePill(
-                label = "You are owed",
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.wallet_plus_svgrepo_com),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(40.dp)
+                    )
+                },
                 value = youAreOwed,
-                color = Green
+                color = Green,
             )
         }
     }
 }
 
 @Composable
-private fun BalancePill(label: String, value: Double, color: Color) {
+private fun BalancePill(icon: (@Composable () -> Unit), value: Double, color: Color) {
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(color.copy(alpha = 0.08f))
             .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(
-            Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
+        icon.invoke()
         Spacer(Modifier.width(8.dp))
         Text(
-            "$label  ${dkk(value)}",
+            dkk(value),
             color = color,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium
