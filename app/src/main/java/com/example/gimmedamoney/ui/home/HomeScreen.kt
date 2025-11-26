@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -64,82 +65,100 @@ fun HomeScreen(
             groupVM.listenToExpenses(g.id)
         }
     }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
 
-    Scaffold(
-        topBar = {
-            TopNavBar(
-                title = "ChequeMate",
-                centerAligned = true,
-                actions = {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+        // baggrunds logo
+        Image(
+            painter = painterResource(id = R.drawable.backgroundlogo),
+            contentDescription = "Background Logo",
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.1f), // ret denne hvis i vil have den mere tydelig
+            contentScale = ContentScale.Fit
+        )
+
+
+
+        Scaffold(
+            topBar = {
+                TopNavBar(
+                    title = "ChequeMate",
+                    centerAligned = true,
+                    actions = {
+                        IconButton(onClick = { /* TODO */ }) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                BottomNavBar(
+                    onSettings = onOpenSettings,
+                    onProfile = onOpenProfile,
+                    onGroups = {},
+                    onFavourites = { /* TODO */ }
+                )
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+
+                if (groups.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        EmptyState(onCreate = onCreateGroup, modifier = Modifier.fillMaxWidth())
+
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 96.dp),
+                        contentPadding = PaddingValues(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(groups, key = { it.id }) { g ->
+                            Text(g.name)
+                            val total = groupVM.getTotalForGroup(g.id)
+                            val balancePair = groupVM.getYouOweAndYouAreOwed(g.id, userID ?: "")
+                            val youOwe = balancePair.first
+                            val youAreOwed = balancePair.second
+                            GroupCard(
+                                groupName = g.name,
+                                total = total,
+                                youOwe = youOwe,
+                                youAreOwed = youAreOwed,
+                                onClick = { onGroupPress(g.id) }
+                            )
+                        }
                     }
                 }
-            )
-        },
-        bottomBar = {
-            BottomNavBar(
-                onSettings   = onOpenSettings,
-                onProfile    = onOpenProfile,
-                onGroups     = {},
-                onFavourites = { /* TODO */ }
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        Box(Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
 
-            if (groups.isEmpty()) {
-                Column(
+                BigCenterFab(
+                    size = 88.dp,
+                    onClick = onCreateGroup,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    EmptyState(onCreate = onCreateGroup, modifier = Modifier.fillMaxWidth())
-
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 96.dp),
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(groups, key = { it.id }) { g ->
-                        Text(g.name)
-                        val total = groupVM.getTotalForGroup(g.id)
-                        val balancePair = groupVM.getYouOweAndYouAreOwed(g.id,userID ?: "")
-                        val youOwe = balancePair.first
-                        val youAreOwed = balancePair.second
-                        GroupCard(
-                            groupName = g.name,
-                            total = total,
-                            youOwe = youOwe,
-                            youAreOwed = youAreOwed,
-                            onClick = { onGroupPress(g.id) }
-                        )
-                    }
-                }
+                        .align(Alignment.BottomCenter)
+                        .offset(y = (-20).dp)
+                )
             }
-
-            BigCenterFab(
-                size = 88.dp,
-                onClick = onCreateGroup,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = (-20).dp)
-            )
         }
     }
 }
-
 @Composable
 private fun GroupCard(
     groupName: String,
