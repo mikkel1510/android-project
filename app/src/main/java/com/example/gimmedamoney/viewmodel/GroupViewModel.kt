@@ -1,6 +1,7 @@
 package com.example.gimmedamoney.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gimmedamoney.data.model.Expense
@@ -30,6 +31,12 @@ class GroupViewModel() : ViewModel() {
 
     private val _expensesByGroup = MutableStateFlow<Map<String, List<Expense>>>(emptyMap())
     val expensesByGroup: StateFlow<Map<String, List<Expense>>> = _expensesByGroup
+
+    private val notifiedExpenses = mutableSetOf<String>()
+    private val expenseListenersStarted = mutableSetOf<String>()
+    private val initialExpensesLoadedForGroup = mutableSetOf<String>()
+
+    private var initialGroupsLoaded = false
 
     /**
      *
@@ -77,29 +84,65 @@ class GroupViewModel() : ViewModel() {
         )
     }
 
-    fun getUserGroups(userID: String){
+    fun getUserGroups(
+        userID: String,
+        onAddedToGroup: (Group) -> Unit = {}
+    ){
         groupRepo.listenToUserGroups(
             userID = userID,
             onGroupsUpdated = { newGroups ->
+                if (initialGroupsLoaded) {
+                    val oldIds = _groups.value.map { it.id }.toSet()
+                    newGroups
+                        .filter { it.id !in oldIds }
+                        .forEach { onAddedToGroup(it) }
+                }
+                initialGroupsLoaded = true
                 _groups.value = newGroups
             }
         )
     }
 
+
+
     fun getGroupById(id: String): Group {
         return _groups.value.firstOrNull { it.id == id } ?: Group()
     }
 
-    fun listenToExpenses(groupID: String){
+    fun listenToExpenses(
+        groupID: String,
+        currentUserId: String? = null,
+        notify: ((title: String, text: String) -> Unit)? = null
+    ){
+        if (!expenseListenersStarted.add(groupID)) return
+
         groupRepo.listenToExpenses(
             groupID = groupID,
             onExpensesUpdated = { expenses ->
+
                 val current = _expensesByGroup.value.toMutableMap()
                 current[groupID] = expenses
                 _expensesByGroup.value = current
+
+                if (currentUserId == null || notify == null) return@listenToExpenses
+
+                if (!initialExpensesLoadedForGroup.contains(groupID)) {
+                    expenses.forEach { notifiedExpenses.add(it.id) }
+                    initialExpensesLoadedForGroup.add(groupID)
+                    return@listenToExpenses
+                }
+
+                expenses.forEach { e ->
+                    if (!notifiedExpenses.add(e.id)) return@forEach
+                    if (e.paidBy == currentUserId) return@forEach
+
+                    val groupName = _groups.value.firstOrNull { it.id == groupID }?.name ?: "a group"
+                    notify("New expense in $groupName", e.description)
+                }
             }
         )
     }
+
 
     fun listenToGroup(groupID: String){
         groupRepo.listenToGroup(

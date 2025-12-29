@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -40,6 +41,8 @@ import com.example.gimmedamoney.ui.theme.TopNavBar
 import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.R
+import com.example.gimmedamoney.core.EnsureNotificationPermission
+import com.example.gimmedamoney.core.LocalNotifier
 import com.example.gimmedamoney.data.model.Group
 
 
@@ -53,20 +56,35 @@ fun HomeScreen(
     groupVM: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
 ) {
+    EnsureNotificationPermission()
 
     val userID by userVM.currentUser.collectAsState()
     val groups by groupVM.groups.collectAsState()
 
+    val appCtx = LocalContext.current.applicationContext
+
     LaunchedEffect(userID) {
         userID?.let { id ->
-            groupVM.getUserGroups(id)
+            groupVM.getUserGroups(
+                userID = id,
+                onAddedToGroup = { group ->
+                    LocalNotifier.notify(appCtx, "Added to group", "You were added to ${group.name}")
+                }
+            )
         }
     }
-    LaunchedEffect(groups) {
+
+    LaunchedEffect(groups, userID) {
+        val id = userID ?: return@LaunchedEffect
         groups.forEach { g ->
-            groupVM.listenToExpenses(g.id)
+            groupVM.listenToExpenses(
+                groupID = g.id,
+                currentUserId = id,
+                notify = { title, text -> LocalNotifier.notify(appCtx, title, text) }
+            )
         }
     }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
