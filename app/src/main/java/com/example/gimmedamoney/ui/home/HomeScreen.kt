@@ -41,6 +41,7 @@ import com.example.gimmedamoney.viewmodel.GroupViewModel
 import com.example.gimmedamoney.viewmodel.UserViewModel
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.data.model.Group
+import com.example.gimmedamoney.notifications.EnsureNotificationPermission
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +54,7 @@ fun HomeScreen(
     groupVM: GroupViewModel = viewModel(),
     userVM: UserViewModel = viewModel(),
 ) {
+    EnsureNotificationPermission()
 
     val userID by userVM.currentUser.collectAsState()
     val groups by groupVM.groups.collectAsState()

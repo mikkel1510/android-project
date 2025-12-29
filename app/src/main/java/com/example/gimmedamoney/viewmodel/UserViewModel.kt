@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.gimmedamoney.R
 import com.example.gimmedamoney.data.model.User
+import com.example.gimmedamoney.data.repository.NotificationTokenRepository
 import com.example.gimmedamoney.data.repository.UserRepository
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -12,6 +14,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val userRepo: UserRepository = UserRepository()
+    private val notificationTokenRepo: NotificationTokenRepository = NotificationTokenRepository()
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
 
@@ -59,8 +62,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun logIn(email: String, password: String): Boolean{
         val user = _users.value.firstOrNull { it.email == email && it.password == password }
-        user?.let {
-            _currentUser.value = user.id
+        user?.let { u ->
+            _currentUser.value = u.id
+            FirebaseMessaging.getInstance().token
+                .addOnSuccessListener { token ->
+                    notificationTokenRepo.saveUserToken(u.id, token)
+                }
         }
         return user != null
     }
