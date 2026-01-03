@@ -47,6 +47,7 @@ fun RequestScreen(
     syncVM: SyncViewModel
 ) {
     val userID by userVM.currentUser.collectAsState()
+    val group = groupVM.getGroupById(groupID)
     var amount by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var selectedMembers by rememberSaveable { mutableStateOf(setOf<String>()) }
@@ -55,7 +56,7 @@ fun RequestScreen(
         topBar = {
             TopNavBar(
                 title = "Create Request",
-                subtitle = "Group: $groupID",
+                subtitle = "Group: ${group.name}",
                 navigationIcon = {
                     IconButton(onClick = onBackPress) {
                         Icon(
