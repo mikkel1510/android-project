@@ -60,6 +60,7 @@ fun HomeScreen(
 
     val userID by userVM.currentUser.collectAsState()
     val groups by groupVM.groups.collectAsState()
+    val expensesByGroup by groupVM.expensesByGroup.collectAsState()
 
     val appCtx = LocalContext.current.applicationContext
 
@@ -84,7 +85,6 @@ fun HomeScreen(
             )
         }
     }
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -152,11 +152,17 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(groups, key = { it.id }) { g ->
-                            Text(g.name)
-                            val total = groupVM.getTotalForGroup(g.id)
-                            val balancePair = groupVM.getYouOweAndYouAreOwed(g.id, userID ?: "")
+                            // Only calculate balances if expenses are loaded for this group
+                            val hasExpenses = expensesByGroup.containsKey(g.id)
+                            val total = if (hasExpenses) groupVM.getTotalForGroup(g.id) else 0.0
+                            val balancePair = if (hasExpenses && userID != null) {
+                                groupVM.getYouOweAndYouAreOwed(g.id, userID!!)
+                            } else {
+                                0.0 to 0.0
+                            }
                             val youOwe = balancePair.first
                             val youAreOwed = balancePair.second
+
                             GroupCard(
                                 group = g,
                                 total = total,
@@ -179,102 +185,102 @@ fun HomeScreen(
         }
     }
 }
-    @Composable
-    private fun GroupCard(
-        group: Group,
-        total: Double,
-        youOwe: Double,
-        youAreOwed: Double,
-        onClick: () -> Unit
+@Composable
+private fun GroupCard(
+    group: Group,
+    total: Double,
+    youOwe: Double,
+    youAreOwed: Double,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large
     ) {
-        ElevatedCard(
-            onClick = onClick,
-            shape = MaterialTheme.shapes.large
+        Box(
+            Modifier
+                .height(120.dp)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            Box(
-                Modifier
-                    .height(120.dp)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                if (!group.imageUri.isNullOrBlank()) {
-                    AsyncImage(
-                        model = group.imageUri,
-                        contentDescription = "Group image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        error = painterResource(id = android.R.drawable.ic_menu_gallery)
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-
-            Column(Modifier.padding(12.dp)) {
-                Text(
-                    text = group.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground
+            if (!group.imageUri.isNullOrBlank()) {
+                AsyncImage(
+                    model = group.imageUri,
+                    contentDescription = "Group image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    error = painterResource(id = android.R.drawable.ic_menu_gallery)
                 )
-
-                Spacer(Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ReceiptLong,
-                        null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text("Total", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.weight(1f))
-
-                    Text(
-                        dkk(total),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-
-                }
-
-                Spacer(Modifier.height(6.dp))
-
-                BalancePill(
-                    icon = {
-                        Image(
-                            painter = painterResource(id = R.drawable.wallet_minus_svgrepo_com),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    },
-                    value = youOwe,
-                    color = Red
-                )
-                Spacer(Modifier.height(4.dp))
-                BalancePill(
-                    icon = {
-                        Image(
-                            painter = painterResource(id = R.drawable.wallet_plus_svgrepo_com),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    },
-                    value = youAreOwed,
-                    color = Green,
+            } else {
+                Image(
+                    painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
+
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                text = group.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.ReceiptLong,
+                    null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text("Total", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    dkk(total),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            BalancePill(
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.wallet_minus_svgrepo_com),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(40.dp)
+                    )
+                },
+                value = youOwe,
+                color = Red
+            )
+            Spacer(Modifier.height(4.dp))
+            BalancePill(
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.wallet_plus_svgrepo_com),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(40.dp)
+                    )
+                },
+                value = youAreOwed,
+                color = Green,
+            )
+        }
     }
+}
 
 @Composable
 private fun BalancePill(icon: (@Composable () -> Unit), value: Double, color: Color) {
